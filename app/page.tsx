@@ -41,7 +41,7 @@ const content = {
     nav_about: "About",
     nav_blog: "Blog",
     badge: "Coming Soon",
-    headline: "Agile international trade",
+    headline: "Simple international trade",
     tagline: "Import and export with the data you need to negotiate better.",
     sub: "Built for entrepreneurs and SMEs who don't have a trade consultant — but need real information to make decisions: tariffs, CIF costs, and savings simulations in seconds.",
     cta: "Get early access",
