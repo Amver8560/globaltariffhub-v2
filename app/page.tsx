@@ -73,8 +73,8 @@ const content = {
   },
 };
 
-export default function ComingSoon() {
-  const [lang, setLang] = useState<"es" | "en">("es");
+export default function ComingSoon({ defaultLang = "es" }: { defaultLang?: "es" | "en" }) {
+  const [lang, setLang] = useState<"es" | "en">(defaultLang as "es" | "en");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [mounted, setMounted] = useState(false);
