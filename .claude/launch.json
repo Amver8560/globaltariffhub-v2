@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "globaltariffhub",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "out", "-p", "3000"],
+      "cwd": "/Users/analiaalmadavera/Desktop/globaltariffhub",
+      "port": 3000
+    }
+  ]
+}
