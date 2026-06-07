@@ -83,9 +83,17 @@ export default function ComingSoon({ defaultLang = "es" }: { defaultLang?: "es" 
 
   const t = content[lang];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) setSubmitted(true);
+    if (!email) return;
+    try {
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, lang }),
+      });
+    } catch {}
+    setSubmitted(true);
   };
 
   if (!mounted) return null;
