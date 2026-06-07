@@ -115,6 +115,7 @@ export default function ComingSoon({ defaultLang = "es" }: { defaultLang?: "es" 
         <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
           <a href="#features" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 14 }}>{t.nav_about}</a>
           <a href="#blog" style={{ color: "rgba(255,255,255,0.7)", textDecoration: "none", fontSize: 14 }}>{t.nav_blog}</a>
+          <a href="/modulo01" style={{ color: "#C9A84C", textDecoration: "none", fontSize: 13, fontWeight: 700, background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", padding: "5px 14px", borderRadius: 20 }}>Beta →</a>
 
           <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
             {(["es", "en"] as const).map((l) => (
