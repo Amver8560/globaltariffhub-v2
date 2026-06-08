@@ -78,7 +78,11 @@ export async function POST(req: NextRequest) {
     });
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
-    const parsed = JSON.parse(text);
+
+    // Extraer JSON aunque haya texto extra alrededor
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("No JSON in response");
+    const parsed = JSON.parse(jsonMatch[0]);
 
     return NextResponse.json(parsed);
   } catch (error) {
