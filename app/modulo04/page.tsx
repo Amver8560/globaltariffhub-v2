@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCIFPDF } from "@/lib/exportPDF";
@@ -106,7 +106,7 @@ const t = {
 
 type Lang = "es" | "en";
 
-export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
+function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [tariffCode, setTariffCode] = useState("");
@@ -473,4 +473,8 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
       </footer>
     </div>
   );
+}
+
+export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
+  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><Modulo04Inner defaultLang={defaultLang} /></Suspense>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCertificatePDF } from "@/lib/exportPDF";
@@ -98,7 +98,7 @@ const t = {
 
 type Lang = "es" | "en";
 
-export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang }) {
+function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [origin, setOrigin] = useState("");
@@ -412,4 +412,8 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
       </footer>
     </div>
   );
+}
+
+export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang }) {
+  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><Modulo03Inner defaultLang={defaultLang} /></Suspense>;
 }
