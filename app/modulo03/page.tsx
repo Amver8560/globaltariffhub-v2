@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { exportCertificatePDF } from "@/lib/exportPDF";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -297,6 +298,16 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
         {/* Resultados */}
         {result && (
           <div>
+            {/* Botón exportar PDF */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+              <button
+                onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
+              </button>
+            </div>
+
             {/* Resumen ahorro */}
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{c.result_title}</h2>

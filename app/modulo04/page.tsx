@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { exportCIFPDF } from "@/lib/exportPDF";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -395,6 +396,16 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
           <div>
             {result && result.fob > 0 ? (
               <div style={{ position: "sticky", top: 24 }}>
+
+                {/* Botón exportar PDF */}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <button
+                    onClick={() => exportCIFPDF(result, { tariffCode, tariffSystem, origin, destination, incoterm, currency, fobValue, tariffRate, prefRate, withCert, lang, rateInfo })}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
+                  </button>
+                </div>
 
                 {/* Total principal */}
                 <div style={{ background: "linear-gradient(135deg, #0D1B3E, #0A0A0F)", borderRadius: 16, padding: 24, border: "1px solid rgba(201,168,76,0.3)", marginBottom: 16 }}>
