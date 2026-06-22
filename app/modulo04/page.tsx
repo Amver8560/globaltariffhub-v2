@@ -155,8 +155,12 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (code && dest) fetchTariffRate(code, sys, orig || "", dest);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [rateError, setRateError] = useState("");
+
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
-    if (!code || !dest) return;
+    if (!code) return;
+    if (!dest) { setRateError(lang === "es" ? "Seleccioná el país de destino." : "Select destination country."); return; }
+    setRateError("");
     setRateLoading(true);
     setRateInfo(null);
     try {
@@ -166,15 +170,16 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         body: JSON.stringify({ tariff_code: code, system: sys, origin: orig, destination: dest, lang }),
       });
       const data = await res.json();
-      if (!data.error) {
+      if (data.error) {
+        setRateError(data.error);
+      } else {
         setRateInfo(data);
-        if (data.base_rate) setTariffRate(String(data.base_rate));
+        if (data.base_rate !== undefined) setTariffRate(String(data.base_rate));
         if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
         if (data.has_preferential) setWithCert(true);
       }
-    } catch { /* silent */ } finally {
-      setRateLoading(false);
-    }
+    } catch { setRateError(lang === "es" ? "Error al consultar. Intentá de nuevo." : "Lookup error. Please try again."); }
+    finally { setRateLoading(false); }
   };
 
   useEffect(() => {
@@ -257,38 +262,73 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "5px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
                 ))}
               </div>
+              {/* Fila 1: código + botón */}
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <input
                   type="text"
                   value={tariffCode}
                   onChange={(e) => setTariffCode(e.target.value)}
-                  placeholder={tariffSystem === "NCM" ? "ej: 6203.42.00" : tariffSystem === "TARIC" ? "ej: 6203420010" : "ej: 6203.42"}
+                  onKeyDown={(e) => e.key === "Enter" && fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                  placeholder={tariffSystem === "NCM" ? "ej: 63014000" : tariffSystem === "TARIC" ? "ej: 6301400010" : "ej: 630140"}
                   style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
                 />
-                <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={{ ...inputStyle, width: 130 }}>
-                  {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
-                </select>
-                <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, width: 130 }}>
-                  {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
-                </select>
                 <button
                   onClick={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
                   disabled={rateLoading || !tariffCode}
-                  style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.85)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+                  style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.85)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
                 >
-                  {rateLoading ? "⏳" : lang === "es" ? "Buscar" : "Search"}
+                  {rateLoading ? "⏳ Buscando..." : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
                 </button>
               </div>
-              {rateLoading && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{lang === "es" ? "Consultando arancel…" : "Looking up tariff…"}</p>}
+
+              {/* Fila 2: origen → destino */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 4 }}>{lang === "es" ? "País de origen" : "Origin country"}</label>
+                  <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={{ ...inputStyle }}>
+                    <option value="">{lang === "es" ? "— Origen —" : "— Origin —"}</option>
+                    {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 4 }}>{lang === "es" ? "País de destino *" : "Destination country *"}</label>
+                  <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, borderColor: !destination ? "rgba(239,68,68,0.4)" : "rgba(0,87,255,0.3)" }}>
+                    <option value="">{lang === "es" ? "— Destino —" : "— Destination —"}</option>
+                    {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {rateError && <p style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>⚠ {rateError}</p>}
+
+              {rateLoading && (
+                <div style={{ padding: "10px 14px", background: "rgba(0,87,255,0.06)", borderRadius: 8, marginTop: 8 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>⏳ {lang === "es" ? "Consultando arancel con IA…" : "Looking up tariff with AI…"}</p>
+                </div>
+              )}
+
               {rateInfo && (
-                <div style={{ padding: "10px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{rateInfo.description}</p>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{lang === "es" ? "Tasa base:" : "Base rate:"} {rateInfo.base_rate}%</span>
-                    {rateInfo.has_preferential && <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{lang === "es" ? "Preferencial:" : "Preferential:"} {rateInfo.preferential_rate}%</span>}
-                    {rateInfo.agreement && rateInfo.agreement !== "null" && <span style={{ fontSize: 12, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>}
+                <div style={{ marginTop: 10, padding: "14px 16px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 10 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{rateInfo.description}</p>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 6 }}>
+                    <div>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa base → campo auto-completado ↓" : "Base rate → field auto-filled ↓"}</p>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: "#ef4444" }}>{rateInfo.base_rate}%</span>
+                    </div>
+                    {rateInfo.has_preferential && (
+                      <div>
+                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa preferencial → campo auto-completado ↓" : "Preferential rate → auto-filled ↓"}</p>
+                        <span style={{ fontSize: 18, fontWeight: 800, color: "#22c55e" }}>{rateInfo.preferential_rate}%</span>
+                      </div>
+                    )}
+                    {rateInfo.agreement && rateInfo.agreement !== "null" && (
+                      <div>
+                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>Acuerdo</p>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>
+                      </div>
+                    )}
                   </div>
-                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>{rateInfo.notes}</p>}
+                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{rateInfo.notes}</p>}
                 </div>
               )}
             </div>
