@@ -267,3 +267,100 @@ export function exportCIFPDF(result: any, params: {
   footer(doc, lang);
   doc.save(`GTH_CIF_${incoterm}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
 }
+
+// ── MÓDULO 01 — Búsqueda Arancelaria ─────────────────────────────────────────
+export function exportSearchPDF(response: any, params: {
+  origin: string; destination: string; system: string;
+  query: string; lang: string;
+}) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const { origin, destination, system, query, lang } = params;
+  const es = lang === "es";
+  const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
+
+  header(doc, es ? "Informe de Búsqueda Arancelaria" : "Tariff Search Report", date);
+
+  let y = 38;
+
+  // Datos de la consulta
+  y = sectionTitle(doc, es ? "DATOS DE LA CONSULTA" : "SEARCH DETAILS", y);
+  y = row(doc, es ? "País de origen" : "Country of origin", origin || "—", y);
+  y = row(doc, es ? "País de destino" : "Country of destination", destination || "—", y);
+  y = row(doc, es ? "Sistema de nomenclatura" : "Nomenclature system", system, y);
+  if (query) y = row(doc, es ? "Búsqueda realizada" : "Search query", query, y);
+  if (response.route_info?.agreement && response.route_info.agreement !== "Ninguno") {
+    y = row(doc, es ? "Acuerdo comercial" : "Trade agreement", response.route_info.agreement, y, GREEN);
+  }
+  y += 4;
+
+  // Resultados
+  response.results?.forEach((r: any, idx: number) => {
+    if (y > 240) { doc.addPage(); y = 20; }
+
+    y = sectionTitle(doc, `${es ? "RESULTADO" : "RESULT"} ${idx + 1}${r.description ? ` — ${r.description.substring(0, 50)}` : ""}`, y);
+
+    // Códigos
+    if (r.hs_code) y = row(doc, "Código HS", r.hs_code, y, BLUE);
+    if (r.ncm_code) y = row(doc, "Código NCM", r.ncm_code, y, BLUE);
+    if (r.taric_code) y = row(doc, "Código TARIC", r.taric_code, y, BLUE);
+    if (r.chapter) y = row(doc, es ? "Capítulo" : "Chapter", r.chapter, y);
+
+    // Tasas
+    if (r.base_rate !== undefined) y = row(doc, es ? "Tasa base" : "Base rate", `${r.base_rate}%`, y, RED);
+    if (r.preferential_rate !== undefined) y = row(doc, es ? "Tasa preferencial" : "Preferential rate", `${r.preferential_rate}%`, y, GREEN);
+    if (r.trade_agreement) y = row(doc, es ? "Acuerdo" : "Agreement", r.trade_agreement, y, GOLD);
+    if (r.agreement_note) {
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "normal");
+      setColor(doc, GRAY);
+      const lines = doc.splitTextToSize(r.agreement_note, 178);
+      doc.text(lines, 18, y);
+      y += lines.length * 4 + 4;
+    }
+
+    // Documentos exportación
+    if (r.origin_documents?.length) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      setColor(doc, GOLD);
+      doc.text(es ? "Documentos exportación:" : "Export documents:", 18, y); y += 5;
+      r.origin_documents.forEach((d: string) => {
+        doc.setFont("helvetica", "normal");
+        setColor(doc, GRAY);
+        doc.setFontSize(7);
+        doc.text(`• ${d}`, 22, y); y += 4;
+      });
+      y += 2;
+    }
+
+    // Documentos importación
+    if (r.destination_documents?.length) {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      setColor(doc, GOLD);
+      doc.text(es ? "Documentos importación:" : "Import documents:", 18, y); y += 5;
+      r.destination_documents.forEach((d: string) => {
+        doc.setFont("helvetica", "normal");
+        setColor(doc, GRAY);
+        doc.setFontSize(7);
+        doc.text(`• ${d}`, 22, y); y += 4;
+      });
+      y += 2;
+    }
+
+    // Notas
+    if (r.notes) {
+      doc.setFontSize(7);
+      doc.setFont("helvetica", "italic");
+      setColor(doc, GRAY);
+      const noteLines = doc.splitTextToSize(r.notes, 178);
+      doc.text(noteLines, 18, y);
+      y += noteLines.length * 4 + 4;
+    }
+
+    y += 4;
+  });
+
+  footer(doc, lang);
+  doc.save(`GTH_Busqueda_${system}_${Date.now()}.pdf`);
+}

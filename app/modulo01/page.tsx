@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { exportSearchPDF } from "@/lib/exportPDF";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -286,6 +287,16 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         {/* Resultados */}
         {response && response.results?.length > 0 && (
           <div>
+            {/* Botón exportar PDF */}
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+              <button
+                onClick={() => exportSearchPDF(response, { origin, destination, system, query, lang })}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
+              </button>
+            </div>
+
             {/* Info de ruta */}
             {response.route_info?.agreement && response.route_info.agreement !== "Ninguno" && (
               <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
