@@ -110,6 +110,8 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
+  const [rateLoading, setRateLoading] = useState(false);
+  const [rateInfo, setRateInfo] = useState<any>(null);
 
   // Pre-fill from Module 01 params
   useEffect(() => {
@@ -120,6 +122,28 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
     if (orig && COUNTRIES.includes(orig)) setOrigin(orig);
     if (dest && COUNTRIES.includes(dest)) setDestination(dest);
   }, [searchParams]);
+
+  // Auto-fetch tariff rate when hs_code + countries are set
+  const fetchTariffRate = async (code: string, orig: string, dest: string) => {
+    if (!code || !orig || !dest) return;
+    setRateLoading(true);
+    setRateInfo(null);
+    try {
+      const res = await fetch("/api/tariff-rate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hs_code: code, origin: orig, destination: dest, lang }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setRateInfo(data);
+        if (data.agreement && data.agreement !== "null") setAgreement(data.agreement);
+      }
+    } catch { /* silent */ } finally {
+      setRateLoading(false);
+    }
+  };
+
   const c = t[lang];
 
   const handleSimulate = async () => {
@@ -216,17 +240,44 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
-            <div>
-              <label style={labelStyle}>{c.hs_code}</label>
-              <input type="text" value={hsCode} onChange={(e) => setHsCode(e.target.value)} placeholder={c.hs_placeholder} style={{ ...inputStyle, fontFamily: "monospace", letterSpacing: 1 }} />
+          <div style={{ marginBottom: 16 }}>
+            <label style={labelStyle}>{c.hs_code}</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                type="text"
+                value={hsCode}
+                onChange={(e) => setHsCode(e.target.value)}
+                placeholder={c.hs_placeholder}
+                style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
+              />
+              <button
+                onClick={() => fetchTariffRate(hsCode, origin, destination)}
+                disabled={rateLoading || !hsCode}
+                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !hsCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !hsCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+              >
+                {rateLoading ? "⏳" : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
+              </button>
             </div>
-            <div>
-              <label style={labelStyle}>{c.agreement}</label>
-              <select value={agreement} onChange={(e) => setAgreement(e.target.value)} style={selectStyle}>
-                {AGREEMENTS.map((a) => <option key={a} value={a}>{a}</option>)}
-              </select>
-            </div>
+            {rateInfo && (
+              <div style={{ marginTop: 10, padding: "12px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{rateInfo.description}</p>
+                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{lang === "es" ? "Tasa base:" : "Base rate:"} {rateInfo.base_rate}%</span>
+                  {rateInfo.has_preferential && <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{lang === "es" ? "Preferencial:" : "Preferential:"} {rateInfo.preferential_rate}%</span>}
+                  {rateInfo.agreement && rateInfo.agreement !== "null" && <span style={{ fontSize: 12, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>}
+                </div>
+                {rateInfo.agreement_note && rateInfo.agreement_note !== "null" && (
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>{rateInfo.agreement_note}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div style={{ marginBottom: 20 }}>
+            <label style={labelStyle}>{c.agreement}</label>
+            <select value={agreement} onChange={(e) => setAgreement(e.target.value)} style={selectStyle}>
+              {AGREEMENTS.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
           </div>
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}

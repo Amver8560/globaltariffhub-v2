@@ -108,6 +108,11 @@ type Lang = "es" | "en";
 export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
+  const [hsCode, setHsCode] = useState("");
+  const [origin, setOrigin] = useState("Argentina");
+  const [destination, setDestination] = useState("Brasil");
+  const [rateLoading, setRateLoading] = useState(false);
+  const [rateInfo, setRateInfo] = useState<any>(null);
   const [incoterm, setIncoterm] = useState("FOB");
   const [currency, setCurrency] = useState("USD");
   const [fobValue, setFobValue] = useState("");
@@ -130,13 +135,42 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
   // Pre-fill from Module 01 params
   useEffect(() => {
     const hs = searchParams.get("hs_code");
-    // hs_code is informational for the user — show it in the tariff rate field label if available
-    // For now we store it so future versions can auto-lookup the rate
-    if (hs) {
-      // Could auto-fill tariff rate in a future version via API lookup
-      // For now the user sees the code in the URL and fills manually
-    }
+    const orig = searchParams.get("origin");
+    const dest = searchParams.get("destination");
+    if (hs) setHsCode(hs);
+    if (orig) setOrigin(orig);
+    if (dest) setDestination(dest);
   }, [searchParams]);
+
+  // Auto-fetch tariff rate when arriving from Module 01 with full data
+  useEffect(() => {
+    const hs = searchParams.get("hs_code");
+    const orig = searchParams.get("origin");
+    const dest = searchParams.get("destination");
+    if (hs && orig && dest) fetchTariffRate(hs, orig, dest);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const fetchTariffRate = async (code: string, orig: string, dest: string) => {
+    if (!code || !orig || !dest) return;
+    setRateLoading(true);
+    setRateInfo(null);
+    try {
+      const res = await fetch("/api/tariff-rate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hs_code: code, origin: orig, destination: dest, lang }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        setRateInfo(data);
+        if (data.base_rate) setTariffRate(String(data.base_rate));
+        if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
+        if (data.has_preferential) setWithCert(true);
+      }
+    } catch { /* silent */ } finally {
+      setRateLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fob = n(fobValue);
@@ -209,6 +243,45 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
 
           {/* Columna izquierda — formulario */}
           <div>
+            {/* Búsqueda por código HS */}
+            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 20, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+              <p style={sectionStyle}>{lang === "es" ? "🔍 Código arancelario" : "🔍 Tariff Code"}</p>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <input
+                  type="text"
+                  value={hsCode}
+                  onChange={(e) => setHsCode(e.target.value)}
+                  placeholder={lang === "es" ? "ej: 6203.42" : "e.g.: 6203.42"}
+                  style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
+                />
+                <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={{ ...inputStyle, width: 140 }}>
+                  {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, width: 140 }}>
+                  {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(ct => <option key={ct} value={ct}>{ct}</option>)}
+                </select>
+                <button
+                  onClick={() => fetchTariffRate(hsCode, origin, destination)}
+                  disabled={rateLoading || !hsCode}
+                  style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !hsCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.85)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !hsCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+                >
+                  {rateLoading ? "⏳" : lang === "es" ? "Buscar" : "Search"}
+                </button>
+              </div>
+              {rateLoading && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{lang === "es" ? "Consultando arancel…" : "Looking up tariff…"}</p>}
+              {rateInfo && (
+                <div style={{ padding: "10px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{rateInfo.description}</p>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{lang === "es" ? "Tasa base:" : "Base rate:"} {rateInfo.base_rate}%</span>
+                    {rateInfo.has_preferential && <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{lang === "es" ? "Preferencial:" : "Preferential:"} {rateInfo.preferential_rate}%</span>}
+                    {rateInfo.agreement && rateInfo.agreement !== "null" && <span style={{ fontSize: 12, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>}
+                  </div>
+                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 6 }}>{rateInfo.notes}</p>}
+                </div>
+              )}
+            </div>
+
             {/* Selector Incoterm */}
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
               <p style={sectionStyle}>{c.incoterm_title}</p>
@@ -275,12 +348,6 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
               </div>
 
               <p style={{ ...sectionStyle, marginTop: 4 }}>{c.section_destination}</p>
-              {searchParams.get("hs_code") && (
-                <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(0,87,255,0.1)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 7 }}>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{lang === "es" ? "Código desde búsqueda:" : "Code from search:"} </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0057FF" }}>{searchParams.get("hs_code")}</span>
-                </div>
-              )}
               <div style={{ marginBottom: 12 }}>
                 <label style={labelStyle}>{c.tariff_rate}</label>
                 <input type="number" value={tariffRate} onChange={(e) => setTariffRate(e.target.value)} placeholder="14" style={inputStyle} />
