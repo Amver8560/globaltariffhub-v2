@@ -150,6 +150,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
     setError("");
     setResponse(null);
     setExpanded(null);
+    if (!origin || !destination) { setError(lang === "es" ? "Seleccioná el país de origen y destino antes de buscar." : "Please select origin and destination country before searching."); return; }
     if (tab === "image" && !image) { setError(c.error_image); return; }
     if ((tab === "text" || tab === "code") && !query.trim()) { setError(c.error_text); return; }
     setLoading(true);
@@ -277,7 +278,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-          <button onClick={handleSearch} disabled={loading} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading ? "rgba(0,87,255,0.4)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer" }}>
+          <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_searching : c.btn_search}
           </button>
         </div>
