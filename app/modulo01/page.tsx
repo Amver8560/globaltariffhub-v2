@@ -119,8 +119,8 @@ interface SearchResponse {
 export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [tab, setTab] = useState<Tab>("image");
-  const [origin, setOrigin] = useState("Argentina");
-  const [destination, setDestination] = useState("Brasil");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
   const [system, setSystem] = useState("HS");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -377,18 +377,24 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                     )}
 
                     {/* Botones de acción */}
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      <Link
-                        href={`/modulo03?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
-                        style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                        📄 {c.sim_cert}
-                      </Link>
-                      <Link
-                        href={`/modulo04?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
-                        style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                        📦 {c.calc_cif}
-                      </Link>
-                    </div>
+                    {!origin || !destination ? (
+                      <p style={{ fontSize: 12, color: "#C9A84C", fontStyle: "italic" }}>
+                        {lang === "es" ? "⚠️ Seleccioná país de origen y destino para continuar." : "⚠️ Select origin and destination country to continue."}
+                      </p>
+                    ) : (
+                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                        <Link
+                          href={`/modulo03?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
+                          style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                          📄 {c.sim_cert}
+                        </Link>
+                        <Link
+                          href={`/modulo04?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
+                          style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                          📦 {c.calc_cif}
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
