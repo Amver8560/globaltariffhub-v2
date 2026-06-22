@@ -5,51 +5,57 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
-    const { hs_code, origin, destination, lang = "es" } = await req.json();
+    const { tariff_code, system = "HS", origin, destination, lang = "es" } = await req.json();
 
-    if (!hs_code || !destination) {
-      return NextResponse.json({ error: "hs_code and destination are required" }, { status: 400 });
+    if (!tariff_code || !destination) {
+      return NextResponse.json({ error: "tariff_code and destination are required" }, { status: 400 });
     }
+
+    const systemLabel = system === "NCM" ? "NCM (Nomenclatura Común del MERCOSUR)"
+      : system === "TARIC" ? "TARIC (código arancelario de la Unión Europea)"
+      : "HS (Sistema Armonizado)";
 
     const systemPrompt = lang === "es"
       ? `Eres un experto en comercio internacional y aranceles aduaneros.
-Dado un código arancelario HS/NCM/TARIC y países de origen y destino, devuelve las tasas arancelarias aplicables.
+Dado un código arancelario en formato ${systemLabel} y países de origen y destino, devuelve las tasas arancelarias aplicables.
 Responde SOLO con JSON válido, sin texto adicional.`
       : `You are an expert in international trade and customs tariffs.
-Given an HS/NCM/TARIC tariff code and origin/destination countries, return the applicable tariff rates.
+Given a tariff code in ${system} format and origin/destination countries, return the applicable tariff rates.
 Respond ONLY with valid JSON, no additional text.`;
 
     const userPrompt = lang === "es"
-      ? `Para el código arancelario ${hs_code}, exportación desde ${origin} hacia ${destination}:
-¿Cuál es la tasa arancelaria base y la tasa preferencial (si aplica algún acuerdo comercial)?
+      ? `Para el código ${system} ${tariff_code}, exportación desde ${origin || "origen no especificado"} hacia ${destination}:
+¿Cuál es la tasa arancelaria base y la tasa preferencial si aplica algún acuerdo comercial?
 
 Responde con este JSON exacto:
 {
-  "hs_code": "${hs_code}",
+  "tariff_code": "${tariff_code}",
+  "system": "${system}",
   "description": "descripción breve del producto",
   "base_rate": 14.5,
   "preferential_rate": 0,
   "has_preferential": true,
   "agreement": "nombre del acuerdo (ej: MERCOSUR, TLC, SGP) o null",
-  "agreement_note": "nota breve sobre el acuerdo o null",
-  "origin": "${origin}",
+  "agreement_note": "nota breve sobre condiciones del acuerdo o null",
+  "origin": "${origin || ""}",
   "destination": "${destination}",
   "notes": "observación adicional relevante o null",
   "confidence": "high/medium/low"
 }`
-      : `For tariff code ${hs_code}, export from ${origin} to ${destination}:
-What is the base tariff rate and preferential rate (if any trade agreement applies)?
+      : `For ${system} code ${tariff_code}, export from ${origin || "unspecified origin"} to ${destination}:
+What is the base tariff rate and preferential rate if any trade agreement applies?
 
 Respond with this exact JSON:
 {
-  "hs_code": "${hs_code}",
+  "tariff_code": "${tariff_code}",
+  "system": "${system}",
   "description": "brief product description",
   "base_rate": 14.5,
   "preferential_rate": 0,
   "has_preferential": true,
   "agreement": "agreement name (e.g.: MERCOSUR, FTA, GSP) or null",
-  "agreement_note": "brief note about the agreement or null",
-  "origin": "${origin}",
+  "agreement_note": "brief note about agreement conditions or null",
+  "origin": "${origin || ""}",
   "destination": "${destination}",
   "notes": "additional relevant observation or null",
   "confidence": "high/medium/low"

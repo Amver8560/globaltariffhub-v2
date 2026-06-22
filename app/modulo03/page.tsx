@@ -102,7 +102,8 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [origin, setOrigin] = useState("Argentina");
   const [destination, setDestination] = useState("Brasil");
-  const [hsCode, setHsCode] = useState("");
+  const [tariffCode, setTariffCode] = useState("");
+  const [tariffSystem, setTariffSystem] = useState("HS");
   const [fobValue, setFobValue] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("kg");
@@ -115,24 +116,25 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
 
   // Pre-fill from Module 01 params
   useEffect(() => {
-    const hs = searchParams.get("hs_code");
+    const code = searchParams.get("tariff_code");
+    const sys = searchParams.get("system");
     const orig = searchParams.get("origin");
     const dest = searchParams.get("destination");
-    if (hs) setHsCode(hs);
+    if (code) setTariffCode(code);
+    if (sys) setTariffSystem(sys);
     if (orig && COUNTRIES.includes(orig)) setOrigin(orig);
     if (dest && COUNTRIES.includes(dest)) setDestination(dest);
   }, [searchParams]);
 
-  // Auto-fetch tariff rate when hs_code + countries are set
-  const fetchTariffRate = async (code: string, orig: string, dest: string) => {
-    if (!code || !orig || !dest) return;
+  const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
+    if (!code || !dest) return;
     setRateLoading(true);
     setRateInfo(null);
     try {
       const res = await fetch("/api/tariff-rate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hs_code: code, origin: orig, destination: dest, lang }),
+        body: JSON.stringify({ tariff_code: code, system: sys, origin: orig, destination: dest, lang }),
       });
       const data = await res.json();
       if (!data.error) {
@@ -155,7 +157,7 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
       const res = await fetch("/api/certificate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin, destination, hs_code: hsCode, fob_value: parseFloat(fobValue), quantity: quantity || "1", unit, agreement, lang }),
+        body: JSON.stringify({ origin, destination, hs_code: tariffCode, fob_value: parseFloat(fobValue), quantity: quantity || "1", unit, agreement, lang }),
       });
       const data = await res.json();
       if (data.error) { setError(data.error); return; }
@@ -241,19 +243,24 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
           </div>
 
           <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>{c.hs_code}</label>
+            <label style={labelStyle}>{lang === "es" ? "Código arancelario (HS / NCM / TARIC)" : "Tariff code (HS / NCM / TARIC)"}</label>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              {["HS", "NCM", "TARIC"].map((s) => (
+                <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
+              ))}
+            </div>
             <div style={{ display: "flex", gap: 8 }}>
               <input
                 type="text"
-                value={hsCode}
-                onChange={(e) => setHsCode(e.target.value)}
-                placeholder={c.hs_placeholder}
+                value={tariffCode}
+                onChange={(e) => setTariffCode(e.target.value)}
+                placeholder={tariffSystem === "NCM" ? "ej: 6203.42.00" : tariffSystem === "TARIC" ? "ej: 6203420010" : "ej: 6203.42"}
                 style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
               />
               <button
-                onClick={() => fetchTariffRate(hsCode, origin, destination)}
-                disabled={rateLoading || !hsCode}
-                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !hsCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !hsCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+                onClick={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                disabled={rateLoading || !tariffCode}
+                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
               >
                 {rateLoading ? "⏳" : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
               </button>
