@@ -122,8 +122,8 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
     const dest = searchParams.get("destination");
     if (code) setTariffCode(code);
     if (sys) setTariffSystem(sys);
-    if (orig && COUNTRIES.includes(orig)) setOrigin(orig);
-    if (dest && COUNTRIES.includes(dest)) setDestination(dest);
+    if (orig) setOrigin(orig);
+    if (dest) setDestination(dest);
   }, [searchParams]);
 
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {

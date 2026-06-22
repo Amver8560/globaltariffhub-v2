@@ -119,8 +119,8 @@ interface SearchResponse {
 export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [tab, setTab] = useState<Tab>("image");
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+  const [origin, setOrigin] = useState("Argentina");
+  const [destination, setDestination] = useState("Brasil");
   const [system, setSystem] = useState("HS");
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
