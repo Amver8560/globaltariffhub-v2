@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const COUNTRIES = [
@@ -97,6 +98,7 @@ const t = {
 type Lang = "es" | "en";
 
 export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang }) {
+  const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [origin, setOrigin] = useState("Argentina");
   const [destination, setDestination] = useState("Brasil");
@@ -108,6 +110,16 @@ export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang })
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
+
+  // Pre-fill from Module 01 params
+  useEffect(() => {
+    const hs = searchParams.get("hs_code");
+    const orig = searchParams.get("origin");
+    const dest = searchParams.get("destination");
+    if (hs) setHsCode(hs);
+    if (orig && COUNTRIES.includes(orig)) setOrigin(orig);
+    if (dest && COUNTRIES.includes(dest)) setDestination(dest);
+  }, [searchParams]);
   const c = t[lang];
 
   const handleSimulate = async () => {

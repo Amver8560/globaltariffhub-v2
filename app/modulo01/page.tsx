@@ -378,10 +378,14 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
                     {/* Botones de acción */}
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      <Link href="/modulo03" style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                      <Link
+                        href={`/modulo03?hs_code=${encodeURIComponent(r.hs_code || "")}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&system=${encodeURIComponent(system)}`}
+                        style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                         📄 {c.sim_cert}
                       </Link>
-                      <Link href="/modulo04" style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                      <Link
+                        href={`/modulo04?hs_code=${encodeURIComponent(r.hs_code || "")}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&system=${encodeURIComponent(system)}`}
+                        style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                         📦 {c.calc_cif}
                       </Link>
                     </div>

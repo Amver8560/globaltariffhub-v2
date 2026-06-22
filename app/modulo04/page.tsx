@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const INCOTERMS = [
@@ -105,6 +106,7 @@ const t = {
 type Lang = "es" | "en";
 
 export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
+  const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
   const [incoterm, setIncoterm] = useState("FOB");
   const [currency, setCurrency] = useState("USD");
@@ -124,6 +126,17 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
   const c = t[lang];
 
   const n = (v: string) => parseFloat(v) || 0;
+
+  // Pre-fill from Module 01 params
+  useEffect(() => {
+    const hs = searchParams.get("hs_code");
+    // hs_code is informational for the user — show it in the tariff rate field label if available
+    // For now we store it so future versions can auto-lookup the rate
+    if (hs) {
+      // Could auto-fill tariff rate in a future version via API lookup
+      // For now the user sees the code in the URL and fills manually
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fob = n(fobValue);
@@ -262,6 +275,12 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
               </div>
 
               <p style={{ ...sectionStyle, marginTop: 4 }}>{c.section_destination}</p>
+              {searchParams.get("hs_code") && (
+                <div style={{ marginBottom: 10, padding: "8px 12px", background: "rgba(0,87,255,0.1)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 7 }}>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>{lang === "es" ? "Código desde búsqueda:" : "Code from search:"} </span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0057FF" }}>{searchParams.get("hs_code")}</span>
+                </div>
+              )}
               <div style={{ marginBottom: 12 }}>
                 <label style={labelStyle}>{c.tariff_rate}</label>
                 <input type="number" value={tariffRate} onChange={(e) => setTariffRate(e.target.value)} placeholder="14" style={inputStyle} />
