@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     const image = formData.get("image") as File | null;
     const description = (formData.get("description") as string || "").trim();
     const hs_code = (formData.get("hs_code") as string || "").trim();
+    const tariff_system = (formData.get("tariff_system") as string || "NCM").toUpperCase();
     const supplier_country = formData.get("supplier_country") as string || "China";
     const destination = formData.get("destination") as string || "";
     const fob_unit = parseFloat(formData.get("fob_unit") as string || "0");
@@ -53,34 +54,44 @@ export async function POST(req: NextRequest) {
         });
       }
 
+      const systemLabel = tariff_system === "NCM"
+        ? "NCM (Nomenclatura Común del MERCOSUR, 8 dígitos)"
+        : tariff_system === "TARIC"
+        ? "TARIC (Arancel Integrado Europeo, 10 dígitos)"
+        : "HS (Sistema Armonizado Internacional, 6 dígitos)";
+
       const promptText = es
         ? `Analizá este producto${description ? ` (descripción: "${description}")` : ""} para importación desde ${supplier_country} hacia ${destination}.
+El usuario trabaja con el sistema ${systemLabel}.
 Identificá el producto y devolvé SOLO JSON válido sin texto adicional:
 {
   "product_name": "nombre del producto en español",
   "description": "descripción técnica breve",
   "hs_code": "código HS de 6 dígitos sin puntos, ej: 630140",
   "ncm_code": "código NCM de 8 dígitos para MERCOSUR, ej: 63014000",
-  "taric_code": "código TARIC de 10 dígitos o null",
+  "taric_code": "código TARIC de 10 dígitos o null si no aplica",
+  "primary_code": "el código principal en sistema ${tariff_system} — el más importante para este usuario",
   "tariff_rate": 20,
   "chapter": "descripción del capítulo arancelario",
-  "requires_permits": ["ANMAT", "etc — solo si realmente aplica, sino array vacío []"],
-  "import_restrictions": "descripción de restricciones o null",
-  "confidence": "high"
+  "requires_permits": ["ANMAT", "etc — solo si realmente aplica, sino []"],
+  "import_restrictions": "descripción de restricciones específicas o null",
+  "confidence": "high/medium/low"
 }`
         : `Analyze this product${description ? ` (description: "${description}")` : ""} for import from ${supplier_country} to ${destination}.
+The user works with the ${systemLabel} system.
 Identify the product and return ONLY valid JSON without extra text:
 {
   "product_name": "product name in English",
   "description": "brief technical description",
   "hs_code": "6-digit HS code without dots, e.g.: 630140",
   "ncm_code": "8-digit NCM code for MERCOSUR, e.g.: 63014000",
-  "taric_code": "10-digit TARIC code or null",
+  "taric_code": "10-digit TARIC code or null if not applicable",
+  "primary_code": "the main code in ${tariff_system} system — most important for this user",
   "tariff_rate": 20,
   "chapter": "tariff chapter description",
-  "requires_permits": ["agencies — only if truly applicable, else empty array []"],
-  "import_restrictions": "restriction description or null",
-  "confidence": "high"
+  "requires_permits": ["agencies — only if truly applicable, else []"],
+  "import_restrictions": "specific restriction description or null",
+  "confidence": "high/medium/low"
 }`;
 
       content.push({ type: "text", text: promptText });
@@ -119,7 +130,7 @@ Identify the product and return ONLY valid JSON without extra text:
     const landed_unit = taxes.landed_cost / quantity;
 
     return NextResponse.json({
-      product: productInfo,
+      product: { ...productInfo, tariff_system },
       commercial: {
         fob_unit,
         fob_total,

@@ -122,6 +122,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [description, setDescription] = useState("");
+  const [tariffSystem, setTariffSystem] = useState("NCM");
   const [hsCode, setHsCode] = useState("");
   const [supplierCountry, setSupplierCountry] = useState("China");
   const [destination, setDestination] = useState("");
@@ -155,6 +156,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
       const fd = new FormData();
       if (image) fd.append("image", image);
       fd.append("description", description);
+      fd.append("tariff_system", tariffSystem);
       fd.append("hs_code", hsCode);
       fd.append("supplier_country", supplierCountry);
       fd.append("destination", destination);
@@ -238,14 +240,34 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
                 style={{ ...inputStyle, resize: "vertical", lineHeight: 1.5 }}
               />
 
-              <div style={{ marginTop: 14 }}>
-                <label style={labelStyle}>{c.hs_known} (opcional)</label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {["HS","NCM","TARIC"].map(s => (
-                    <input key={s} type="text" value={hsCode} onChange={(e) => setHsCode(e.target.value)} placeholder={`${s}: ${c.hs_placeholder}`} style={{ ...inputStyle, fontFamily: "monospace" }} />
-                  )).slice(0, 1)}
+              {/* Selector de nomenclador */}
+              <div style={{ marginTop: 16 }}>
+                <label style={labelStyle}>{lang === "es" ? "Sistema de nomenclatura arancelaria" : "Tariff nomenclature system"}</label>
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  {["HS", "NCM", "TARIC"].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setTariffSystem(s)}
+                      style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.4)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                    >{s}</button>
+                  ))}
                 </div>
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 4 }}>{lang === "es" ? "Si no lo sabés, la IA lo identifica por foto o descripción." : "If unknown, AI identifies it from photo or description."}</p>
+                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 10 }}>
+                  {tariffSystem === "HS" && (lang === "es" ? "Sistema Armonizado — internacional, 6 dígitos" : "Harmonized System — international, 6 digits")}
+                  {tariffSystem === "NCM" && (lang === "es" ? "Nomenclatura Común MERCOSUR — Argentina, Brasil, Uruguay, Paraguay, 8 dígitos" : "MERCOSUR Common Nomenclature — 8 digits")}
+                  {tariffSystem === "TARIC" && (lang === "es" ? "Arancel Integrado Europeo — Unión Europea, 10 dígitos" : "EU Integrated Tariff — 10 digits")}
+                </p>
+              </div>
+
+              <div>
+                <label style={labelStyle}>{c.hs_known} ({lang === "es" ? "opcional — la IA lo detecta por foto o descripción" : "optional — AI detects it from photo or description"})</label>
+                <input
+                  type="text"
+                  value={hsCode}
+                  onChange={(e) => setHsCode(e.target.value)}
+                  placeholder={tariffSystem === "NCM" ? "ej: 63014000" : tariffSystem === "TARIC" ? "ej: 6301400010" : "ej: 630140"}
+                  style={{ ...inputStyle, fontFamily: "monospace", letterSpacing: 1 }}
+                />
               </div>
             </div>
 
@@ -317,12 +339,30 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
                 {result.product.description && result.product.product_name && (
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 12 }}>{result.product.description}</p>
                 )}
+                {/* Código principal destacado según sistema elegido */}
+                {(() => {
+                  const sys = result.product.tariff_system || tariffSystem;
+                  const primaryCode = sys === "NCM" ? result.product.ncm_code
+                    : sys === "TARIC" ? result.product.taric_code
+                    : result.product.hs_code;
+                  return primaryCode ? (
+                    <div style={{ background: "rgba(0,87,255,0.12)", border: "2px solid rgba(0,87,255,0.5)", borderRadius: 10, padding: "12px 16px", marginBottom: 12 }}>
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{lang === "es" ? "Posición arancelaria identificada" : "Identified tariff position"} — {sys}</p>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: "#0057FF", fontFamily: "monospace", letterSpacing: 2 }}>{primaryCode}</p>
+                      {result.product.chapter && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.product.chapter}</p>}
+                    </div>
+                  ) : null;
+                })()}
+
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}>
                   {result.product.hs_code && result.product.hs_code !== "N/A" && (
-                    <span style={{ background: "rgba(0,87,255,0.2)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 8, padding: "4px 12px", fontSize: 13, fontWeight: 700, color: "#0057FF", fontFamily: "monospace" }}>HS: {result.product.hs_code}</span>
+                    <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#6B9FFF", fontFamily: "monospace" }}>HS: {result.product.hs_code}</span>
                   )}
                   {result.product.ncm_code && (
-                    <span style={{ background: "rgba(0,87,255,0.1)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#6B9FFF", fontFamily: "monospace" }}>NCM: {result.product.ncm_code}</span>
+                    <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#6B9FFF", fontFamily: "monospace" }}>NCM: {result.product.ncm_code}</span>
+                  )}
+                  {result.product.taric_code && result.product.taric_code !== "null" && (
+                    <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#6B9FFF", fontFamily: "monospace" }}>TARIC: {result.product.taric_code}</span>
                   )}
                   <span style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#ef4444" }}>{c.tariff_rate}: {result.product.tariff_rate}%</span>
                   {result.product.confidence && (
