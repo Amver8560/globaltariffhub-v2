@@ -168,7 +168,11 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
 
       const res = await fetch("/api/viability", { method: "POST", body: fd });
       const data = await res.json();
-      if (data.error) { setError(data.error); return; }
+      if (data.error) {
+        if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
+        if (data.code === "NO_CREDITS") { window.location.href = "/pricing"; return; }
+        setError(data.error); return;
+      }
       setResult(data);
     } catch { setError(lang === "es" ? "Error al procesar. Intentá de nuevo." : "Processing error. Please try again."); }
     finally { setLoading(false); }

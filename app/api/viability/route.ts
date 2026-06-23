@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { calculateTaxes } from "@/lib/taxEngine";
+import { checkAndConsumeCredit } from "@/lib/credits";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
+    // Verificar créditos antes de procesar
+    const credit = await checkAndConsumeCredit();
+    if (!credit.ok) return credit.error!;
+
     const formData = await req.formData();
     const image = formData.get("image") as File | null;
     const description = (formData.get("description") as string || "").trim();

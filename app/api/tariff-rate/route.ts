@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { checkAndConsumeCredit } from "@/lib/credits";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
+    const credit = await checkAndConsumeCredit();
+    if (!credit.ok) return credit.error!;
+
     const { tariff_code, system = "HS", origin, destination, lang = "es" } = await req.json();
 
     if (!tariff_code || !destination) {

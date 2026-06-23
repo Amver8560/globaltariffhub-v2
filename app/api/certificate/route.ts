@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { checkAndConsumeCredit } from "@/lib/credits";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -58,6 +59,9 @@ Calculá los montos en base al valor FOB y la cantidad proporcionados.
 Solo respondés con el JSON, sin texto adicional, sin markdown.`;
 
 export async function POST(req: NextRequest) {
+  const credit = await checkAndConsumeCredit();
+  if (!credit.ok) return credit.error!;
+
   const { origin, destination, hs_code, fob_value, quantity, unit, agreement, lang } = await req.json();
 
   if (!origin || !destination || !fob_value) {

@@ -165,7 +165,11 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       fd.append("system", system);
       const res = await fetch("/api/search", { method: "POST", body: fd });
       const data = await res.json();
-      if (data.error) { setError(data.error); return; }
+      if (data.error) {
+        if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
+        if (data.code === "NO_CREDITS") { window.location.href = "/pricing"; return; }
+        setError(data.error); return;
+      }
       setResponse(data);
     } catch {
       setError(c.error_general);

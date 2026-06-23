@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
+import { checkAndConsumeCredit } from "@/lib/credits";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -44,6 +45,9 @@ Reglas:
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
 
 export async function POST(req: NextRequest) {
+  const credit = await checkAndConsumeCredit();
+  if (!credit.ok) return credit.error!;
+
   const formData = await req.formData();
   const query = formData.get("query") as string | null;
   const imageFile = formData.get("image") as File | null;
