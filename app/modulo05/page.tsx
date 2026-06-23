@@ -133,6 +133,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
+  const [expandedTax, setExpandedTax] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,15 +402,61 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
               {/* Tributos */}
               <div style={cardStyle}>
                 <p style={sectionTitle}>🏛 {c.tax_breakdown} — {result.taxes.country}</p>
-                {result.taxes.lines.map((line: any, i: number) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", marginBottom: 2 }}>{line.name}</p>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>Base: {line.base} — {line.rate}</p>
+                {result.taxes.lines.map((line: any, i: number) => {
+                  const isOpen = expandedTax === i;
+                  return (
+                    <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
+                      {/* Fila principal — clickeable */}
+                      <div
+                        onClick={() => setExpandedTax(isOpen ? null : i)}
+                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", cursor: "pointer" }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
+                            {line.code && line.code !== "—" && (
+                              <span style={{ fontSize: 10, fontWeight: 800, background: "rgba(0,87,255,0.2)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 4, padding: "1px 6px", color: "#6B9FFF", fontFamily: "monospace" }}>{line.code}</span>
+                            )}
+                            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{line.name}</p>
+                          </div>
+                          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{lang === "es" ? "Base" : "Base"}: {line.base} · {line.rate}</p>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 12 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{fmt(line.amount)}</span>
+                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
+                        </div>
+                      </div>
+                      {/* Panel expandible */}
+                      {isOpen && (
+                        <div style={{ background: "rgba(0,87,255,0.06)", borderRadius: 8, padding: "12px 14px", marginBottom: 10, borderLeft: "3px solid rgba(0,87,255,0.4)" }}>
+                          {line.description && (
+                            <div style={{ marginBottom: 10 }}>
+                              <p style={{ fontSize: 10, fontWeight: 700, color: "#6B9FFF", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                                {lang === "es" ? "¿Qué es y cuándo aplica?" : "What is it and when does it apply?"}
+                              </p>
+                              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>{line.description}</p>
+                            </div>
+                          )}
+                          {line.legal_basis && (
+                            <div style={{ marginBottom: 10 }}>
+                              <p style={{ fontSize: 10, fontWeight: 700, color: "#C9A84C", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                                {lang === "es" ? "Base legal" : "Legal basis"}
+                              </p>
+                              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontFamily: "monospace", lineHeight: 1.5 }}>{line.legal_basis}</p>
+                            </div>
+                          )}
+                          {line.exceptions && (
+                            <div>
+                              <p style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                                {lang === "es" ? "Excepciones y casos especiales" : "Exceptions & special cases"}
+                              </p>
+                              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{line.exceptions}</p>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444", marginLeft: 16 }}>{fmt(line.amount)}</span>
-                  </div>
-                ))}
+                  );
+                })}
 
                 <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
