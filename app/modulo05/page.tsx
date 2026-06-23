@@ -365,11 +365,37 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
                   {result.product.taric_code && result.product.taric_code !== "null" && (
                     <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#6B9FFF", fontFamily: "monospace" }}>TARIC: {result.product.taric_code}</span>
                   )}
-                  <span style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#ef4444" }}>{c.tariff_rate}: {result.product.tariff_rate}%</span>
+                  {/* Tasa: mostrar tachada si hay excepción */}
+                  {result.product.exception_applied ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700, color: "rgba(239,68,68,0.45)", textDecoration: "line-through" }}>{c.tariff_rate}: {result.product.standard_rate}%</span>
+                      <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 800, color: "#22c55e" }}>✓ {result.product.effective_rate}%</span>
+                    </div>
+                  ) : (
+                    <span style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 12, fontWeight: 700, color: "#ef4444" }}>{c.tariff_rate}: {result.product.tariff_rate}%</span>
+                  )}
                   {result.product.confidence && (
                     <span style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 8, padding: "4px 12px", fontSize: 11, color: "#C9A84C" }}>{c.confidence}: {result.product.confidence}</span>
                   )}
                 </div>
+
+                {/* Banner de excepción aplicada */}
+                {result.product.exception_applied && (
+                  <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+                    <p style={{ fontSize: 11, fontWeight: 800, color: "#22c55e", marginBottom: 4 }}>
+                      ✅ {lang === "es" ? "EXCEPCIÓN APLICADA" : "EXCEPTION APPLIED"}
+                      {result.product.exception_type && result.product.exception_type !== "null" && (
+                        <span style={{ marginLeft: 8, background: "rgba(34,197,94,0.2)", borderRadius: 4, padding: "1px 7px", fontFamily: "monospace" }}>{result.product.exception_type}</span>
+                      )}
+                    </p>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.5 }}>{result.product.exception_applied}</p>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>
+                      {lang === "es"
+                        ? `Tasa general ${result.product.standard_rate}% → tasa efectiva aplicada: ${result.product.effective_rate}%`
+                        : `Standard rate ${result.product.standard_rate}% → effective rate applied: ${result.product.effective_rate}%`}
+                    </p>
+                  </div>
+                )}
                 {result.product.requires_permits?.length > 0 && (
                   <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 8, padding: "10px 14px" }}>
                     <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", marginBottom: 6 }}>⚠ {c.requires_permits}</p>
@@ -402,6 +428,16 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
               {/* Tributos */}
               <div style={cardStyle}>
                 <p style={sectionTitle}>🏛 {c.tax_breakdown} — {result.taxes.country}</p>
+                {result.product.exception_applied && (
+                  <div style={{ background: "rgba(34,197,94,0.06)", border: "1px solid rgba(34,197,94,0.2)", borderRadius: 8, padding: "8px 12px", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 16 }}>✅</span>
+                    <p style={{ fontSize: 11, color: "rgba(34,197,94,0.9)", lineHeight: 1.4 }}>
+                      <strong>{lang === "es" ? "Cálculo con tasa efectiva" : "Calculated at effective rate"}</strong>
+                      {" · "}{lang === "es" ? "Arancel aplicado" : "Applied tariff"}: <strong style={{ fontFamily: "monospace" }}>{result.product.effective_rate}%</strong>
+                      {" "}{lang === "es" ? "(excepción activa)" : "(active exception)"}
+                    </p>
+                  </div>
+                )}
                 {result.taxes.lines.map((line: any, i: number) => {
                   const isOpen = expandedTax === i;
                   return (

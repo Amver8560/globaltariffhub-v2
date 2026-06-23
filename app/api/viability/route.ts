@@ -63,31 +63,55 @@ export async function POST(req: NextRequest) {
       const promptText = es
         ? `Analizá este producto${description ? ` (descripción: "${description}")` : ""} para importación desde ${supplier_country} hacia ${destination}.
 El usuario trabaja con el sistema ${systemLabel}.
+
+IMPORTANTE: Determiná la tasa arancelaria EFECTIVA real, aplicando cualquier excepción que corresponda al producto específico:
+- Para Argentina: BIT (bienes informática/telecomunicaciones como celulares, tablets, laptops) → DI 0%; BK (bienes de capital) → 0%; alimentos básicos → tasas reducidas
+- Para Brasil: TEC con excepciones por ex-tarifário, drawback, ZFM
+- Para Chile: verificar TLC aplicable según origen (China, EEUU, UE → frecuentemente 0%)
+- Para México: T-MEC si origen es EE.UU./Canadá; PROSEC para industrias específicas
+- Para Perú: TLC con China (muchos productos 0% desde 2019)
+- Para UE/España: SGP, acuerdos preferenciales según país de origen
+
 Identificá el producto y devolvé SOLO JSON válido sin texto adicional:
 {
   "product_name": "nombre del producto en español",
   "description": "descripción técnica breve",
-  "hs_code": "código HS de 6 dígitos sin puntos, ej: 630140",
-  "ncm_code": "código NCM de 8 dígitos para MERCOSUR, ej: 63014000",
+  "hs_code": "código HS de 6 dígitos sin puntos, ej: 851712",
+  "ncm_code": "código NCM de 8 dígitos para MERCOSUR, ej: 85171210",
   "taric_code": "código TARIC de 10 dígitos o null si no aplica",
-  "primary_code": "el código principal en sistema ${tariff_system} — el más importante para este usuario",
-  "tariff_rate": 20,
+  "primary_code": "el código principal en sistema ${tariff_system}",
+  "tariff_rate": 16,
+  "effective_rate": 0,
+  "exception_applied": "BIT — Bien de Informática y Telecomunicaciones. Res. MEyP 669/2024. DI 0% para teléfonos celulares bajo NCM 8517.12.10",
+  "exception_type": "BIT|BK|TLC|SGP|MERCOSUR|PROSEC|null",
   "chapter": "descripción del capítulo arancelario",
-  "requires_permits": ["ANMAT", "etc — solo si realmente aplica, sino []"],
+  "requires_permits": ["ENACOM", "etc — solo si realmente aplica, sino []"],
   "import_restrictions": "descripción de restricciones específicas o null",
   "confidence": "high/medium/low"
 }`
         : `Analyze this product${description ? ` (description: "${description}")` : ""} for import from ${supplier_country} to ${destination}.
 The user works with the ${systemLabel} system.
+
+IMPORTANT: Determine the ACTUAL effective tariff rate, applying any exception that applies to this specific product:
+- Argentina: BIT (IT/telecom goods like phones, tablets, laptops) → 0% DI; BK (capital goods) → 0%
+- Brazil: TEC with ex-tarifário exceptions, drawback, ZFM
+- Chile: check applicable FTA by origin (China, USA, EU → often 0%)
+- Mexico: T-MEC if origin is USA/Canada; PROSEC for specific industries
+- Peru: FTA with China (many products 0% since 2019)
+- EU/Spain: GSP, preferential agreements by country of origin
+
 Identify the product and return ONLY valid JSON without extra text:
 {
   "product_name": "product name in English",
   "description": "brief technical description",
-  "hs_code": "6-digit HS code without dots, e.g.: 630140",
-  "ncm_code": "8-digit NCM code for MERCOSUR, e.g.: 63014000",
+  "hs_code": "6-digit HS code without dots, e.g.: 851712",
+  "ncm_code": "8-digit NCM code for MERCOSUR, e.g.: 85171210",
   "taric_code": "10-digit TARIC code or null if not applicable",
-  "primary_code": "the main code in ${tariff_system} system — most important for this user",
-  "tariff_rate": 20,
+  "primary_code": "the main code in ${tariff_system} system",
+  "tariff_rate": 16,
+  "effective_rate": 0,
+  "exception_applied": "BIT — IT and Telecom Goods. 0% DI for mobile phones under NCM 8517.12.10",
+  "exception_type": "BIT|BK|FTA|GSP|MERCOSUR|null",
   "chapter": "tariff chapter description",
   "requires_permits": ["agencies — only if truly applicable, else []"],
   "import_restrictions": "specific restriction description or null",
@@ -120,9 +144,16 @@ Identify the product and return ONLY valid JSON without extra text:
     const insurance = fob_total * 0.005;
     const cif = fob_total + freight_total + insurance;
 
-    const tariff_rate = typeof productInfo.tariff_rate === "number"
+    // Usar tasa efectiva si hay excepción aplicable, si no la tasa estándar
+    const standard_rate = typeof productInfo.tariff_rate === "number"
       ? productInfo.tariff_rate
       : parseFloat(productInfo.tariff_rate) || 14;
+
+    const effective_rate = productInfo.effective_rate !== undefined && productInfo.effective_rate !== null
+      ? (typeof productInfo.effective_rate === "number" ? productInfo.effective_rate : parseFloat(productInfo.effective_rate))
+      : standard_rate;
+
+    const tariff_rate = effective_rate;
 
     const taxes = calculateTaxes({ cif, tariff_rate, destination });
 
@@ -130,7 +161,7 @@ Identify the product and return ONLY valid JSON without extra text:
     const landed_unit = taxes.landed_cost / quantity;
 
     return NextResponse.json({
-      product: { ...productInfo, tariff_system },
+      product: { ...productInfo, tariff_system, standard_rate, effective_rate },
       commercial: {
         fob_unit,
         fob_total,

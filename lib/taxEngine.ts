@@ -65,7 +65,7 @@ function calcArgentina(cif: number, tariff_rate: number): TaxResult {
         amount: TE,
         legal_basis: "Dec. 108/99 y modificatorias. Res. MEyP 5/2024",
         description: "Tributo que financia el servicio estadístico aduanero. Se aplica sobre el valor CIF con un tope máximo de USD 500 por despacho de importación.",
-        exceptions: "Exentos: importaciones desde países del MERCOSUR (DI intrazona), bienes del Estado, organismos internacionales, correo diplomático.",
+        exceptions: "Exentos: importaciones desde países del MERCOSUR (intrazona), bienes del Estado, organismos internacionales, correo diplomático. IMPORTANTE: los bienes BIT y BK NO están exentos de TE — la exención BIT/BK aplica únicamente sobre el DI. Celulares, tablets y laptops pagan TE aunque tengan DI 0%.",
       },
       {
         code: "IVA",
