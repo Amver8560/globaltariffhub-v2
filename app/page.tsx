@@ -32,7 +32,7 @@ const content = {
     ],
     social_proof: "Diseñado para el mundo real",
     social_items: [
-      { n: "9", label: "países con motor de cálculo propio" },
+      { n: "+190", label: "países cubiertos para búsqueda arancelaria" },
       { n: "3", label: "sistemas arancelarios (HS · NCM · TARIC)" },
       { n: "∞", label: "consultas con plan activo" },
     ],
@@ -72,7 +72,7 @@ const content = {
     ],
     social_proof: "Designed for the real world",
     social_items: [
-      { n: "9", label: "countries with own calculation engine" },
+      { n: "+190", label: "countries covered for tariff search" },
       { n: "3", label: "tariff systems (HS · NCM · TARIC)" },
       { n: "∞", label: "consultations with active plan" },
     ],
