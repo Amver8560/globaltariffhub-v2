@@ -104,8 +104,8 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
   return (
     <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
 
-      {/* Oferta lanzamiento — top bar */}
-      {days > 0 && (
+      {/* Oferta lanzamiento — top bar (activar al lanzar) */}
+      {false && days > 0 && (
         <div style={{ background: "linear-gradient(135deg, #C9A84C, #A07830)", padding: "8px 20px", textAlign: "center" }}>
           <p style={{ fontSize: 13, fontWeight: 700, color: "#000" }}>
             ⚡ {t.offer_text} — {t.offer_detail} · {days} días restantes
@@ -124,9 +124,6 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <a href="#features" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 14 }}>{t.nav_about}</a>
           <a href="#blog" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 14 }}>{t.nav_blog}</a>
-          <Link href="/pricing" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 14 }}>Pricing</Link>
-          <Link href="/login" style={{ color: "rgba(255,255,255,0.8)", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>{t.nav_login}</Link>
-          <Link href="/register" style={{ background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", textDecoration: "none", fontSize: 13, fontWeight: 700, padding: "8px 18px", borderRadius: 8 }}>{t.nav_register}</Link>
           <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
             {(["es", "en"] as const).map((l) => (
               <button key={l} onClick={() => setLang(l)} style={{ padding: "4px 12px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFF" : "rgba(255,255,255,0.5)" }}>
@@ -139,8 +136,8 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
 
       {/* Hero */}
       <main style={{ maxWidth: 820, margin: "0 auto", padding: "80px 40px 60px", textAlign: "center" }}>
-        <div style={{ display: "inline-block", background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", marginBottom: 28 }}>
-          <span style={{ color: "#22c55e", fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>✦ {t.badge}</span>
+        <div style={{ display: "inline-block", background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, padding: "5px 16px", marginBottom: 28 }}>
+          <span style={{ color: "#C9A84C", fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>✦ {lang === "es" ? "Próximamente" : "Coming Soon"}</span>
         </div>
 
         <h1 style={{ fontSize: "clamp(32px,5vw,52px)", fontWeight: 800, lineHeight: 1.15, marginBottom: 16, letterSpacing: -1 }}>
@@ -153,16 +150,17 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
         <p style={{ fontSize: "clamp(15px,2vw,18px)", color: "#C9A84C", marginBottom: 24, fontStyle: "italic" }}>&ldquo;{t.tagline}&rdquo;</p>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, maxWidth: 600, margin: "0 auto 44px" }}>{t.sub}</p>
 
-        {/* CTAs */}
-        <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap", marginBottom: 16 }}>
-          <Link href="/register" style={{ padding: "14px 32px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 16, fontWeight: 800, textDecoration: "none" }}>
-            {t.cta_primary}
-          </Link>
-          <Link href="/pricing" style={{ padding: "14px 28px", borderRadius: 10, border: "1px solid rgba(201,168,76,0.5)", background: "rgba(201,168,76,0.08)", color: "#C9A84C", fontSize: 16, fontWeight: 700, textDecoration: "none" }}>
-            {t.cta_secondary}
-          </Link>
+        {/* CTA — notificación pre-lanzamiento */}
+        <div style={{ marginBottom: 16 }}>
+          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>{t.cta_primary}</p>
+          <form onSubmit={async (e) => { e.preventDefault(); try { await fetch("/api/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: (e.currentTarget.querySelector("input") as HTMLInputElement).value, lang }) }); } catch {} (e.currentTarget.querySelector("input") as HTMLInputElement).value = ""; alert(t.cta_sub); }} style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+            <input type="email" placeholder={lang === "es" ? "tu@email.com" : "your@email.com"} required style={{ padding: "12px 20px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.4)", background: "#0D1B3E", color: "#FFF", fontSize: 15, width: 280, outline: "none" }} />
+            <button type="submit" style={{ padding: "12px 28px", borderRadius: 8, border: "none", background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 15, fontWeight: 700, cursor: "pointer" }}>
+              {lang === "es" ? "Notificarme" : "Notify me"}
+            </button>
+          </form>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 10 }}>{lang === "es" ? "Sé el primero en saber cuándo lanzamos. Sin spam." : "Be the first to know when we launch. No spam."}</p>
         </div>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>{t.cta_sub}</p>
       </main>
 
       {/* Stats */}
