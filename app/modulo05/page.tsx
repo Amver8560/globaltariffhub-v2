@@ -545,11 +545,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
               <div style={{ display: "flex", gap: 10 }}>
                 <Link href={`/modulo03?tariff_code=${encodeURIComponent(result.product.hs_code || "")}&system=HS&destination=${encodeURIComponent(destination)}`}
                   style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
-                  📄 {lang === "es" ? "Simular Certificado" : "Simulate Certificate"}
-                </Link>
-                <Link href={`/modulo04?tariff_code=${encodeURIComponent(result.product.hs_code || "")}&system=HS&destination=${encodeURIComponent(destination)}`}
-                  style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
-                  📦 {lang === "es" ? "Calculadora CIF" : "CIF Calculator"}
+                  📄 {lang === "es" ? "Simular Certificado de Origen" : "Simulate Certificate of Origin"}
                 </Link>
               </div>
             </div>
