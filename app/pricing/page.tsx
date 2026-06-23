@@ -102,9 +102,12 @@ function PricingInner() {
                 </div>
               ))}
             </div>
-            <button style={{ width: "100%", padding: "13px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
-              Elegir mensual → {/* Conectar Stripe después */}
-            </button>
+            <a
+              href="mailto:analia@globaltariffhub.com?subject=Quiero%20el%20plan%20mensual%20GTH%20%E2%80%94%20USD%2039%2Fmes&body=Hola%2C%20quiero%20activar%20el%20plan%20mensual%20de%20Global%20Tariff%20Hub%20(USD%2039%2Fmes).%0A%0ANombre%3A%20%0AEmail%20de%20mi%20cuenta%3A%20%0A%0AQuedar%C3%A9%20en%20espera%20de%20instrucciones%20de%20pago.%20Gracias."
+              style={{ display: "block", width: "100%", padding: "13px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, cursor: "pointer", textDecoration: "none", textAlign: "center", boxSizing: "border-box" }}
+            >
+              Elegir mensual →
+            </a>
           </div>
 
           {/* Plan Anual — destacado */}
@@ -136,9 +139,12 @@ function PricingInner() {
                 </div>
               ))}
             </div>
-            <button style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#C9A84C,#A07830)", color: "#000", fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-              Elegir anual → {/* Conectar Stripe después */}
-            </button>
+            <a
+              href={`mailto:analia@globaltariffhub.com?subject=Quiero%20el%20plan%20anual%20GTH%20%E2%80%94%20USD%20${days > 0 ? "238" : "290"}%2Fa%C3%B1o&body=Hola%2C%20quiero%20activar%20el%20plan%20anual%20de%20Global%20Tariff%20Hub%20(USD%20${days > 0 ? "238" : "290"}%2Fa%C3%B1o${days > 0 ? "%20%E2%80%94%20oferta%20de%20lanzamiento" : ""}).%0A%0ANombre%3A%20%0AEmail%20de%20mi%20cuenta%3A%20%0A%0AQuedar%C3%A9%20en%20espera%20de%20instrucciones%20de%20pago.%20Gracias.`}
+              style={{ display: "block", width: "100%", padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#C9A84C,#A07830)", color: "#000", fontSize: 14, fontWeight: 800, cursor: "pointer", textDecoration: "none", textAlign: "center", boxSizing: "border-box" }}
+            >
+              Elegir anual →
+            </a>
           </div>
         </div>
 
