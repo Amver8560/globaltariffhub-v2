@@ -237,12 +237,32 @@ function GlobeIllustration() {
 
 export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"en" }) {
   const [lang, setLang]   = useState<"es"|"en">(defaultLang as "es"|"en");
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted]     = useState(false);
   const [loginHover, setLoginHover] = useState(false);
+  const [showModal, setShowModal]   = useState(false);
+  const [modalEmail, setModalEmail] = useState("");
+  const [modalDone, setModalDone]   = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    if (showModal) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showModal]);
   if (!mounted) return null;
   const t = T[lang];
+
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: modalEmail, lang }),
+      });
+    } catch {}
+    setModalDone(true);
+  };
 
   return (
     <div style={{ backgroundColor:C.bg, minHeight:"100vh", color:C.white, fontFamily:"var(--font-inter),'Helvetica Neue',Arial,sans-serif" }}>
@@ -298,11 +318,17 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       {/* ── Hero ───────────────────────────────────── */}
       <section style={{ maxWidth:1200, margin:"0 auto", padding:"68px 48px 56px", display:"grid", gridTemplateColumns:"65fr 35fr", gap:56, alignItems:"center" }}>
         <div>
-          {/* Eyebrow */}
-          <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(0,0,0,0.3)", border:`1px solid ${C.borderGold}`, borderRadius:20, padding:"5px 16px", marginBottom:24 }}>
+          {/* Eyebrow — botón clickeable que abre popup */}
+          <button
+            onClick={() => setShowModal(true)}
+            style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(0,0,0,0.3)", border:`1px solid ${C.borderGold}`, borderRadius:20, padding:"6px 18px", marginBottom:24, cursor:"pointer", transition:"background 0.2s" }}
+            onMouseEnter={e=>(e.currentTarget.style.background="rgba(244,197,66,0.1)")}
+            onMouseLeave={e=>(e.currentTarget.style.background="rgba(0,0,0,0.3)")}
+          >
             <span style={{ width:7, height:7, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 8px #22c55e" }}/>
             <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.eyebrow}</span>
-          </div>
+            <span style={{ fontSize:11, color:C.textMuted, marginLeft:2 }}>→</span>
+          </button>
 
           <h1 style={{ fontSize:"clamp(40px,5vw,72px)", fontWeight:800, lineHeight:1.05, letterSpacing:-2, marginBottom:16, color:C.white }}>
             {t.h1a}<br/>{t.h1b}
@@ -491,6 +517,87 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <p style={{ fontSize:10, color:"rgba(255,255,255,0.12)", lineHeight:1.6, maxWidth:900 }}>{t.disclaimer}</p>
         </div>
       </footer>
+      {/* ── Modal email pre-lanzamiento ─────────────── */}
+      {showModal && (
+        <div
+          onClick={() => { setShowModal(false); setModalDone(false); setModalEmail(""); }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(8px)", zIndex:1000, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background:C.bgCard, border:`1px solid ${C.borderGold}`, borderRadius:20, padding:"44px 40px", maxWidth:460, width:"100%", position:"relative", boxShadow:"0 24px 64px rgba(0,0,0,0.6)" }}
+          >
+            {/* Cerrar */}
+            <button
+              onClick={() => { setShowModal(false); setModalDone(false); setModalEmail(""); }}
+              style={{ position:"absolute", top:16, right:16, background:"rgba(255,255,255,0.06)", border:`1px solid ${C.border}`, borderRadius:"50%", width:32, height:32, cursor:"pointer", color:C.textSec, fontSize:16, display:"flex", alignItems:"center", justifyContent:"center" }}
+            >×</button>
+
+            {modalDone ? (
+              <div style={{ textAlign:"center" }}>
+                <p style={{ fontSize:48, marginBottom:16 }}>✅</p>
+                <h3 style={{ fontSize:22, fontWeight:800, marginBottom:10, color:C.white }}>
+                  {lang==="es" ? "¡Listo, te anotamos!" : "You're on the list!"}
+                </h3>
+                <p style={{ fontSize:14, color:C.textSec, lineHeight:1.7, marginBottom:24 }}>
+                  {lang==="es"
+                    ? "Te avisamos por email cuando Global Tariff Hub abra al público. También tendrás acceso prioritario con 3 consultas gratis."
+                    : "We'll email you when Global Tariff Hub opens to the public. You'll also get priority access with 3 free consultations."}
+                </p>
+                <button
+                  onClick={() => { setShowModal(false); setModalDone(false); setModalEmail(""); }}
+                  style={{ padding:"12px 28px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:14, fontWeight:800, cursor:"pointer" }}
+                >
+                  {lang==="es" ? "Cerrar" : "Close"}
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Header */}
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:24 }}>
+                  <span style={{ width:8, height:8, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 10px #22c55e" }}/>
+                  <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2, textTransform:"uppercase" }}>
+                    {lang==="es" ? "Próximamente" : "Coming soon"}
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize:22, fontWeight:800, marginBottom:8, color:C.white, lineHeight:1.2 }}>
+                  {lang==="es" ? "Anotate para acceso anticipado" : "Get early access"}
+                </h3>
+                <p style={{ fontSize:14, color:C.textSec, lineHeight:1.7, marginBottom:28 }}>
+                  {lang==="es"
+                    ? "Dejá tu email y te avisamos cuando lancemos. Vas a recibir acceso prioritario con 3 consultas gratis."
+                    : "Leave your email and we'll notify you at launch. You'll get priority access with 3 free consultations."}
+                </p>
+
+                <form onSubmit={handleModalSubmit} style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                  <input
+                    type="email"
+                    value={modalEmail}
+                    onChange={e => setModalEmail(e.target.value)}
+                    placeholder={lang==="es" ? "tu@email.com" : "your@email.com"}
+                    required
+                    autoFocus
+                    style={{ padding:"14px 18px", borderRadius:10, border:`1.5px solid ${C.border}`, background:C.bg, color:C.white, fontSize:14, outline:"none", width:"100%", boxSizing:"border-box" }}
+                    onFocus={e=>(e.currentTarget.style.borderColor=C.blueBright)}
+                    onBlur={e=>(e.currentTarget.style.borderColor=C.border)}
+                  />
+                  <button
+                    type="submit"
+                    style={{ padding:"14px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:15, fontWeight:800, cursor:"pointer" }}
+                  >
+                    {lang==="es" ? "Avisame cuando lance →" : "Notify me at launch →"}
+                  </button>
+                </form>
+
+                <p style={{ fontSize:11, color:C.textMuted, marginTop:14, textAlign:"center" }}>
+                  {lang==="es" ? "Sin spam. Una sola notificación al lanzar." : "No spam. One email when we launch."}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
