@@ -305,7 +305,6 @@ function generateTARICSeed(): TARICRow[] {
     { code: "8400000000", desc: "Reactores nucleares, calderas, máquinas", rate: "1.7%" },
     { code: "8500000000", desc: "Máquinas y aparatos eléctricos", rate: "2.7%" },
     { code: "8700000000", desc: "Vehículos automóviles, tractores", rate: "6.5%" },
-    { code: "8500000000", desc: "Instrumentos y aparatos de óptica", rate: "2%" },
     { code: "9000000000", desc: "Instrumentos y aparatos de óptica", rate: "0%" },
   ];
 
