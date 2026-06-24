@@ -47,19 +47,19 @@ const T = {
     problem_answer: "Global Tariff Hub responde estas preguntas a partir de una simple imagen o descripción.",
     modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
-      { icon:"📷", num:"M01", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Clasificación Inteligente de Productos",
         desc:"Buscá por foto, descripción o código. La IA analiza el producto y sugiere clasificaciones arancelarias — HS, NCM y TARIC — para que tomes la decisión con información real.",
         tags:["HS Code","NCM Mercosur","TARIC Europa","Acuerdos Comerciales"] },
-      { icon:"📄", num:"M02", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+      { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
         title:"Simulador con Certificado de Origen",
         desc:"Analizá si tu operación califica para tasa preferencial, cuánto ahorrás con el certificado de origen y qué documentación necesitás gestionar.",
         tags:["MERCOSUR","TLC","SGP","Ahorro arancelario"] },
-      { icon:"🧮", num:"M03", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
+      { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"Calculadora CIF",
         desc:"Calculá el costo total de importación incluyendo flete, seguro, aranceles, impuestos y gastos locales. Con todos los Incoterms disponibles.",
         tags:["Incoterms","CIF","FOB","Costo nacionalizado"] },
-      { icon:"🛡", num:"M04", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
+      { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Viabilidad de Importación",
         desc:"Detectá restricciones, permisos, organismos intervinientes y riesgos regulatorios. Con precio de venta sugerido y análisis de si el negocio cierra.",
         tags:["Restricciones","Organismos","Precio sugerido","ROI"] },
@@ -116,19 +116,19 @@ const T = {
     problem_answer: "Global Tariff Hub answers these questions from a simple image or description.",
     modules_title: "Four modules. One platform.",
     modules: [
-      { icon:"📷", num:"M01", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Intelligent Product Classification",
         desc:"Search by photo, description or code. AI analyzes the product and suggests HS, NCM and TARIC classifications so you can decide with real information.",
         tags:["HS Code","NCM Mercosur","TARIC Europe","Trade Agreements"] },
-      { icon:"📄", num:"M02", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+      { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
         title:"Certificate of Origin Simulator",
         desc:"Analyze if your operation qualifies for a preferential rate, how much you save and what documentation you need to manage.",
         tags:["MERCOSUR","FTA","GSP","Tariff savings"] },
-      { icon:"🧮", num:"M03", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
+      { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"CIF Calculator",
         desc:"Calculate the total import cost including freight, insurance, tariffs, taxes and local charges. All Incoterms available.",
         tags:["Incoterms","CIF","FOB","Landed cost"] },
-      { icon:"🛡", num:"M04", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
+      { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Import Viability",
         desc:"Detect restrictions, permits, regulatory bodies and risks. With suggested selling price and business viability analysis.",
         tags:["Restrictions","Agencies","Suggested price","ROI"] },
@@ -395,10 +395,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
               <div key={i} style={{ background:C.bgCard, border:`1px solid ${m.colorBorder}`, borderRadius:16, padding:"28px 24px", display:"flex", flexDirection:"column", gap:16, transition:"all 0.2s" }}
                 onMouseEnter={e=>{ e.currentTarget.style.background=C.bgCardHover; e.currentTarget.style.boxShadow=`0 4px 32px ${m.color}22`; }}
                 onMouseLeave={e=>{ e.currentTarget.style.background=C.bgCard; e.currentTarget.style.boxShadow="none"; }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                  <div style={{ width:52, height:52, borderRadius:14, background:m.colorBg, border:`1.5px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{m.icon}</div>
-                  <span style={{ fontSize:10, fontWeight:800, color:m.color, background:m.colorBg, border:`1px solid ${m.colorBorder}`, borderRadius:6, padding:"3px 10px", letterSpacing:0.5 }}>{m.num}</span>
-                </div>
+                <div style={{ width:52, height:52, borderRadius:14, background:m.colorBg, border:`1.5px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{m.icon}</div>
                 <div>
                   <h3 style={{ fontSize:15, fontWeight:700, color:C.white, marginBottom:10, lineHeight:1.3 }}>{m.title}</h3>
                   <p style={{ fontSize:13, color:C.textSec, lineHeight:1.75, marginBottom:16 }}>{m.desc}</p>
