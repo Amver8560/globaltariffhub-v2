@@ -80,6 +80,11 @@ Reglas:
   • LÁCTEOS Y DURAZNOS: AEC diferencial hasta 31/12/2030.
   • BIENES USADOS Cap. 84-90: régimen especial de importación (Res. 909/94 actualizada).
   Cuando clasifiques un producto argentino, verificá siempre si cae en BK, BIT, Excepciones o Incremento Transitorio antes de indicar la tasa AEC general.
+- NORMATIVA Argentina — Decreto 908/2024 (B.O. 16/10/2024): Actualiza la NCM y el AEC incorporando resoluciones del GMC 27/23 al 39/23 y 12/24, vigentes desde 01/04/2024 y 01/07/2024. Sustituye los Anexos II (Lista Excepciones AEC), III (BK), V (Incremento Transitorio) y XI (Reintegros Exportación) del Decreto 557/23. Datos específicos de productos:
+  • NCM 4011.10.00 (neumáticos nuevos para automóviles): cronograma DI transitorio — 25% hasta 30/04/2025 → 20% hasta 31/08/2025 → AEC desde 01/09/2025.
+  • NCM 8711.20.10, 8711.20.20, 8711.30.00 (motocicletas): eliminadas del Incremento Transitorio desde 01/07/2025, tributando AEC desde esa fecha.
+  • Incorpora al derecho nacional sustancias controladas por Convención de Basilea (PCBs ≥50mg/kg en aceites), Convención de Rotterdam y Convención de Armas Químicas (OMA 22/06/2023).
+  • La Lista de Excepciones al AEC puede modificarse libremente hasta 31/12/2025 (suspensión Art. 3 Dec. CMC 58/10 por Dec. CMC 12/23).
 - NORMATIVA VIGENTE Argentina — Decreto 252/2026 (B.O. 17/04/2026): Reforma el Régimen de Aduana en Factoría (RAF). Amplía los sujetos alcanzados incluyendo "proveedores asociados" de establecimientos industriales. Elimina la garantía global única y la exigencia de acta-convenio previa. ARCA tiene plazo de 60 días para expedirse sobre operatoria aduanera. Aplica a establecimientos industriales manufactureros en general. Si el producto puede enmarcarse en el RAF mencioná esta opción en el campo "notes".
 - IMPORTANTE — Argentina celulares/smartphones/tablets (posiciones NCM 8517.13, 8517.12, 8471): Los tributos correctos son: DI 20% (puede ser 0% bajo régimen BIT Res. MEyP 669/2024), TE 3%, Impuesto Interno ~9,5% (Ley 24.674 Cap. VI), IVA 21%, IVA Percepción 10% (inscriptos), Percepción Ganancias 6%, Ingresos Brutos ~2,5%. NUNCA indiques IVA 9,5% para celulares — el IVA es siempre 21%; el 9,5% es el Impuesto Interno. Incluí todos estos tributos en el campo "taxes".
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
