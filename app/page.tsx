@@ -361,12 +361,12 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           </div>
         </div>
 
-        {/* Columna derecha — imagen real */}
+        {/* Columna derecha — imagen real sin fondo */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
           <img
             src="/hero-globe.png"
             alt="Global trade intelligence — contenedor, globo digital y rutas comerciales"
-            style={{ width:"100%", maxWidth:520, borderRadius:16, filter:"drop-shadow(0 0 40px rgba(37,99,235,0.3))" }}
+            style={{ width:"100%", maxWidth:560, mixBlendMode:"screen", filter:"drop-shadow(0 0 24px rgba(37,99,235,0.4)) brightness(1.05)" }}
           />
         </div>
       </section>
