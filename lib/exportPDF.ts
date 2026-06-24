@@ -61,13 +61,15 @@ function footer(doc: jsPDF, lang: string) {
 }
 
 function sectionTitle(doc: jsPDF, text: string, y: number) {
-  doc.setFillColor(13, 27, 62);
-  doc.rect(14, y - 5, 182, 8, "F");
-  setColor(doc, GOLD);
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
-  doc.text(text, 18, y);
-  return y + 8;
+  const lines = doc.splitTextToSize(text, 174);
+  const rectH = lines.length * 5 + 4;
+  doc.setFillColor(13, 27, 62);
+  doc.rect(14, y - 5, 182, rectH, "F");
+  setColor(doc, GOLD);
+  doc.text(lines, 18, y);
+  return y + rectH - 1;
 }
 
 function row(doc: jsPDF, label: string, value: string, y: number, valueColor?: readonly [number, number, number]) {
@@ -75,12 +77,23 @@ function row(doc: jsPDF, label: string, value: string, y: number, valueColor?: r
   doc.setFont("helvetica", "normal");
   setColor(doc, GRAY);
   doc.text(label, 18, y);
-  const vc = valueColor || DARK; doc.setTextColor(vc[0], vc[1], vc[2]);
+  const vc = valueColor || DARK;
+  doc.setTextColor(vc[0], vc[1], vc[2]);
   doc.setFont("helvetica", "bold");
-  doc.text(value, 120, y);
+  // Wrap value text so it never overflows the right margin
+  const valueLines = doc.splitTextToSize(value, 72);
+  doc.text(valueLines, 120, y);
+  const rowH = Math.max(9, valueLines.length * 5 + 4);
   doc.setDrawColor(220, 225, 235);
-  doc.line(14, y + 2, 196, y + 2);
-  return y + 9;
+  doc.line(14, y + rowH - 4, 196, y + rowH - 4);
+  return y + rowH;
+}
+
+// Strips trailing % to avoid %% when value already contains it
+function fmtRate(val: any): string {
+  if (val === undefined || val === null) return "—";
+  const s = String(val).trim();
+  return s.endsWith("%") ? s : `${s}%`;
 }
 
 // ── MÓDULO 02 — Simulación Certificado ───────────────────────────────────────
@@ -295,70 +308,85 @@ export function exportSearchPDF(response: any, params: {
 
   // Resultados
   response.results?.forEach((r: any, idx: number) => {
-    if (y > 240) { doc.addPage(); y = 20; }
+    // Salto de página si no hay espacio para el bloque mínimo
+    if (y > 245) { doc.addPage(); y = 20; }
 
-    y = sectionTitle(doc, `${es ? "RESULTADO" : "RESULT"} ${idx + 1}${r.description ? ` — ${r.description.substring(0, 50)}` : ""}`, y);
+    const titleText = `${es ? "RESULTADO" : "RESULT"} ${idx + 1}${r.description ? ` — ${r.description}` : ""}`;
+    y = sectionTitle(doc, titleText, y);
 
     // Códigos
-    if (r.hs_code) y = row(doc, "Código HS", r.hs_code, y, BLUE);
-    if (r.ncm_code) y = row(doc, "Código NCM", r.ncm_code, y, BLUE);
+    if (r.hs_code)   y = row(doc, "Código HS",   r.hs_code,   y, BLUE);
+    if (r.ncm_code)  y = row(doc, "Código NCM",  r.ncm_code,  y, BLUE);
     if (r.taric_code) y = row(doc, "Código TARIC", r.taric_code, y, BLUE);
-    if (r.chapter) y = row(doc, es ? "Capítulo" : "Chapter", r.chapter, y);
+    if (r.chapter)   y = row(doc, es ? "Capítulo" : "Chapter", r.chapter, y);
 
-    // Tasas
-    if (r.base_rate !== undefined) y = row(doc, es ? "Tasa base" : "Base rate", `${r.base_rate}%`, y, RED);
-    if (r.preferential_rate !== undefined) y = row(doc, es ? "Tasa preferencial" : "Preferential rate", `${r.preferential_rate}%`, y, GREEN);
+    // Tasas — usa fmtRate para evitar %%
+    if (r.base_rate !== undefined)        y = row(doc, es ? "Tasa base" : "Base rate",               fmtRate(r.base_rate),        y, RED);
+    if (r.preferential_rate !== undefined) y = row(doc, es ? "Tasa preferencial" : "Preferential rate", fmtRate(r.preferential_rate), y, GREEN);
     if (r.trade_agreement) y = row(doc, es ? "Acuerdo" : "Agreement", r.trade_agreement, y, GOLD);
+
     if (r.agreement_note) {
+      if (y > 265) { doc.addPage(); y = 20; }
       doc.setFontSize(7);
       doc.setFont("helvetica", "normal");
       setColor(doc, GRAY);
-      const lines = doc.splitTextToSize(r.agreement_note, 178);
+      const lines = doc.splitTextToSize(r.agreement_note, 174);
       doc.text(lines, 18, y);
       y += lines.length * 4 + 4;
     }
 
     // Documentos exportación
     if (r.origin_documents?.length) {
+      if (y > 255) { doc.addPage(); y = 20; }
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       setColor(doc, GOLD);
-      doc.text(es ? "Documentos exportación:" : "Export documents:", 18, y); y += 5;
+      doc.text(es ? "Documentos exportación:" : "Export documents:", 18, y);
+      y += 5;
       r.origin_documents.forEach((d: string) => {
+        if (y > 268) { doc.addPage(); y = 20; }
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
         doc.setFontSize(7);
-        doc.text(`• ${d}`, 22, y); y += 4;
+        const dLines = doc.splitTextToSize(`• ${d}`, 170);
+        doc.text(dLines, 22, y);
+        y += dLines.length * 4;
       });
-      y += 2;
+      y += 3;
     }
 
     // Documentos importación
     if (r.destination_documents?.length) {
+      if (y > 255) { doc.addPage(); y = 20; }
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
       setColor(doc, GOLD);
-      doc.text(es ? "Documentos importación:" : "Import documents:", 18, y); y += 5;
+      doc.text(es ? "Documentos importación:" : "Import documents:", 18, y);
+      y += 5;
       r.destination_documents.forEach((d: string) => {
+        if (y > 268) { doc.addPage(); y = 20; }
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
         doc.setFontSize(7);
-        doc.text(`• ${d}`, 22, y); y += 4;
+        const dLines = doc.splitTextToSize(`• ${d}`, 170);
+        doc.text(dLines, 22, y);
+        y += dLines.length * 4;
       });
-      y += 2;
+      y += 3;
     }
 
     // Notas
     if (r.notes) {
+      if (y > 258) { doc.addPage(); y = 20; }
       doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
       setColor(doc, GRAY);
-      const noteLines = doc.splitTextToSize(r.notes, 178);
+      const noteLines = doc.splitTextToSize(r.notes, 174);
       doc.text(noteLines, 18, y);
       y += noteLines.length * 4 + 4;
     }
 
-    y += 4;
+    y += 5;
   });
 
   footer(doc, lang);
@@ -399,15 +427,15 @@ export function exportViabilityPDF(result: any, params: {
 
   // Arancel efectivo
   if (result.product?.exception_applied) {
-    y = row(doc, es ? "Tasa general" : "Standard rate", `${result.product.standard_rate}%`, y, RED);
-    y = row(doc, es ? "Tasa efectiva (excepción)" : "Effective rate (exception)", `${result.product.effective_rate}%`, y, GREEN);
+    y = row(doc, es ? "Tasa general" : "Standard rate", fmtRate(result.product.standard_rate), y, RED);
+    y = row(doc, es ? "Tasa efectiva (excepción)" : "Effective rate (exception)", fmtRate(result.product.effective_rate), y, GREEN);
     doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
     setColor(doc, GRAY);
     const excLines = doc.splitTextToSize(result.product.exception_applied, 178);
     doc.text(excLines, 18, y); y += excLines.length * 4 + 4;
   } else {
-    y = row(doc, es ? "Tasa arancelaria" : "Tariff rate", `${result.product?.tariff_rate ?? "—"}%`, y, RED);
+    y = row(doc, es ? "Tasa arancelaria" : "Tariff rate", fmtRate(result.product?.tariff_rate), y, RED);
   }
   y += 4;
 
