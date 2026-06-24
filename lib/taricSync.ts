@@ -207,6 +207,7 @@ export async function syncTARICToSupabase(): Promise<SyncResult> {
 
   let inserted = 0;
   let errors = 0;
+  let lastError = "";
   let source = "CIRCABC/Access2Markets";
 
   try {
@@ -232,7 +233,8 @@ export async function syncTARICToSupabase(): Promise<SyncResult> {
         });
 
       if (error) {
-        console.error(`TARIC sync batch ${i}-${i + BATCH_SIZE} error:`, error);
+        console.error(`TARIC sync batch error:`, JSON.stringify(error));
+        lastError = error.message || JSON.stringify(error);
         errors++;
       } else {
         inserted += batch.length;
@@ -255,7 +257,7 @@ export async function syncTARICToSupabase(): Promise<SyncResult> {
       updated: inserted,
       errors,
       source,
-      message: `TARIC sync completado: ${inserted} códigos, ${errors} errores`,
+      message: `TARIC sync completado: ${inserted} códigos, ${errors} errores${lastError ? ` | Error: ${lastError}` : ""}`,
       duration_ms: Date.now() - startTime,
     };
 
