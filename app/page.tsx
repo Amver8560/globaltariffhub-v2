@@ -350,16 +350,15 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
             ))}
           </div>
 
-          {/* CTAs */}
+          {/* CTA hero — solo ver módulos */}
           <div style={{ display:"flex", gap:12, flexWrap:"wrap", alignItems:"center" }}>
-            <Link href="/register" style={{ padding:"15px 32px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:15, fontWeight:800, cursor:"pointer", textDecoration:"none", display:"inline-block" }}>
-              {t.cta_btn}
-            </Link>
-            <a href="#modulos" style={{ padding:"15px 22px", borderRadius:10, border:`1.5px solid rgba(59,130,246,0.4)`, background:"transparent", color:C.blueBright, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
+            <a href="#modulos" style={{ padding:"15px 28px", borderRadius:10, border:`1.5px solid rgba(59,130,246,0.4)`, background:"transparent", color:C.blueBright, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
               {lang==="es"?"Ver módulos ↓":"See modules ↓"}
             </a>
+            <a href="#para-quien" style={{ padding:"15px 28px", borderRadius:10, border:`1.5px solid rgba(244,197,66,0.3)`, background:"transparent", color:C.gold, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
+              {lang==="es"?"¿Para quién? ↓":"For who? ↓"}
+            </a>
           </div>
-          <p style={{ fontSize:12, color:C.textMuted, marginTop:12 }}>{t.cta_sub}</p>
         </div>
 
         {/* Columna derecha — ilustración */}
