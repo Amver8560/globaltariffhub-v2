@@ -1,10 +1,30 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Rutas que requieren sesión activa o créditos
 const PROTECTED_PATHS = ["/modulo01", "/modulo03", "/modulo04", "/modulo05"];
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // ── Bloqueo global del sitio ────────────────────────────────────────────────
+  // Si SITE_PASSWORD está definido en Vercel, el sitio es privado.
+  // Para activar: agregar SITE_PASSWORD=tu-contraseña en Vercel → Settings → Environment Variables
+  // Para desactivar (lanzar al público): eliminar esa variable.
+  const sitePassword = process.env.SITE_PASSWORD;
+  const isAccessPage = pathname === "/acceso";
+  const isSiteAccessApi = pathname === "/api/site-access";
+
+  if (sitePassword && !isAccessPage && !isSiteAccessApi) {
+    const cookie = request.cookies.get("site_access");
+    if (!cookie || cookie.value !== sitePassword) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/acceso";
+      url.searchParams.set("next", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────────
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -25,10 +45,8 @@ export async function middleware(request: NextRequest) {
   );
 
   const { data: { user } } = await supabase.auth.getUser();
-  const pathname = request.nextUrl.pathname;
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
 
-  // Si intenta acceder a módulo sin sesión → al login
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -36,7 +54,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirigir si ya está logueado y va al login/register
   if (user && (pathname === "/login" || pathname === "/register")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -48,6 +65,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
