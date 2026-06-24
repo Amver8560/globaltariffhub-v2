@@ -56,6 +56,16 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
 }
 
 Calculá los montos en base al valor FOB y la cantidad proporcionados.
+
+FÓRMULAS OBLIGATORIAS — usá siempre estas:
+- tariff_without.amount = fob_value × (tasa_general / 100)
+- tariff_with.amount = fob_value × (tasa_preferencial / 100)
+- savings.gross = tariff_without.amount − tariff_with.amount
+- savings.net = savings.gross − certificate_cost.amount
+- savings.roi_percent = Math.round((savings.net / certificate_cost.amount) × 100)
+  → Ejemplo: net=1315, cert_cost=85 → ROI = (1315/85)×100 = 1547%
+  → Si savings.net es negativo, el ROI es negativo y la recomendación debe desaconsejar el certificado.
+
 Solo respondés con el JSON, sin texto adicional, sin markdown.`;
 
 export async function POST(req: NextRequest) {
