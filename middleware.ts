@@ -1,29 +1,40 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED_PATHS = ["/modulo01", "/modulo03", "/modulo04", "/modulo05"];
+// Rutas que requieren sesión activa de Supabase
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/modulo01",
+  "/modulo02",
+  "/modulo03",
+  "/modulo04",
+  "/modulo05",
+];
+
+// Rutas siempre públicas (landing, legales, auth)
+const PUBLIC_PATHS = [
+  "/",
+  "/en",
+  "/pricing",
+  "/en/pricing",
+  "/privacidad",
+  "/privacy",
+  "/terminos",
+  "/terms",
+  "/legales",
+  "/login",
+  "/register",
+  "/acceso",
+];
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // ── Bloqueo global del sitio ────────────────────────────────────────────────
-  // Si SITE_PASSWORD está definido en Vercel, el sitio es privado.
-  // Para activar: agregar SITE_PASSWORD=tu-contraseña en Vercel → Settings → Environment Variables
-  // Para desactivar (lanzar al público): eliminar esa variable.
-  const sitePassword = process.env.SITE_PASSWORD;
-  const isAccessPage = pathname === "/acceso";
-  const isSiteAccessApi = pathname === "/api/site-access";
-
-  if (sitePassword && !isAccessPage && !isSiteAccessApi) {
-    const cookie = request.cookies.get("site_access");
-    if (!cookie || cookie.value !== sitePassword) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/acceso";
-      url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
-    }
-  }
-  // ────────────────────────────────────────────────────────────────────────────
+  // Rutas públicas o assets → pasar siempre
+  const isPublic =
+    PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/")) ||
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/auth/");
 
   let supabaseResponse = NextResponse.next({ request });
 
@@ -47,6 +58,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
 
+  // Sin sesión en ruta protegida → al login
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -54,6 +66,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Ya logueado en login/register → al dashboard
   if (user && (pathname === "/login" || pathname === "/register")) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
