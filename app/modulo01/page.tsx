@@ -327,8 +327,8 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               <span style={{ fontSize: 13 }}>🔄</span>
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0 }}>
                 {lang === "es"
-                  ? "Tasas MFN: WTO API (datos oficiales) · Tasas TARIC-EU: actualización mensual · Clasificación HS/NCM: IA + fuentes oficiales"
-                  : "MFN rates: WTO API (official data) · TARIC-EU rates: monthly update · HS/NCM classification: AI + official sources"}
+                  ? "Fuentes de referencia: WTO API · TARIC-EU (actualización mensual) · Siscomex/NCM · Resultados IA orientativos — verificar con profesional habilitado"
+                  : "Reference sources: WTO API · TARIC-EU (monthly update) · Siscomex/NCM · AI results are indicative — verify with a qualified professional"}
               </p>
             </div>
 

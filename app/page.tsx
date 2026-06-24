@@ -67,7 +67,7 @@ const content = {
     coverage_title: "Cobertura y datos integrados",
     coverage: ["HS Codes\nInternacionales", "NCM\nMercosur", "TARIC\nEuropa", "Datos\nInternacionales", "Reportes\nPDF exportables"],
     trust: [
-      { icon: "🔒", label: "Información actualizada\nde fuentes oficiales" },
+      { icon: "🔒", label: "Fuentes de referencia\nutilizadas con atribución" },
       { icon: "🎯", label: "Análisis preciso\ncon IA avanzada" },
       { icon: "⚡", label: "Decisiones más rápidas\ny seguras" },
       { icon: "☁️", label: "Datos seguros\ny confidenciales" },
@@ -75,7 +75,7 @@ const content = {
     offer_text: "Oferta de lanzamiento",
     offer_detail: "Plan anual con 2 meses gratis",
     footer: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
-    footer_legal: "Datos de referencia provenientes de fuentes oficiales. No reemplaza la consulta con un despachante de aduana habilitado.",
+    footer_legal: "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes y/o autoridades aduaneras. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
   },
   en: {
     nav_tagline: "Intelligence for Global Trade",
@@ -135,7 +135,7 @@ const content = {
     coverage_title: "Coverage and integrated data",
     coverage: ["International\nHS Codes", "NCM\nMercosur", "TARIC\nEurope", "International\nData", "PDF\nExportable Reports"],
     trust: [
-      { icon: "🔒", label: "Updated information\nfrom official sources" },
+      { icon: "🔒", label: "Reference sources\nused with attribution" },
       { icon: "🎯", label: "Precise analysis\nwith advanced AI" },
       { icon: "⚡", label: "Faster and safer\ndecisions" },
       { icon: "☁️", label: "Secure and\nconfidential data" },
@@ -143,7 +143,7 @@ const content = {
     offer_text: "Launch offer",
     offer_detail: "Annual plan with 2 months free",
     footer: "© 2025 Global Tariff Hub. All rights reserved.",
-    footer_legal: "Reference data from official sources. Does not replace advice from a licensed customs broker.",
+    footer_legal: "GTH provides support tools for international trade analysis. Definitive tariff classification and regulatory requirements must be verified by qualified professionals and/or customs authorities. AI-generated results are indicative and do not constitute legal, tax or customs advice.",
   },
 };
 

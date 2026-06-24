@@ -32,10 +32,18 @@ export default function Legales() {
         </div>
 
         {/* Aviso principal — destacado */}
-        <div style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.04))", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14, padding: "28px 32px", marginBottom: 40 }}>
+        <div style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.04))", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14, padding: "28px 32px", marginBottom: 20 }}>
           <p style={{ fontSize: 13, fontWeight: 800, color: "#ef4444", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>⚠ Aviso importante</p>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", lineHeight: 1.8, fontWeight: 500 }}>
-            La información provista por <strong style={{ color: "#FFF" }}>Global Tariff Hub</strong> tiene carácter exclusivamente <strong style={{ color: "#FFF" }}>informativo y de referencia</strong>. No reemplaza, bajo ninguna circunstancia, la consulta con un <strong style={{ color: "#C9A84C" }}>despachante de aduana habilitado</strong> en el país de origen o destino de la operación.
+            <strong style={{ color: "#FFF" }}>Global Tariff Hub</strong> proporciona <strong style={{ color: "#FFF" }}>herramientas de apoyo</strong> para el análisis de comercio internacional. La clasificación arancelaria definitiva, la aplicación de acuerdos comerciales y los requisitos regulatorios deben ser verificados por <strong style={{ color: "#C9A84C" }}>profesionales competentes</strong> y/o las autoridades aduaneras correspondientes.
+          </p>
+        </div>
+
+        {/* Aviso IA */}
+        <div style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.25)", borderRadius: 14, padding: "20px 28px", marginBottom: 40 }}>
+          <p style={{ fontSize: 13, fontWeight: 800, color: "rgba(168,85,247,0.9)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>🤖 Aviso IA</p>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.7)", lineHeight: 1.75 }}>
+            Los resultados generados mediante <strong style={{ color: "#FFF" }}>inteligencia artificial</strong> son <strong style={{ color: "#FFF" }}>orientativos</strong> y no constituyen asesoramiento legal, tributario o aduanero. El usuario debe verificar toda clasificación arancelaria con un profesional habilitado antes de utilizarla en documentación oficial.
           </p>
         </div>
 
@@ -44,7 +52,7 @@ export default function Legales() {
           {
             icon: "📋",
             title: "Naturaleza del servicio",
-            body: "Global Tariff Hub es una herramienta de consulta e inteligencia arancelaria. Permite estimar aranceles, simular operaciones y calcular costos de importación. Todos los resultados son estimaciones basadas en datos de fuentes oficiales públicas y no constituyen una liquidación aduanera definitiva.",
+            body: "Global Tariff Hub es una herramienta de apoyo para el análisis de comercio internacional. Permite estimar aranceles, simular operaciones y calcular costos de importación. Todos los resultados son estimaciones orientativas y no constituyen una liquidación aduanera definitiva ni asesoramiento legal o aduanero.",
           },
           {
             icon: "🏛",
@@ -53,13 +61,13 @@ export default function Legales() {
           },
           {
             icon: "🌐",
-            title: "Fuentes de datos oficiales",
-            body: "Los datos arancelarios provienen de fuentes oficiales públicas: WTO API (Organización Mundial del Comercio), BrasilAPI / Siscomex (Receita Federal de Brasil) y TARIC (Comisión Europea). GTH actúa como intermediario de consulta y no redistribuye bases de datos completas. Los datos pueden no reflejar actualizaciones normativas recientes.",
+            title: "Fuentes de referencia utilizadas",
+            body: "GTH utiliza como referencia datos provenientes de: WTO API (Organización Mundial del Comercio), BrasilAPI / Siscomex (Receita Federal de Brasil) y TARIC (Comisión Europea). Estas fuentes están sujetas a cambios normativos que pueden no reflejarse de inmediato en la plataforma. GTH actúa como intermediario de consulta y no redistribuye bases de datos completas ni garantiza la vigencia de los datos en el momento exacto de la consulta.",
           },
           {
             icon: "🤖",
             title: "Uso de inteligencia artificial",
-            body: "La clasificación arancelaria por imagen o descripción utiliza modelos de inteligencia artificial (Anthropic Claude). Si bien el sistema se apoya en fuentes oficiales para la verificación de tasas, la clasificación automática puede contener errores. El usuario debe verificar siempre el código arancelario con un profesional antes de utilizarlo en documentación oficial.",
+            body: "La clasificación arancelaria por imagen o descripción utiliza modelos de inteligencia artificial (Anthropic Claude). Los resultados son orientativos y no constituyen asesoramiento legal, tributario ni aduanero. La clasificación automática puede contener errores. El usuario debe verificar siempre el código arancelario con un profesional habilitado antes de utilizarlo en documentación oficial o tomar decisiones comerciales basadas en él.",
           },
           {
             icon: "⚖️",
@@ -98,7 +106,7 @@ export default function Legales() {
           </p>
 
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.85 }}>
-            Los datos arancelarios provienen de fuentes oficiales públicas (WTO, Siscomex, TARIC EU) y se citan con la atribución correspondiente. GTH no reclama derechos sobre dichos datos.
+            Los datos arancelarios se obtienen de fuentes de referencia públicas (WTO, Siscomex, TARIC EU) y se citan con la atribución correspondiente. GTH no reclama derechos sobre dichos datos y no garantiza su vigencia en el momento de la consulta.
           </p>
         </div>
 
