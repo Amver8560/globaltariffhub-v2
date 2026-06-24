@@ -129,9 +129,9 @@ export function exportCertificatePDF(result: any, params: {
   doc.text(es ? "Ahorro neto estimado" : "Estimated net savings", 20, y + 6);
   doc.setFontSize(13);
   doc.text(`USD ${netSaving.toLocaleString()}`, 190, y + 9, { align: "right" });
-  if (result.savings?.roi) {
+  if (result.savings?.roi_percent) {
     doc.setFontSize(8);
-    doc.text(`ROI ${result.savings.roi}%`, 190, y + 3, { align: "right" });
+    doc.text(`ROI ${result.savings.roi_percent}%`, 190, y + 3, { align: "right" });
   }
   y += 20;
 

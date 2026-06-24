@@ -216,12 +216,14 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <div>
               <label style={labelStyle}>{c.origin}</label>
               <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
+                <option value="">— Seleccioná país —</option>
                 {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
               </select>
             </div>
             <div>
               <label style={labelStyle}>{c.destination}</label>
               <select value={destination} onChange={(e) => setDestination(e.target.value)} style={selectStyle}>
+                <option value="">— Seleccioná país —</option>
                 {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
               </select>
             </div>

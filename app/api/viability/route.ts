@@ -127,7 +127,7 @@ Identify the product and return ONLY valid JSON without extra text:
       messages.push({ role: "user", content });
 
       const msg = await client.messages.create({
-        model: "claude-sonnet-4-5-20250929",
+        model: "claude-sonnet-4-5",
         max_tokens: 800,
         messages,
       });

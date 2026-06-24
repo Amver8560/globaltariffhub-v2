@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 - Idioma de respuesta: ${lang === "en" ? "inglés" : "español"}`;
 
     const response = await client.messages.create({
-      model: "claude-sonnet-4-5-20250929",
+      model: "claude-sonnet-4-5",
       max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: prompt }],
