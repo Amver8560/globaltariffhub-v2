@@ -3,304 +3,350 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-/* ─── Paleta V2 ─────────────────────────────────────── */
 const C = {
-  bg:       "#07152F",
-  bgCard:   "#0B1E3D",
-  bgCardHover: "#0D2247",
-  blue:     "#2563EB",
+  bg:        "#07152F",
+  bgCard:    "#0B1E3D",
+  bgCardHover:"#0D2247",
+  blue:      "#2563EB",
   blueBright:"#3B82F6",
-  gold:     "#F4C542",
-  goldDark: "#D4A820",
-  white:    "#FFFFFF",
-  textSec:  "#B8C4D9",
-  textMuted:"rgba(184,196,217,0.5)",
-  border:   "rgba(59,130,246,0.25)",
+  gold:      "#F4C542",
+  white:     "#FFFFFF",
+  textSec:   "#B8C4D9",
+  textMuted: "rgba(184,196,217,0.5)",
+  border:    "rgba(59,130,246,0.25)",
   borderGold:"rgba(244,197,66,0.35)",
 };
 
-const FONT = "var(--font-inter),'Helvetica Neue',Arial,sans-serif";
-
-/* ─── Contenido bilingüe ─────────────────────────────── */
 const T = {
   es: {
-    nav_tagline:  "Inteligencia para el Comercio Global",
-    nav_links:    ["Características","Módulos","Fuentes de Datos","Precios","Nosotros","Recursos"],
-    nav_login:    "Iniciar sesión",
-    nav_cta:      "Probar ahora",
-    eyebrow:      "INTELIGENCIA ARANCELARIA",
-    h1a:          "Para Importadores",
-    h1b:          "y Exportadores",
-    sub:          "Decisiones más inteligentes. Comercio sin fronteras.",
-    tagline:      "From Product to Trade Intelligence™",
-    photo_title:  "Subí una foto de tu producto",
-    photo_hl:     "foto",
-    photo_desc:   "La IA analiza el producto y sugiere clasificaciones arancelarias para que tomes la decisión con información real.",
-    checks:       ["HS Code Internacional","NCM Mercosur","TARIC Europa","Requisitos documentales","Impacto arancelario","Clasificaciones similares"],
-    cta1:         "→  Comenzar análisis",
-    cta2:         "▷  Ver cómo funciona",
-    notify_ph:    "tu@email.com",
-    notify_btn:   "Avisame cuando lance",
-    notify_sub:   "Sin spam. Una sola notificación al lanzar.",
-    notify_thanks:"¡Gracias! Te avisamos cuando lancemos.",
-    offer_label:  "Oferta de lanzamiento",
-    offer_detail: "Plan anual · 2 meses gratis",
-    modules_title:"Todo lo que necesitás para tomar mejores decisiones",
+    nav_tagline: "Inteligencia para el Comercio Global",
+    nav_login:   "Iniciar sesión",
+    nav_cta:     "Registrarse gratis",
+    eyebrow:     "PRÓXIMAMENTE",
+    h1a:         "Para Importadores",
+    h1b:         "y Exportadores",
+    sub:         "Decisiones más inteligentes. Comercio sin fronteras.",
+    tagline:     "From Product to Trade Intelligence™",
+    flow: [
+      { step:"01", icon:"📷", label:"Subí una imagen" },
+      { step:"02", icon:"🔍", label:"Identificá el producto" },
+      { step:"03", icon:"📊", label:"Analizá la operación" },
+      { step:"04", icon:"✅", label:"Tomá decisiones" },
+    ],
+    problem_title: "El problema que resolvemos",
+    problem_sub:   "La mayoría de las empresas no conoce los códigos arancelarios de sus productos. Sin embargo, casi todas necesitan responder:",
+    problems: [
+      "¿Puedo importar este producto?",
+      "¿Puedo exportarlo?",
+      "¿Qué impuestos tendría?",
+      "¿Necesito certificados?",
+      "¿Existen restricciones?",
+      "¿Cuál sería el costo total?",
+      "¿Hay beneficios arancelarios disponibles?",
+    ],
+    problem_answer: "Global Tariff Hub responde estas preguntas a partir de una simple imagen o descripción.",
+    modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
-      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { icon:"📷", num:"M01", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Clasificación Inteligente de Productos",
-        desc:"Buscá por foto, descripción o código. La IA analiza el producto y sugiere clasificaciones arancelarias." },
-      { icon:"📄", color:C.gold,       colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
-        title:"Impacto del Certificado de Origen",
-        desc:"Analizá beneficios arancelarios y ahorro potencial según acuerdos comerciales aplicables." },
-      { icon:"🧮", color:"#22c55e",    colorBg:"rgba(34,197,94,0.10)",  colorBorder:"rgba(34,197,94,0.3)",
+        desc:"Buscá por foto, descripción o código. La IA analiza el producto y sugiere clasificaciones arancelarias — HS, NCM y TARIC — para que tomes la decisión con información real.",
+        tags:["HS Code","NCM Mercosur","TARIC Europa","Acuerdos Comerciales"] },
+      { icon:"📄", num:"M02", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+        title:"Simulador con Certificado de Origen",
+        desc:"Analizá si tu operación califica para tasa preferencial, cuánto ahorrás con el certificado de origen y qué documentación necesitás gestionar.",
+        tags:["MERCOSUR","TLC","SGP","Ahorro arancelario"] },
+      { icon:"🧮", num:"M03", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"Calculadora CIF",
-        desc:"Calculá automáticamente el costo total de importación incluyendo flete, seguro, aranceles e impuestos." },
-      { icon:"🛡", color:"#a78bfa",    colorBg:"rgba(167,139,250,0.10)",colorBorder:"rgba(167,139,250,0.3)",
+        desc:"Calculá el costo total de importación incluyendo flete, seguro, aranceles, impuestos y gastos locales. Con todos los Incoterms disponibles.",
+        tags:["Incoterms","CIF","FOB","Costo nacionalizado"] },
+      { icon:"🛡", num:"M04", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Viabilidad de Importación",
-        desc:"Detectá restricciones, organismos intervinientes, requisitos especiales y riesgos regulatorios antes de operar." },
+        desc:"Detectá restricciones, permisos, organismos intervinientes y riesgos regulatorios. Con precio de venta sugerido y análisis de si el negocio cierra.",
+        tags:["Restricciones","Organismos","Precio sugerido","ROI"] },
     ],
-    coverage_title:"Cobertura y datos integrados",
-    coverage:[
-      { icon:"📦", label:"HS Codes\nInternacionales" },
-      { icon:"🌎", label:"NCM\nMercosur" },
-      { icon:"🇪🇺", label:"TARIC\nEuropa" },
-      { icon:"📊", label:"Datos\nInternacionales" },
-      { icon:"📋", label:"Reportes\nPDF exportables" },
+    audience_title: "Diseñado para",
+    audience: [
+      { icon:"🚀", label:"Startups",                desc:"Tomá decisiones de producto con datos reales desde el día uno." },
+      { icon:"🏭", label:"Pymes",                   desc:"Eliminá la dependencia de consultores externos para consultas básicas." },
+      { icon:"📈", label:"Empresas medianas",       desc:"Escalá tu operación de comercio exterior con inteligencia integrada." },
+      { icon:"🛒", label:"Equipos de compras",      desc:"Evaluá rápidamente la viabilidad arancelaria antes de negociar." },
+      { icon:"🌎", label:"Comercio exterior",       desc:"Herramientas profesionales en una sola plataforma integrada." },
+      { icon:"🤝", label:"Consultores",             desc:"Acelerá los análisis iniciales y ofrecé más valor a tus clientes." },
     ],
-    trust:[
-      { icon:"🔒", label:"Fuentes de referencia\nutilizadas con atribución" },
-      { icon:"🎯", label:"Análisis preciso\ncon IA avanzada" },
-      { icon:"⚡", label:"Decisiones más rápidas\ny seguras" },
-      { icon:"☁️", label:"Datos seguros\ny confidenciales" },
+    cta_title:   "Empezá gratis ahora",
+    cta_sub:     "3 consultas gratis · Sin tarjeta de crédito · Sin compromiso",
+    cta_btn:     "Crear cuenta gratis →",
+    login_msg:   "El acceso a la plataforma estará disponible próximamente.",
+    sources_title:"Fuentes de referencia utilizadas",
+    sources: [
+      { icon:"🌐", name:"WTO API",          desc:"Tasas MFN por código HS — 164 países miembro" },
+      { icon:"🇧🇷", name:"Siscomex / NCM",  desc:"Nomenclatura oficial MERCOSUR en tiempo real" },
+      { icon:"🇪🇺", name:"TARIC EU",        desc:"Base arancelaria de la Unión Europea" },
+      { icon:"🤖", name:"Anthropic Claude", desc:"Clasificación por imagen o descripción" },
     ],
-    footer_legal: "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes y/o autoridades aduaneras. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
-    footer_copy:  "© 2025 Global Tariff Hub. Todos los derechos reservados.",
+    disclaimer: "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
+    footer_copy: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
   },
   en: {
-    nav_tagline:  "Intelligence for Global Trade",
-    nav_links:    ["Features","Modules","Data Sources","Pricing","About","Resources"],
-    nav_login:    "Sign in",
-    nav_cta:      "Try now",
-    eyebrow:      "TARIFF INTELLIGENCE",
-    h1a:          "For Importers",
-    h1b:          "and Exporters",
-    sub:          "Smarter decisions. Borderless trade.",
-    tagline:      "From Product to Trade Intelligence™",
-    photo_title:  "Upload a photo of your product",
-    photo_hl:     "photo",
-    photo_desc:   "AI analyzes the product and suggests tariff classifications so you can decide with real information.",
-    checks:       ["International HS Code","NCM Mercosur","TARIC Europe","Documentary requirements","Tariff impact","Similar classifications"],
-    cta1:         "→  Start analysis",
-    cta2:         "▷  See how it works",
-    notify_ph:    "your@email.com",
-    notify_btn:   "Notify me at launch",
-    notify_sub:   "No spam. One notification when we launch.",
-    notify_thanks:"Thanks! We'll notify you when we launch.",
-    offer_label:  "Launch offer",
-    offer_detail: "Annual plan · 2 months free",
-    modules_title:"Everything you need to make better decisions",
+    nav_tagline: "Intelligence for Global Trade",
+    nav_login:   "Sign in",
+    nav_cta:     "Register free",
+    eyebrow:     "COMING SOON",
+    h1a:         "For Importers",
+    h1b:         "and Exporters",
+    sub:         "Smarter decisions. Borderless trade.",
+    tagline:     "From Product to Trade Intelligence™",
+    flow: [
+      { step:"01", icon:"📷", label:"Upload an image" },
+      { step:"02", icon:"🔍", label:"Identify the product" },
+      { step:"03", icon:"📊", label:"Analyze the operation" },
+      { step:"04", icon:"✅", label:"Make decisions" },
+    ],
+    problem_title: "The problem we solve",
+    problem_sub:   "Most companies don't know the tariff codes for their products. Yet almost all need to answer:",
+    problems: [
+      "Can I import this product?",
+      "Can I export it?",
+      "What taxes would apply?",
+      "Do I need certificates?",
+      "Are there any restrictions?",
+      "What would the total cost be?",
+      "Are there any tariff benefits available?",
+    ],
+    problem_answer: "Global Tariff Hub answers these questions from a simple image or description.",
+    modules_title: "Four modules. One platform.",
     modules: [
-      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { icon:"📷", num:"M01", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Intelligent Product Classification",
-        desc:"Search by photo, description or code. AI analyzes the product and suggests tariff classifications." },
-      { icon:"📄", color:C.gold,       colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
-        title:"Certificate of Origin Impact",
-        desc:"Analyze tariff benefits and potential savings based on applicable trade agreements." },
-      { icon:"🧮", color:"#22c55e",    colorBg:"rgba(34,197,94,0.10)",  colorBorder:"rgba(34,197,94,0.3)",
+        desc:"Search by photo, description or code. AI analyzes the product and suggests HS, NCM and TARIC classifications so you can decide with real information.",
+        tags:["HS Code","NCM Mercosur","TARIC Europe","Trade Agreements"] },
+      { icon:"📄", num:"M02", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+        title:"Certificate of Origin Simulator",
+        desc:"Analyze if your operation qualifies for a preferential rate, how much you save and what documentation you need to manage.",
+        tags:["MERCOSUR","FTA","GSP","Tariff savings"] },
+      { icon:"🧮", num:"M03", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"CIF Calculator",
-        desc:"Automatically calculate the total import cost including freight, insurance, tariffs and taxes." },
-      { icon:"🛡", color:"#a78bfa",    colorBg:"rgba(167,139,250,0.10)",colorBorder:"rgba(167,139,250,0.3)",
+        desc:"Calculate the total import cost including freight, insurance, tariffs, taxes and local charges. All Incoterms available.",
+        tags:["Incoterms","CIF","FOB","Landed cost"] },
+      { icon:"🛡", num:"M04", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Import Viability",
-        desc:"Detect restrictions, regulatory bodies, special requirements and regulatory risks before operating." },
+        desc:"Detect restrictions, permits, regulatory bodies and risks. With suggested selling price and business viability analysis.",
+        tags:["Restrictions","Agencies","Suggested price","ROI"] },
     ],
-    coverage_title:"Coverage and integrated data",
-    coverage:[
-      { icon:"📦", label:"International\nHS Codes" },
-      { icon:"🌎", label:"NCM\nMercosur" },
-      { icon:"🇪🇺", label:"TARIC\nEurope" },
-      { icon:"📊", label:"International\nData" },
-      { icon:"📋", label:"PDF\nExportable Reports" },
+    audience_title: "Designed for",
+    audience: [
+      { icon:"🚀", label:"Startups",           desc:"Make product decisions with real data from day one." },
+      { icon:"🏭", label:"SMEs",               desc:"Eliminate dependency on external consultants for basic queries." },
+      { icon:"📈", label:"Mid-size companies", desc:"Scale your trade operations with integrated intelligence." },
+      { icon:"🛒", label:"Purchasing teams",   desc:"Quickly evaluate tariff viability before negotiating." },
+      { icon:"🌎", label:"Trade teams",        desc:"Professional tools in one integrated platform." },
+      { icon:"🤝", label:"Consultants",        desc:"Speed up initial analysis and deliver more value to clients." },
     ],
-    trust:[
-      { icon:"🔒", label:"Reference sources\nwith attribution" },
-      { icon:"🎯", label:"Precise analysis\nwith advanced AI" },
-      { icon:"⚡", label:"Faster and safer\ndecisions" },
-      { icon:"☁️", label:"Secure and\nconfidential data" },
+    cta_title:   "Start free now",
+    cta_sub:     "3 free consultations · No credit card · No commitment",
+    cta_btn:     "Create free account →",
+    login_msg:   "Platform access will be available soon.",
+    sources_title:"Reference sources used",
+    sources: [
+      { icon:"🌐", name:"WTO API",          desc:"MFN rates by HS code — 164 member countries" },
+      { icon:"🇧🇷", name:"Siscomex / NCM",  desc:"Official MERCOSUR nomenclature in real time" },
+      { icon:"🇪🇺", name:"TARIC EU",        desc:"European Union tariff database" },
+      { icon:"🤖", name:"Anthropic Claude", desc:"Classification by image or description" },
     ],
-    footer_legal: "GTH provides support tools for international trade analysis. Definitive tariff classification and regulatory requirements must be verified by qualified professionals and/or customs authorities. AI-generated results are indicative and do not constitute legal, tax or customs advice.",
-    footer_copy:  "© 2025 Global Tariff Hub. All rights reserved.",
+    disclaimer: "GTH provides support tools for international trade analysis. Definitive tariff classification and regulatory requirements must be verified by qualified professionals. AI-generated results are indicative and do not constitute legal, tax or customs advice.",
+    footer_copy: "© 2025 Global Tariff Hub. All rights reserved.",
   },
 };
 
-export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | "en" }) {
-  const [lang, setLang]         = useState<"es"|"en">(defaultLang as "es"|"en");
-  const [mounted, setMounted]   = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [email, setEmail]       = useState("");
+/* ─── Hero illustration ─────────────────────────────── */
+function GlobeIllustration() {
+  return (
+    <svg viewBox="0 0 420 460" style={{ width:"100%", maxWidth:420, filter:"drop-shadow(0 0 40px rgba(37,99,235,0.25))" }} xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="globeGrad" cx="38%" cy="35%" r="60%">
+          <stop offset="0%" stopColor="#1d4ed8" stopOpacity="0.9"/>
+          <stop offset="50%" stopColor="#0B1E3D" stopOpacity="0.95"/>
+          <stop offset="100%" stopColor="#07152F" stopOpacity="1"/>
+        </radialGradient>
+        <radialGradient id="globeGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.15"/>
+          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0"/>
+        </radialGradient>
+        <clipPath id="globeClip"><circle cx="200" cy="175" r="145"/></clipPath>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <circle cx="200" cy="175" r="175" fill="url(#globeGlow)"/>
+      <circle cx="200" cy="175" r="145" fill="url(#globeGrad)" stroke="#3B82F6" strokeWidth="1" strokeOpacity="0.4"/>
+      <g clipPath="url(#globeClip)" stroke="#3B82F6" strokeWidth="0.7" strokeOpacity="0.35" fill="none">
+        <ellipse cx="200" cy="175" rx="145" ry="22"/>
+        <ellipse cx="200" cy="175" rx="145" ry="55"/>
+        <ellipse cx="200" cy="175" rx="145" ry="95"/>
+        <ellipse cx="200" cy="175" rx="145" ry="130"/>
+        <ellipse cx="200" cy="175" rx="145" ry="143"/>
+        <ellipse cx="200" cy="175" rx="30"  ry="145"/>
+        <ellipse cx="200" cy="175" rx="72"  ry="145"/>
+        <ellipse cx="200" cy="175" rx="115" ry="145"/>
+        <ellipse cx="200" cy="175" rx="140" ry="145"/>
+        <line x1="55" y1="175" x2="345" y2="175" strokeOpacity="0.5" strokeWidth="1"/>
+        <line x1="200" y1="30" x2="200" y2="320" strokeOpacity="0.5" strokeWidth="1"/>
+      </g>
+      <g filter="url(#glow)">
+        <circle cx="155" cy="145" r="4" fill="#F4C542" opacity="0.9"/>
+        <circle cx="255" cy="160" r="3" fill="#3B82F6" opacity="0.9"/>
+        <circle cx="180" cy="205" r="3.5" fill="#F4C542" opacity="0.8"/>
+        <circle cx="240" cy="195" r="3" fill="#22c55e" opacity="0.9"/>
+        <circle cx="140" cy="190" r="2.5" fill="#3B82F6" opacity="0.7"/>
+        <circle cx="265" cy="135" r="2.5" fill="#22c55e" opacity="0.7"/>
+      </g>
+      <g stroke="#3B82F6" strokeWidth="0.8" strokeOpacity="0.3" strokeDasharray="3,3" fill="none">
+        <line x1="155" y1="145" x2="255" y2="160"/>
+        <line x1="255" y1="160" x2="240" y2="195"/>
+        <line x1="155" y1="145" x2="180" y2="205"/>
+      </g>
+      {/* Flecha azul */}
+      <path d="M 290 70 Q 370 120 350 210" stroke="#3B82F6" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.8"/>
+      <polygon points="345,222 355,202 362,216" fill="#3B82F6" opacity="0.8"/>
+      {/* Flecha dorada */}
+      <path d="M 110 290 Q 50 230 80 140" stroke="#F4C542" strokeWidth="2.5" fill="none" strokeLinecap="round" opacity="0.8"/>
+      <polygon points="76,128 72,148 87,142" fill="#F4C542" opacity="0.8"/>
+      {/* Contenedor azul 3D */}
+      <g transform="translate(268,285)">
+        <rect x="0" y="18" width="90" height="58" rx="3" fill="#1d4ed8" stroke="#3B82F6" strokeWidth="1"/>
+        <polygon points="0,18 18,4 108,4 90,18" fill="#2563EB" stroke="#3B82F6" strokeWidth="1"/>
+        <polygon points="90,18 108,4 108,62 90,76" fill="#1e40af" stroke="#3B82F6" strokeWidth="1"/>
+        <line x1="30" y1="18" x2="30" y2="76" stroke="#3B82F6" strokeWidth="0.8" strokeOpacity="0.5"/>
+        <line x1="60" y1="18" x2="60" y2="76" stroke="#3B82F6" strokeWidth="0.8" strokeOpacity="0.5"/>
+        <line x1="0" y1="38" x2="90" y2="38" stroke="#3B82F6" strokeWidth="0.8" strokeOpacity="0.5"/>
+        <line x1="0" y1="58" x2="90" y2="58" stroke="#3B82F6" strokeWidth="0.8" strokeOpacity="0.5"/>
+        <polygon points="0,18 18,4 108,4 90,18" fill="white" fillOpacity="0.06"/>
+      </g>
+      {/* Caja marrón 3D */}
+      <g transform="translate(58,318)">
+        <rect x="0" y="14" width="68" height="46" rx="2" fill="#92400e" stroke="#B45309" strokeWidth="1"/>
+        <polygon points="0,14 14,2 82,2 68,14" fill="#B45309" stroke="#D97706" strokeWidth="1"/>
+        <polygon points="68,14 82,2 82,48 68,60" fill="#78350f" stroke="#B45309" strokeWidth="1"/>
+        <line x1="34" y1="14" x2="34" y2="60" stroke="#D97706" strokeWidth="1.5" strokeOpacity="0.7"/>
+        <line x1="0" y1="37" x2="68" y2="37" stroke="#D97706" strokeWidth="1.5" strokeOpacity="0.7"/>
+      </g>
+      {[[30,55],[380,85],[50,270],[390,290],[20,175],[400,175],[200,15],[310,35]].map(([x,y],i)=>(
+        <circle key={i} cx={x} cy={y} r="1.5" fill="white" opacity={0.15+i*0.04}/>
+      ))}
+    </svg>
+  );
+}
+
+export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"en" }) {
+  const [lang, setLang]   = useState<"es"|"en">(defaultLang as "es"|"en");
+  const [mounted, setMounted] = useState(false);
+  const [loginHover, setLoginHover] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
   if (!mounted) return null;
-
   const t = T[lang];
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try { await fetch("/api/subscribe",{ method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({email,lang}) }); } catch {}
-    setSubmitted(true); setShowForm(false);
-  };
-
   return (
-    <div style={{ backgroundColor: C.bg, minHeight:"100vh", color: C.white, fontFamily: FONT }}>
-
-      {/* ── Oferta top bar ─────────────────────────── */}
-      <div style={{ background:`linear-gradient(90deg,${C.bgCard},#0a1830,${C.bgCard})`, borderBottom:`1px solid ${C.borderGold}`, padding:"8px 24px", textAlign:"center" }}>
-        <p style={{ fontSize:12, fontWeight:600, color:C.gold, letterSpacing:0.3 }}>
-          ⚡ {t.offer_label} — {t.offer_detail}
-          <Link href="/pricing" style={{ marginLeft:14, color:C.white, fontWeight:800, textDecoration:"underline" }}>
-            {lang==="es"?"Ver oferta →":"See offer →"}
-          </Link>
-        </p>
-      </div>
+    <div style={{ backgroundColor:C.bg, minHeight:"100vh", color:C.white, fontFamily:"var(--font-inter),'Helvetica Neue',Arial,sans-serif" }}>
 
       {/* ── Navbar ─────────────────────────────────── */}
-      <nav style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 48px", borderBottom:`1px solid ${C.border}`, background:"rgba(7,21,47,0.95)", position:"sticky", top:0, zIndex:100, backdropFilter:"blur(16px)" }}>
-
+      <nav style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 48px", borderBottom:`1px solid ${C.border}`, background:"rgba(7,21,47,0.97)", position:"sticky", top:0, zIndex:100, backdropFilter:"blur(16px)" }}>
         {/* Logo */}
-        <div style={{ display:"flex", alignItems:"center", gap:12, flexShrink:0 }}>
-          <div style={{ width:40, height:40, borderRadius:9, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:12, color:C.gold, border:`1.5px solid ${C.gold}`, letterSpacing:0.5 }}>GTH</div>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ width:40, height:40, borderRadius:9, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:12, color:C.gold, border:`1.5px solid ${C.gold}` }}>GTH</div>
           <div>
             <p style={{ fontWeight:800, fontSize:15, color:C.white, lineHeight:1.1, letterSpacing:-0.2 }}>Global Tariff Hub</p>
-            <p style={{ fontSize:10, color:`${C.gold}BB`, fontWeight:500, letterSpacing:0.2 }}>{t.nav_tagline}</p>
+            <p style={{ fontSize:10, color:`${C.gold}BB`, fontWeight:500 }}>{t.nav_tagline}</p>
           </div>
         </div>
 
-        {/* Links centro */}
-        <div style={{ display:"flex", alignItems:"center", gap:24 }}>
-          {t.nav_links.map((l,i) => (
-            <a key={i} href={i===1?"#modulos":i===3?"/pricing":i===2?"#cobertura":"#"} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
+        {/* Links */}
+        <div style={{ display:"flex", alignItems:"center", gap:28 }}>
+          {[["#flujo","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
+            <a key={href} href={href} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
               onMouseEnter={e=>(e.currentTarget.style.color=C.white)}
-              onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{l}</a>
+              onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{label}</a>
           ))}
         </div>
 
-        {/* Acciones derecha */}
+        {/* Acciones */}
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:20, padding:3, border:`1px solid ${C.border}` }}>
             {(["es","en"] as const).map(l=>(
-              <button key={l} onClick={()=>setLang(l)} style={{ padding:"3px 12px", borderRadius:16, border:"none", cursor:"pointer", fontSize:11, fontWeight:700, background:lang===l?C.blue:"transparent", color:lang===l?C.white:C.textMuted, letterSpacing:0.5 }}>{l.toUpperCase()}</button>
+              <button key={l} onClick={()=>setLang(l)} style={{ padding:"3px 12px", borderRadius:16, border:"none", cursor:"pointer", fontSize:11, fontWeight:700, background:lang===l?C.blue:"transparent", color:lang===l?C.white:C.textMuted }}>{l.toUpperCase()}</button>
             ))}
           </div>
-          <Link href="/login" style={{ fontSize:13, color:C.textSec, textDecoration:"none", fontWeight:500, border:`1px solid ${C.border}`, borderRadius:8, padding:"7px 16px", display:"flex", alignItems:"center", gap:6 }}>
-            👤 {t.nav_login}
-          </Link>
-          <button onClick={()=>setShowForm(true)} style={{ fontSize:13, fontWeight:700, color:C.bg, background:`linear-gradient(135deg,${C.gold},#F9D96A)`, border:"none", borderRadius:8, padding:"8px 20px", cursor:"pointer" }}>
+
+          {/* Login deshabilitado */}
+          <div style={{ position:"relative" }}
+            onMouseEnter={()=>setLoginHover(true)}
+            onMouseLeave={()=>setLoginHover(false)}>
+            <button style={{ fontSize:13, color:"rgba(184,196,217,0.3)", fontWeight:500, border:`1px solid rgba(59,130,246,0.1)`, borderRadius:8, padding:"7px 16px", background:"transparent", cursor:"not-allowed", display:"flex", alignItems:"center", gap:6 }}>
+              🔒 {t.nav_login}
+            </button>
+            {loginHover && (
+              <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", whiteSpace:"nowrap", fontSize:12, color:C.textSec, zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,0.4)" }}>
+                🔒 {t.login_msg}
+              </div>
+            )}
+          </div>
+
+          <Link href="/register" style={{ fontSize:13, fontWeight:700, color:C.bg, background:`linear-gradient(135deg,${C.gold},#F9D96A)`, border:"none", borderRadius:8, padding:"8px 20px", textDecoration:"none" }}>
             {t.nav_cta}
-          </button>
+          </Link>
         </div>
       </nav>
 
       {/* ── Hero ───────────────────────────────────── */}
       <section style={{ maxWidth:1200, margin:"0 auto", padding:"68px 48px 56px", display:"grid", gridTemplateColumns:"65fr 35fr", gap:56, alignItems:"center" }}>
-
-        {/* Columna izquierda — 65% */}
         <div>
           {/* Eyebrow */}
-          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18 }}>
-            <span style={{ fontSize:12, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.eyebrow}</span>
-            <div style={{ height:2, width:36, background:C.gold, borderRadius:2 }} />
+          <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(0,0,0,0.3)", border:`1px solid ${C.borderGold}`, borderRadius:20, padding:"5px 16px", marginBottom:24 }}>
+            <span style={{ width:7, height:7, borderRadius:"50%", background:"#22c55e", display:"inline-block", boxShadow:"0 0 8px #22c55e" }}/>
+            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.eyebrow}</span>
           </div>
 
-          {/* H1 */}
           <h1 style={{ fontSize:"clamp(40px,5vw,72px)", fontWeight:800, lineHeight:1.05, letterSpacing:-2, marginBottom:16, color:C.white }}>
             {t.h1a}<br/>{t.h1b}
           </h1>
+          <p style={{ fontSize:18, color:C.textSec, marginBottom:8, lineHeight:1.5 }}>{t.sub}</p>
+          <p style={{ fontSize:12, color:`${C.gold}99`, fontWeight:600, marginBottom:40, letterSpacing:0.5, fontStyle:"italic" }}>{t.tagline}</p>
 
-          {/* Sub */}
-          <p style={{ fontSize:18, color:C.textSec, marginBottom:10, fontWeight:400, lineHeight:1.5 }}>{t.sub}</p>
-          <p style={{ fontSize:12, color:`${C.gold}99`, fontWeight:600, marginBottom:36, letterSpacing:0.5, fontStyle:"italic" }}>{t.tagline}</p>
-
-          {/* Card foto — FOCO PRINCIPAL */}
-          <div style={{ background:C.bgCard, border:`1.5px solid ${C.border}`, borderRadius:16, padding:"24px 28px", marginBottom:28, boxShadow:`0 0 32px rgba(37,99,235,0.12)` }}>
-            <div style={{ display:"flex", alignItems:"flex-start", gap:16, marginBottom:18 }}>
-              {/* Ícono cámara con marco estilo referencia */}
-              <div style={{ flexShrink:0, width:60, height:60, borderRadius:12, background:"rgba(37,99,235,0.15)", border:`2px solid rgba(37,99,235,0.5)`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:26, position:"relative" }}>
-                📷
-                <div style={{ position:"absolute", top:-4, left:-4, right:-4, bottom:-4, border:`1px solid rgba(37,99,235,0.25)`, borderRadius:16 }} />
+          {/* Flujo 4 pasos */}
+          <div id="flujo" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:36 }}>
+            {t.flow.map((f,i)=>(
+              <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 12px", textAlign:"center", position:"relative" }}>
+                {i < t.flow.length-1 && (
+                  <div style={{ position:"absolute", right:-10, top:"50%", transform:"translateY(-50%)", color:C.gold, fontSize:14, fontWeight:800, zIndex:1 }}>›</div>
+                )}
+                <p style={{ fontSize:20, marginBottom:6 }}>{f.icon}</p>
+                <p style={{ fontSize:9, fontWeight:800, color:C.gold, letterSpacing:1.5, marginBottom:4 }}>{f.step}</p>
+                <p style={{ fontSize:11, color:C.textSec, fontWeight:600, lineHeight:1.3 }}>{f.label}</p>
               </div>
-              <div>
-                <p style={{ fontSize:18, fontWeight:800, color:C.white, lineHeight:1.25, marginBottom:6 }}>
-                  {t.photo_title.split(t.photo_hl).map((part,i,arr)=>
-                    i<arr.length-1
-                      ? <span key={i}>{part}<span style={{color:C.gold}}>{t.photo_hl}</span></span>
-                      : <span key={i}>{part}</span>
-                  )}
-                </p>
-                <p style={{ fontSize:13, color:C.textSec, lineHeight:1.6 }}>{t.photo_desc}</p>
-              </div>
-            </div>
-            {/* Checklist 3×2 */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"10px 8px" }}>
-              {t.checks.map((c,i)=>(
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:7 }}>
-                  <div style={{ width:18, height:18, borderRadius:5, background:`rgba(37,99,235,0.15)`, border:`1.5px solid ${C.blue}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                    <span style={{ fontSize:10, color:C.blueBright, fontWeight:800 }}>✓</span>
-                  </div>
-                  <span style={{ fontSize:12, color:C.textSec }}>{c}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
 
           {/* CTAs */}
-          {submitted ? (
-            <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:12, padding:"14px 24px" }}>
-              <span>✅</span><p style={{ fontSize:14, color:"#22c55e", fontWeight:600 }}>{t.notify_thanks}</p>
-            </div>
-          ) : showForm ? (
-            <form onSubmit={handleSubscribe} style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={t.notify_ph} required autoFocus
-                style={{ padding:"13px 18px", borderRadius:9, border:`1px solid ${C.border}`, background:C.bgCard, color:C.white, fontSize:14, flex:1, minWidth:200, outline:"none" }}/>
-              <button type="submit" style={{ padding:"13px 24px", borderRadius:9, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:14, fontWeight:800, cursor:"pointer" }}>{t.notify_btn}</button>
-            </form>
-          ) : (
-            <div style={{ display:"flex", gap:12, flexWrap:"wrap" }}>
-              <button onClick={()=>setShowForm(true)} style={{ padding:"14px 28px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:15, fontWeight:800, cursor:"pointer", letterSpacing:0.1 }}>
-                {t.cta1}
-              </button>
-              <button onClick={()=>document.getElementById("modulos")?.scrollIntoView({behavior:"smooth"})}
-                style={{ padding:"14px 22px", borderRadius:10, border:`1.5px solid rgba(59,130,246,0.4)`, background:"transparent", color:C.blueBright, fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
-                {t.cta2}
-              </button>
-            </div>
-          )}
-          <p style={{ fontSize:11, color:C.textMuted, marginTop:12 }}>{t.notify_sub}</p>
+          <div style={{ display:"flex", gap:12, flexWrap:"wrap", alignItems:"center" }}>
+            <Link href="/register" style={{ padding:"15px 32px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:15, fontWeight:800, cursor:"pointer", textDecoration:"none", display:"inline-block" }}>
+              {t.cta_btn}
+            </Link>
+            <a href="#modulos" style={{ padding:"15px 22px", borderRadius:10, border:`1.5px solid rgba(59,130,246,0.4)`, background:"transparent", color:C.blueBright, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
+              {lang==="es"?"Ver módulos ↓":"See modules ↓"}
+            </a>
+          </div>
+          <p style={{ fontSize:12, color:C.textMuted, marginTop:12 }}>{t.cta_sub}</p>
         </div>
 
-        {/* Columna derecha — 35% — Globo reducido */}
+        {/* Columna derecha — ilustración */}
         <div style={{ display:"flex", flexDirection:"column", gap:16, alignItems:"center" }}>
-          {/* Globo compacto */}
-          <div style={{ width:220, height:220, borderRadius:"50%", background:"radial-gradient(ellipse at 38% 35%, rgba(37,99,235,0.3) 0%, rgba(11,30,61,0.8) 55%, rgba(7,21,47,0) 100%)", border:`1px solid rgba(37,99,235,0.2)`, display:"flex", alignItems:"center", justifyContent:"center", position:"relative" }}>
-            {/* Órbitas */}
-            <div style={{ position:"absolute", width:180, height:180, borderRadius:"50%", border:`1px solid rgba(37,99,235,0.18)` }} />
-            <div style={{ position:"absolute", width:130, height:130, borderRadius:"50%", border:`1px solid rgba(37,99,235,0.25)` }} />
-            {/* Puntos de conexión */}
-            {[{t:"18%",l:"28%",c:C.gold},{t:"40%",l:"72%",c:C.blueBright},{t:"65%",l:"22%",c:"#22c55e"},{t:"72%",l:"60%",c:C.gold},{t:"30%",l:"50%",c:C.blueBright}].map((d,i)=>(
-              <div key={i} style={{ position:"absolute", top:d.t, left:d.l, width:8, height:8, borderRadius:"50%", background:d.c, boxShadow:`0 0 10px ${d.c}` }} />
-            ))}
-            <span style={{ fontSize:56, filter:"drop-shadow(0 0 20px rgba(37,99,235,0.5))", zIndex:1 }}>🌐</span>
-          </div>
-
-          {/* Stats — datos reales */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%", maxWidth:240 }}>
+          <GlobeIllustration />
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%", maxWidth:300 }}>
             {[
-              { n:"164",  label:lang==="es"?"Países OMC":"WTO Countries",   icon:"🌐" },
-              { n:"3",    label:lang==="es"?"Sistemas\narancelarios":"Tariff\nsystems",   icon:"🗂" },
-              { n:"4",    label:lang==="es"?"Módulos\nespecializados":"Specialized\nmodules", icon:"⚙️" },
-              { n:"IA",   label:lang==="es"?"Foto →\nClasificación":"Photo →\nClassification", icon:"📷" },
+              { n:"164", label:lang==="es"?"Países\nOMC":"WTO\nCountries" },
+              { n:"3",   label:lang==="es"?"Sistemas\narancelarios":"Tariff\nsystems" },
+              { n:"4",   label:lang==="es"?"Módulos\nespecializados":"Specialized\nmodules" },
+              { n:"IA",  label:lang==="es"?"Foto →\nClasificación":"Photo →\nClassification" },
             ].map((s,i)=>(
-              <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 12px", textAlign:"center" }}>
+              <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"14px 12px", textAlign:"center" }}>
                 <p style={{ fontSize:22, fontWeight:900, color:C.white, letterSpacing:-0.5, lineHeight:1 }}>{s.n}</p>
                 <p style={{ fontSize:10, color:C.textSec, marginTop:6, lineHeight:1.4, whiteSpace:"pre-line" }}>{s.label}</p>
               </div>
@@ -309,29 +355,58 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
         </div>
       </section>
 
+      {/* ── El problema que resolvemos ─────────────── */}
+      <section style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:"72px 48px" }}>
+        <div style={{ maxWidth:960, margin:"0 auto" }}>
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>Por qué existimos</span>
+            <h2 style={{ fontSize:"clamp(24px,3vw,36px)", fontWeight:800, marginTop:12, marginBottom:16, letterSpacing:-0.5 }}>{t.problem_title}</h2>
+            <p style={{ fontSize:16, color:C.textSec, maxWidth:580, margin:"0 auto", lineHeight:1.7 }}>{t.problem_sub}</p>
+          </div>
+
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:12, marginBottom:40 }}>
+            {t.problems.map((q,i)=>(
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:14, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 20px" }}>
+                <div style={{ width:28, height:28, borderRadius:"50%", background:`rgba(37,99,235,0.15)`, border:`1px solid ${C.blue}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontSize:11, color:C.blueBright, fontWeight:800 }}>?</span>
+                </div>
+                <p style={{ fontSize:14, color:C.white, fontWeight:500 }}>{q}</p>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ background:`linear-gradient(135deg,rgba(244,197,66,0.1),rgba(244,197,66,0.05))`, border:`1px solid ${C.borderGold}`, borderRadius:16, padding:"28px 36px", textAlign:"center" }}>
+            <p style={{ fontSize:18, fontWeight:700, color:C.white, lineHeight:1.6 }}>
+              <span style={{ color:C.gold }}>Global Tariff Hub</span> {t.problem_answer.replace("Global Tariff Hub ","")}
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* ── Módulos ────────────────────────────────── */}
-      <section id="modulos" style={{ background:`linear-gradient(180deg,${C.bgCard}00,${C.bgCard}88)`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:"56px 48px" }}>
+      <section id="modulos" style={{ padding:"72px 48px" }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:36, justifyContent:"center" }}>
-            <div style={{ height:1, flex:1, background:C.border }} />
-            <h2 style={{ fontSize:18, fontWeight:700, color:C.white, textAlign:"center", whiteSpace:"nowrap", letterSpacing:-0.3 }}>{t.modules_title}</h2>
-            <div style={{ height:1, flex:1, background:C.border }} />
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang==="es"?"Funcionalidades":"Features"}</span>
+            <h2 style={{ fontSize:"clamp(22px,3vw,32px)", fontWeight:800, marginTop:12, letterSpacing:-0.5 }}>{t.modules_title}</h2>
           </div>
-
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:16 }}>
             {t.modules.map((m,i)=>(
-              <div key={i}
-                style={{ background:C.bgCard, border:`1px solid ${m.colorBorder}`, borderRadius:16, padding:"24px 20px", display:"flex", flexDirection:"column", gap:14, cursor:"pointer", transition:"all 0.2s", boxShadow:`0 0 0 0 ${m.color}` }}
-                onMouseEnter={e=>{ e.currentTarget.style.background=C.bgCardHover; e.currentTarget.style.boxShadow=`0 4px 24px ${m.color}22`; }}
-                onMouseLeave={e=>{ e.currentTarget.style.background=C.bgCard; e.currentTarget.style.boxShadow="none"; }}
-              >
-                <div style={{ width:48, height:48, borderRadius:12, background:m.colorBg, border:`1px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>{m.icon}</div>
-                <div style={{ flex:1 }}>
-                  <h3 style={{ fontSize:14, fontWeight:700, color:C.white, marginBottom:8, lineHeight:1.3 }}>{m.title}</h3>
-                  <p style={{ fontSize:12, color:C.textSec, lineHeight:1.7 }}>{m.desc}</p>
+              <div key={i} style={{ background:C.bgCard, border:`1px solid ${m.colorBorder}`, borderRadius:16, padding:"28px 24px", display:"flex", flexDirection:"column", gap:16, transition:"all 0.2s" }}
+                onMouseEnter={e=>{ e.currentTarget.style.background=C.bgCardHover; e.currentTarget.style.boxShadow=`0 4px 32px ${m.color}22`; }}
+                onMouseLeave={e=>{ e.currentTarget.style.background=C.bgCard; e.currentTarget.style.boxShadow="none"; }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                  <div style={{ width:52, height:52, borderRadius:14, background:m.colorBg, border:`1.5px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{m.icon}</div>
+                  <span style={{ fontSize:10, fontWeight:800, color:m.color, background:m.colorBg, border:`1px solid ${m.colorBorder}`, borderRadius:6, padding:"3px 10px", letterSpacing:0.5 }}>{m.num}</span>
                 </div>
-                <div style={{ display:"flex", justifyContent:"flex-end" }}>
-                  <div style={{ width:30, height:30, borderRadius:"50%", background:m.colorBg, border:`1px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", color:m.color, fontSize:13, fontWeight:800 }}>→</div>
+                <div>
+                  <h3 style={{ fontSize:15, fontWeight:700, color:C.white, marginBottom:10, lineHeight:1.3 }}>{m.title}</h3>
+                  <p style={{ fontSize:13, color:C.textSec, lineHeight:1.75, marginBottom:16 }}>{m.desc}</p>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                    {m.tags.map((tag,j)=>(
+                      <span key={j} style={{ fontSize:10, color:m.color, background:m.colorBg, border:`1px solid ${m.colorBorder}`, borderRadius:20, padding:"3px 10px", fontWeight:600 }}>{tag}</span>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
@@ -339,57 +414,56 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
         </div>
       </section>
 
-      {/* ── Cobertura ──────────────────────────────── */}
-      <section id="cobertura" style={{ padding:"0 48px" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto", background:C.bgCard, border:`1px solid ${C.border}`, borderTop:"none", borderRadius:"0 0 0 0", padding:"20px 32px", display:"flex", alignItems:"center", gap:24, flexWrap:"wrap" }}>
-          <p style={{ fontSize:14, fontWeight:700, color:C.textSec, flexShrink:0, minWidth:200 }}>{t.coverage_title}</p>
-          <div style={{ display:"flex", flex:1, flexWrap:"wrap" }}>
-            {t.coverage.map((item,i)=>(
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:10, padding:"8px 20px", borderLeft:i>0?`1px solid ${C.border}`:"none" }}>
-                <span style={{ fontSize:18 }}>{item.icon}</span>
-                <p style={{ fontSize:11, color:C.textSec, lineHeight:1.4, whiteSpace:"pre-line" }}>{item.label}</p>
+      {/* ── Diseñado para ──────────────────────────── */}
+      <section id="para-quien" style={{ background:`linear-gradient(135deg,rgba(11,30,61,0.8),rgba(7,21,47,1))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:"72px 48px" }}>
+        <div style={{ maxWidth:1200, margin:"0 auto" }}>
+          <div style={{ textAlign:"center", marginBottom:48 }}>
+            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang==="es"?"Audiencia":"Audience"}</span>
+            <h2 style={{ fontSize:"clamp(22px,3vw,32px)", fontWeight:800, marginTop:12, letterSpacing:-0.5 }}>{t.audience_title}</h2>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))", gap:14 }}>
+            {t.audience.map((a,i)=>(
+              <div key={i} style={{ display:"flex", gap:16, alignItems:"flex-start", background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:14, padding:"22px 24px", transition:"border-color 0.2s" }}
+                onMouseEnter={e=>(e.currentTarget.style.borderColor=C.borderGold)}
+                onMouseLeave={e=>(e.currentTarget.style.borderColor=C.border)}>
+                <span style={{ fontSize:28, flexShrink:0 }}>{a.icon}</span>
+                <div>
+                  <p style={{ fontSize:15, fontWeight:700, color:C.white, marginBottom:6 }}>{a.label}</p>
+                  <p style={{ fontSize:13, color:C.textSec, lineHeight:1.65 }}>{a.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Trust bar ──────────────────────────────── */}
-      <section style={{ padding:"0 48px 72px" }}>
-        <div style={{ maxWidth:1200, margin:"0 auto", background:"rgba(7,21,47,0.9)", border:`1px solid rgba(255,255,255,0.05)`, borderTop:"none", borderRadius:"0 0 16px 16px", padding:"20px 32px", display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:0 }}>
-          {t.trust.map((item,i)=>(
-            <div key={i} style={{ display:"flex", alignItems:"center", gap:12, padding:"8px 16px", borderLeft:i>0?`1px solid rgba(255,255,255,0.06)`:"none" }}>
-              <span style={{ fontSize:20, flexShrink:0 }}>{item.icon}</span>
-              <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.5, whiteSpace:"pre-line" }}>{item.label}</p>
-            </div>
-          ))}
+      {/* ── Fuentes ────────────────────────────────── */}
+      <section id="fuentes" style={{ padding:"56px 48px" }}>
+        <div style={{ maxWidth:960, margin:"0 auto" }}>
+          <p style={{ textAlign:"center", fontSize:11, color:C.textMuted, marginBottom:24, textTransform:"uppercase", letterSpacing:1.5, fontWeight:600 }}>{t.sources_title}</p>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:10 }}>
+            {t.sources.map((s,i)=>(
+              <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:12, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 20px" }}>
+                <span style={{ fontSize:20, marginTop:1 }}>{s.icon}</span>
+                <div>
+                  <p style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.8)", marginBottom:4 }}>{s.name}</p>
+                  <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.5 }}>{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── CTA central ────────────────────────────── */}
+      {/* ── CTA final ──────────────────────────────── */}
       <section style={{ maxWidth:720, margin:"0 auto 80px", padding:"0 48px" }}>
-        <div style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.12),${C.bgCard})`, border:`1px solid ${C.border}`, borderRadius:20, padding:"52px 48px", textAlign:"center" }}>
+        <div style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.14),${C.bgCard})`, border:`1px solid ${C.border}`, borderRadius:20, padding:"56px 48px", textAlign:"center" }}>
           <p style={{ fontSize:11, color:C.gold, fontWeight:800, letterSpacing:2, textTransform:"uppercase", marginBottom:14 }}>From Product to Trade Intelligence™</p>
-          <h2 style={{ fontSize:28, fontWeight:800, marginBottom:12, letterSpacing:-0.5 }}>
-            {lang==="es"?"Empezá ahora — es gratis":"Start now — it's free"}
-          </h2>
-          <p style={{ fontSize:14, color:C.textSec, marginBottom:32, maxWidth:400, margin:"0 auto 32px", lineHeight:1.7 }}>
-            {lang==="es"?"3 consultas gratis, sin tarjeta de crédito. Cuando escales, activás tu plan.":"3 free consultations, no credit card. When you scale, activate your plan."}
-          </p>
-          {submitted ? (
-            <div style={{ display:"inline-flex", alignItems:"center", gap:10, background:"rgba(34,197,94,0.1)", border:"1px solid rgba(34,197,94,0.3)", borderRadius:12, padding:"14px 24px" }}>
-              <span>✅</span><p style={{ fontSize:14, color:"#22c55e", fontWeight:600 }}>{t.notify_thanks}</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubscribe} style={{ display:"flex", gap:8, justifyContent:"center", flexWrap:"wrap" }}>
-              <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={t.notify_ph} required
-                style={{ padding:"13px 20px", borderRadius:9, border:`1px solid ${C.border}`, background:C.bg, color:C.white, fontSize:14, width:260, outline:"none" }}/>
-              <button type="submit" style={{ padding:"13px 28px", borderRadius:9, border:"none", background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:14, fontWeight:800, cursor:"pointer" }}>
-                {t.notify_btn}
-              </button>
-            </form>
-          )}
-          <p style={{ fontSize:11, color:C.textMuted, marginTop:14 }}>{t.notify_sub}</p>
+          <h2 style={{ fontSize:28, fontWeight:800, marginBottom:12, letterSpacing:-0.5 }}>{t.cta_title}</h2>
+          <p style={{ fontSize:14, color:C.textSec, marginBottom:36, maxWidth:400, margin:"0 auto 36px", lineHeight:1.7 }}>{t.cta_sub}</p>
+          <Link href="/register" style={{ display:"inline-block", padding:"16px 40px", borderRadius:12, background:`linear-gradient(135deg,${C.gold},#F9D96A)`, color:C.bg, fontSize:16, fontWeight:800, textDecoration:"none", letterSpacing:0.1 }}>
+            {t.cta_btn}
+          </Link>
         </div>
       </section>
 
@@ -399,17 +473,17 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:32, height:32, borderRadius:7, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:10, color:C.gold, border:`1.5px solid ${C.gold}` }}>GTH</div>
             <div>
-              <p style={{ fontSize:13, color:"rgba(255,255,255,0.5)", fontWeight:700 }}>Global Tariff Hub</p>
-              <p style={{ fontSize:10, color:`${C.gold}66` }}>From Product to Trade Intelligence™</p>
+              <p style={{ fontSize:13, color:"rgba(255,255,255,0.45)", fontWeight:700 }}>Global Tariff Hub</p>
+              <p style={{ fontSize:10, color:`${C.gold}55` }}>From Product to Trade Intelligence™</p>
             </div>
           </div>
           <div style={{ display:"flex", gap:24, flexWrap:"wrap" }}>
             {[
-              {href:"/pricing",label:"Pricing"},
-              {href:"/login",label:t.nav_login},
-              {href:lang==="es"?"/privacidad":"/privacy",label:lang==="es"?"Privacidad":"Privacy"},
-              {href:"/terminos",label:lang==="es"?"Términos":"Terms"},
-              {href:"/legales",label:lang==="es"?"Aviso Legal":"Legal Notice"},
+              {href:"/register", label:lang==="es"?"Registrarse":"Register"},
+              {href:"/pricing",  label:"Pricing"},
+              {href:lang==="es"?"/privacidad":"/privacy", label:lang==="es"?"Privacidad":"Privacy"},
+              {href:"/terminos", label:lang==="es"?"Términos":"Terms"},
+              {href:"/legales",  label:lang==="es"?"Aviso Legal":"Legal Notice"},
             ].map(l=>(
               <Link key={l.href} href={l.href} style={{ fontSize:12, color:C.textMuted, textDecoration:"none", fontWeight:500 }}>{l.label}</Link>
             ))}
@@ -417,7 +491,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es" | 
         </div>
         <div style={{ maxWidth:1200, margin:"20px auto 0", borderTop:`1px solid rgba(255,255,255,0.05)`, paddingTop:20 }}>
           <p style={{ fontSize:11, color:"rgba(255,255,255,0.2)", marginBottom:6 }}>{t.footer_copy}</p>
-          <p style={{ fontSize:10, color:"rgba(255,255,255,0.12)", lineHeight:1.6, maxWidth:900 }}>{t.footer_legal}</p>
+          <p style={{ fontSize:10, color:"rgba(255,255,255,0.12)", lineHeight:1.6, maxWidth:900 }}>{t.disclaimer}</p>
         </div>
       </footer>
     </div>
