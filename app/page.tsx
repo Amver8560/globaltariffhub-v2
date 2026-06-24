@@ -79,10 +79,10 @@ const T = {
     login_msg:   "El acceso a la plataforma estará disponible próximamente.",
     sources_title:"Fuentes de referencia utilizadas",
     sources: [
-      { icon:"🌐", name:"WTO API",          desc:"Tasas MFN por código HS — 164 países miembro" },
-      { icon:"🇧🇷", name:"Siscomex / NCM",  desc:"Nomenclatura oficial MERCOSUR en tiempo real" },
-      { icon:"🇪🇺", name:"TARIC EU",        desc:"Base arancelaria de la Unión Europea" },
-      { icon:"🤖", name:"Anthropic Claude", desc:"Clasificación por imagen o descripción" },
+      { icon:"", name:"WTO API",          desc:"Tasas MFN por código HS — 164 países miembro" },
+      { icon:"", name:"Siscomex / NCM",  desc:"Nomenclatura oficial MERCOSUR en tiempo real" },
+      { icon:"", name:"TARIC EU",        desc:"Base arancelaria de la Unión Europea" },
+      { icon:"", name:"Anthropic Claude", desc:"Clasificación por imagen o descripción" },
     ],
     disclaimer: "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
     footer_copy: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
@@ -457,7 +457,6 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:10 }}>
             {t.sources.map((s,i)=>(
               <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:12, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 20px" }}>
-                <span style={{ fontSize:20, marginTop:1 }}>{s.icon}</span>
                 <div>
                   <p style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.8)", marginBottom:4 }}>{s.name}</p>
                   <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.5 }}>{s.desc}</p>
