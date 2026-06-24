@@ -14,9 +14,9 @@ function daysLeft() {
 
 const MODULES = [
   { href: "/modulo01", emoji: "🔍", title: "Búsqueda Arancelaria", desc: "Consultá posiciones HS, NCM y TARIC con tasa arancelaria y datos de origen/destino.", badge: "M01" },
-  { href: "/modulo03", emoji: "📄", title: "Certificado de Origen", desc: "Simulá si tu operación califica para tasa preferencial y qué certificado necesitás.", badge: "M03" },
-  { href: "/modulo04", emoji: "📦", title: "Calculadora CIF", desc: "Calculá el costo CIF exacto con flete, seguro y todos los tributos por país.", badge: "M04" },
-  { href: "/modulo05", emoji: "💡", title: "Viabilidad de Importación", desc: "Analizá si el negocio cierra: costo nacionalizado, margen y precio de venta sugerido.", badge: "M05" },
+  { href: "/modulo02", emoji: "📄", title: "Simulador de Operaciones con Certificado de Origen", desc: "Simulá si tu operación califica para tasa preferencial y qué certificado necesitás.", badge: "M02" },
+  { href: "/modulo03", emoji: "📦", title: "Calculadora CIF", desc: "Calculá el costo CIF exacto con flete, seguro y todos los tributos por país.", badge: "M03" },
+  { href: "/modulo04", emoji: "💡", title: "Viabilidad de Importación", desc: "Analizá si el negocio cierra: costo nacionalizado, margen y precio de venta sugerido.", badge: "M04" },
 ];
 
 export default function DashboardPage() {

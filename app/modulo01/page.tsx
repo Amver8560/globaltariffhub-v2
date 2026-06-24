@@ -401,12 +401,12 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         <Link
-                          href={`/modulo03?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
+                          href={`/modulo02?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
                           style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                           📄 {c.sim_cert}
                         </Link>
                         <Link
-                          href={`/modulo04?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
+                          href={`/modulo02?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
                           style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                           📦 {c.calc_cif}
                         </Link>

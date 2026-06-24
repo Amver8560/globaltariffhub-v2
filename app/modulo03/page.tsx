@@ -3,118 +3,137 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { exportCertificatePDF } from "@/lib/exportPDF";
+import { exportCIFPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 
-const COUNTRIES = [
-  "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
-  "Colombia", "Ecuador", "Venezuela", "México", "Estados Unidos", "Canadá",
-  "España", "Alemania", "Francia", "Italia", "China", "Japón", "Corea del Sur",
-  "India", "Australia", "Reino Unido"
+const INCOTERMS = [
+  { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
+  { code: "FOB", name: "Free On Board", seller: "Entrega en el puerto de origen, despachada para exportación", buyer: "Flete internacional, seguro y costos en destino" },
+  { code: "CIF", name: "Cost, Insurance & Freight", seller: "Flete y seguro hasta puerto de destino", buyer: "Descarga, despacho de importación y costos internos en destino" },
+  { code: "DAP", name: "Delivered At Place", seller: "Entrega en el lugar acordado en destino, sin desaduanar", buyer: "Derechos de importación y costos de despacho en destino" },
+  { code: "DDP", name: "Delivered Duty Paid", seller: "Todo — entrega en destino con todos los costos pagados", buyer: "Solo recibir la mercadería" },
+  { code: "FCA", name: "Free Carrier", seller: "Entrega al transportista designado por el comprador", buyer: "Transporte desde el punto de entrega acordado" },
+  { code: "CPT", name: "Carriage Paid To", seller: "Transporte hasta destino acordado", buyer: "Seguro y riesgos desde que la mercadería se entrega al transportista" },
 ];
 
-const AGREEMENTS = ["MERCOSUR", "TLC", "SGP", "Automático"];
-const UNITS = ["kg", "toneladas", "litros", "unidades", "m²", "cajas", "pallets"];
+const CURRENCIES = ["USD", "EUR", "ARS", "BRL", "CLP"];
 
 const t = {
   es: {
-    title: "Simulación de Certificado de Origen",
-    subtitle: "Calculá tu ahorro arancelario",
-    disclaimer_banner: "⚠ Esta herramienta es una SIMULACIÓN. No emite certificados de origen ni documentos aduaneros.",
-    step1: "Paso 1 — Datos de la operación",
-    origin: "País exportador",
-    destination: "País importador",
-    hs_code: "Código HS (opcional)",
-    hs_placeholder: "Ej: 2204.21",
-    fob_value: "Valor FOB (USD)",
-    fob_placeholder: "Ej: 10000",
+    title: "Calculadora CIF e Incoterms",
+    subtitle: "Calculá el costo total de tu operación",
+    incoterm_title: "Seleccioná el Incoterm",
+    seller_covers: "El vendedor cubre",
+    buyer_covers: "El comprador cubre",
+    section_merch: "Mercadería",
+    fob_value: "Valor FOB / Precio de venta",
     quantity: "Cantidad",
-    unit: "Unidad",
-    agreement: "Acuerdo a simular",
-    btn_simulate: "Simular ahorro",
-    btn_simulating: "Calculando...",
-    select_country: "Seleccioná un país",
-    result_title: "Resultado de la simulación",
-    without_cert: "Sin certificado",
-    with_cert: "Con certificado",
-    cert_cost: "Costo del certificado",
-    net_saving: "Ahorro neto",
-    roi: "ROI",
-    recommendation: "Recomendación",
-    processing: "Tiempo de tramitación",
-    validity: "Validez",
-    days: "días",
-    issuer: "Organismo emisor",
-    where: "Dónde tramitarlo",
-    requirements_title: "Requisitos del certificado",
-    origin_rule: "Regla de origen",
-    documents: "Documentos necesarios",
-    mandatory: "Obligatorio",
-    optional: "Opcional",
-    calc_cif: "📦 Calcular CIF con este dato →",
-    back_search: "← Volver al buscador",
-    error: "Error en la simulación. Intentá de nuevo.",
-    days_label: "días hábiles",
+    unit_price: "Precio unitario",
+    currency: "Moneda",
+    section_logistics: "Logística internacional",
+    freight: "Flete internacional",
+    insurance: "Seguro internacional",
+    insurance_pct: "% sobre valor FOB (usual: 0.5% - 1%)",
+    section_origin: "Costos en origen",
+    export_customs: "Despacho de exportación",
+    port_origin: "Gastos portuarios origen",
+    section_destination: "Costos en destino",
+    tariff_rate: "Tasa arancelaria (%)",
+    with_cert: "Con certificado preferencial",
+    pref_rate: "Tasa preferencial (%)",
+    import_customs: "Despacho de importación",
+    port_dest: "Gastos portuarios destino",
+    local_transport: "Transporte interno destino",
+    section_result: "Resultado",
+    total_cost: "Costo total CIF",
+    total_without: "Sin certificado",
+    total_with: "Con certificado",
+    saving: "Ahorro con certificado",
+    unit_cost: "Costo por unidad",
+    breakdown: "Desglose de costos",
+    merch_value: "Valor mercadería",
+    logistics_total: "Logística",
+    origin_total: "Costos origen",
+    tariff_amount: "Arancel",
+    dest_total: "Costos destino",
+    btn_calc: "Calcular",
+    back: "← Volver",
+    sim_cert: "📄 Simular certificado →",
+    disclaimer: "⚠ Cálculo de referencia. Los valores reales pueden variar según el transportista, aduana y tipo de cambio.",
   },
   en: {
-    title: "Certificate of Origin Simulation",
-    subtitle: "Calculate your tariff savings",
-    disclaimer_banner: "⚠ This tool is a SIMULATION only. It does not issue certificates of origin or customs documents.",
-    step1: "Step 1 — Operation data",
-    origin: "Exporting country",
-    destination: "Importing country",
-    hs_code: "HS Code (optional)",
-    hs_placeholder: "E.g: 2204.21",
-    fob_value: "FOB Value (USD)",
-    fob_placeholder: "E.g: 10000",
+    title: "CIF & Incoterms Calculator",
+    subtitle: "Calculate the total cost of your operation",
+    incoterm_title: "Select Incoterm",
+    seller_covers: "Seller covers",
+    buyer_covers: "Buyer covers",
+    section_merch: "Merchandise",
+    fob_value: "FOB Value / Selling price",
     quantity: "Quantity",
-    unit: "Unit",
-    agreement: "Agreement to simulate",
-    btn_simulate: "Simulate savings",
-    btn_simulating: "Calculating...",
-    select_country: "Select a country",
-    result_title: "Simulation result",
-    without_cert: "Without certificate",
-    with_cert: "With certificate",
-    cert_cost: "Certificate cost",
-    net_saving: "Net saving",
-    roi: "ROI",
-    recommendation: "Recommendation",
-    processing: "Processing time",
-    validity: "Validity",
-    days: "days",
-    issuer: "Issuing entity",
-    where: "Where to apply",
-    requirements_title: "Certificate requirements",
-    origin_rule: "Rule of origin",
-    documents: "Required documents",
-    mandatory: "Mandatory",
-    optional: "Optional",
-    calc_cif: "📦 Calculate CIF with this data →",
-    back_search: "← Back to search",
-    error: "Simulation error. Please try again.",
-    days_label: "business days",
+    unit_price: "Unit price",
+    currency: "Currency",
+    section_logistics: "International logistics",
+    freight: "International freight",
+    insurance: "International insurance",
+    insurance_pct: "% of FOB value (typical: 0.5% - 1%)",
+    section_origin: "Origin costs",
+    export_customs: "Export customs clearance",
+    port_origin: "Origin port charges",
+    section_destination: "Destination costs",
+    tariff_rate: "Tariff rate (%)",
+    with_cert: "With preferential certificate",
+    pref_rate: "Preferential rate (%)",
+    import_customs: "Import customs clearance",
+    port_dest: "Destination port charges",
+    local_transport: "Local transport at destination",
+    section_result: "Result",
+    total_cost: "Total CIF cost",
+    total_without: "Without certificate",
+    total_with: "With certificate",
+    saving: "Saving with certificate",
+    unit_cost: "Cost per unit",
+    breakdown: "Cost breakdown",
+    merch_value: "Merchandise value",
+    logistics_total: "Logistics",
+    origin_total: "Origin costs",
+    tariff_amount: "Tariff",
+    dest_total: "Destination costs",
+    btn_calc: "Calculate",
+    back: "← Back",
+    sim_cert: "📄 Simulate certificate →",
+    disclaimer: "⚠ Reference calculation. Actual values may vary by carrier, customs and exchange rate.",
   },
 };
 
 type Lang = "es" | "en";
 
-function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
+function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>(defaultLang);
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
   const [tariffCode, setTariffCode] = useState("");
   const [tariffSystem, setTariffSystem] = useState("HS");
-  const [fobValue, setFobValue] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState("kg");
-  const [agreement, setAgreement] = useState("Automático");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [error, setError] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
   const [rateLoading, setRateLoading] = useState(false);
   const [rateInfo, setRateInfo] = useState<any>(null);
+  const [incoterm, setIncoterm] = useState("FOB");
+  const [currency, setCurrency] = useState("USD");
+  const [fobValue, setFobValue] = useState("");
+  const [quantity, setQuantity] = useState("1");
+  const [freight, setFreight] = useState("");
+  const [insurancePct, setInsurancePct] = useState("0.8");
+  const [exportCustoms, setExportCustoms] = useState("");
+  const [portOrigin, setPortOrigin] = useState("");
+  const [tariffRate, setTariffRate] = useState("");
+  const [withCert, setWithCert] = useState(false);
+  const [prefRate, setPrefRate] = useState("0");
+  const [importCustoms, setImportCustoms] = useState("");
+  const [portDest, setPortDest] = useState("");
+  const [localTransport, setLocalTransport] = useState("");
+  const [result, setResult] = useState<any>(null);
+  const c = t[lang];
+
+  const n = (v: string) => parseFloat(v) || 0;
 
   // Pre-fill from Module 01 params
   useEffect(() => {
@@ -128,8 +147,21 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (dest) setDestination(dest);
   }, [searchParams]);
 
+  // Auto-fetch tariff rate when arriving from Module 01 with full data
+  useEffect(() => {
+    const code = searchParams.get("tariff_code");
+    const sys = searchParams.get("system") || "HS";
+    const orig = searchParams.get("origin");
+    const dest = searchParams.get("destination");
+    if (code && dest) fetchTariffRate(code, sys, orig || "", dest);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [rateError, setRateError] = useState("");
+
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
-    if (!code || !dest) return;
+    if (!code) return;
+    if (!dest) { setRateError(lang === "es" ? "Seleccioná el país de destino." : "Select destination country."); return; }
+    setRateError("");
     setRateLoading(true);
     setRateInfo(null);
     try {
@@ -139,41 +171,56 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         body: JSON.stringify({ tariff_code: code, system: sys, origin: orig, destination: dest, lang }),
       });
       const data = await res.json();
-      if (!data.error) {
+      if (data.error) {
+        setRateError(data.error);
+      } else {
         setRateInfo(data);
-        if (data.agreement && data.agreement !== "null") setAgreement(data.agreement);
+        if (data.base_rate !== undefined) setTariffRate(String(data.base_rate));
+        if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
+        if (data.has_preferential) setWithCert(true);
       }
-    } catch { /* silent */ } finally {
-      setRateLoading(false);
-    }
+    } catch { setRateError(lang === "es" ? "Error al consultar. Intentá de nuevo." : "Lookup error. Please try again."); }
+    finally { setRateLoading(false); }
   };
 
-  const c = t[lang];
+  useEffect(() => {
+    const fob = n(fobValue);
+    if (!fob) { setResult(null); return; }
 
-  const handleSimulate = async () => {
-    if (!origin || !destination || !fobValue) return;
-    setError("");
-    setResult(null);
-    setLoading(true);
-    try {
-      const res = await fetch("/api/certificate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ origin, destination, hs_code: tariffCode, fob_value: parseFloat(fobValue), quantity: quantity || "1", unit, agreement, lang }),
-      });
-      const data = await res.json();
-      if (data.error) { setError(data.error); return; }
-      setResult(data);
-    } catch {
-      setError(c.error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const qty = n(quantity) || 1;
+    const ins = fob * (n(insurancePct) / 100);
+    const frt = n(freight);
+    const exCust = n(exportCustoms);
+    const pOrig = n(portOrigin);
+    const imCust = n(importCustoms);
+    const pDest = n(portDest);
+    const locTr = n(localTransport);
 
-  const inputStyle = { width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
-  const selectStyle = { ...inputStyle, cursor: "pointer" };
-  const labelStyle = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6, display: "block" as const };
+    const cifBase = fob + frt + ins;
+    const tariffAmt = cifBase * (n(tariffRate) / 100);
+    const prefAmt = cifBase * (n(prefRate) / 100);
+    const destCosts = imCust + pDest + locTr;
+    const origCosts = exCust + pOrig;
+
+    const totalWithout = fob + frt + ins + origCosts + tariffAmt + destCosts;
+    const totalWith = fob + frt + ins + origCosts + prefAmt + destCosts;
+    const saving = totalWithout - totalWith;
+
+    setResult({
+      fob, freight: frt, insurance: ins, origCosts, tariffAmt, prefAmt,
+      destCosts, totalWithout, totalWith, saving,
+      unitWithout: totalWithout / qty, unitWith: totalWith / qty,
+      cifBase,
+    });
+  }, [fobValue, quantity, freight, insurancePct, exportCustoms, portOrigin, tariffRate, prefRate, withCert, importCustoms, portDest, localTransport]);
+
+  const selectedIncoterm = INCOTERMS.find(i => i.code === incoterm)!;
+
+  const fmt = (v: number) => v.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const inputStyle = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
+  const labelStyle = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 5, display: "block" as const };
+  const sectionStyle = { fontSize: 13, fontWeight: 700 as const, color: "#C9A84C", marginBottom: 14, marginTop: 4, borderBottom: "1px solid rgba(201,168,76,0.2)", paddingBottom: 6 };
 
   return (
     <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
@@ -185,7 +232,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/modulo01" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back_search}</Link>
+          <Link href="/modulo01" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back}</Link>
           <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
               <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
@@ -194,229 +241,281 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         </div>
       </nav>
 
-      <main style={{ maxWidth: 820, margin: "0 auto", padding: "40px 24px 80px" }}>
+      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 24px 80px" }}>
 
         {/* Header */}
-        <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", color: "#22c55e", fontSize: 12, fontWeight: 600 }}>Módulo 03</span>
+        <div style={{ marginBottom: 28, textAlign: "center" }}>
+          <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 20, padding: "5px 16px", color: "#0057FF", fontSize: 12, fontWeight: 600 }}>Módulo 04</span>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
         </div>
 
-        {/* Disclaimer banner */}
-        <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 28, textAlign: "center" }}>
-          <p style={{ fontSize: 13, color: "#ef4444", fontWeight: 600 }}>{c.disclaimer_banner}</p>
-        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
 
-        {/* Formulario */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: "rgba(255,255,255,0.8)" }}>{c.step1}</h2>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-            <div>
-              <label style={labelStyle}>{c.origin}</label>
-              <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
-                <option value="">— Seleccioná país —</option>
-                {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>{c.destination}</label>
-              <select value={destination} onChange={(e) => setDestination(e.target.value)} style={selectStyle}>
-                <option value="">— Seleccioná país —</option>
-                {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
-            <div>
-              <label style={labelStyle}>{c.fob_value}</label>
-              <input type="number" value={fobValue} onChange={(e) => setFobValue(e.target.value)} placeholder={c.fob_placeholder} style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>{c.quantity}</label>
-              <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Ej: 1000" style={inputStyle} />
-            </div>
-            <div>
-              <label style={labelStyle}>{c.unit}</label>
-              <select value={unit} onChange={(e) => setUnit(e.target.value)} style={selectStyle}>
-                {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <label style={labelStyle}>{lang === "es" ? "Código arancelario (HS / NCM / TARIC)" : "Tariff code (HS / NCM / TARIC)"}</label>
-            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-              {["HS", "NCM", "TARIC"].map((s) => (
-                <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
-              ))}
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                type="text"
-                value={tariffCode}
-                onChange={(e) => setTariffCode(e.target.value)}
-                placeholder={tariffSystem === "NCM" ? "ej: 6203.42.00" : tariffSystem === "TARIC" ? "ej: 6203420010" : "ej: 6203.42"}
-                style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
-              />
-              <button
-                onClick={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
-                disabled={rateLoading || !tariffCode}
-                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
-              >
-                {rateLoading ? "⏳" : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
-              </button>
-            </div>
-            {rateInfo && (
-              <div style={{ marginTop: 10, padding: "12px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{rateInfo.description}</p>
-                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{lang === "es" ? "Tasa base:" : "Base rate:"} {rateInfo.base_rate}%</span>
-                  {rateInfo.has_preferential && <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{lang === "es" ? "Preferencial:" : "Preferential:"} {rateInfo.preferential_rate}%</span>}
-                  {rateInfo.agreement && rateInfo.agreement !== "null" && <span style={{ fontSize: 12, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>}
-                </div>
-                {rateInfo.agreement_note && rateInfo.agreement_note !== "null" && (
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>{rateInfo.agreement_note}</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <label style={labelStyle}>{c.agreement}</label>
-            <select value={agreement} onChange={(e) => setAgreement(e.target.value)} style={selectStyle}>
-              {AGREEMENTS.map((a) => <option key={a} value={a}>{a}</option>)}
-            </select>
-          </div>
-
-          {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
-
-          <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
-            {loading ? c.btn_simulating : c.btn_simulate}
-          </button>
-        </div>
-
-        {/* Resultados */}
-        {result && (
+          {/* Columna izquierda — formulario */}
           <div>
-            {/* Botón exportar PDF */}
-            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-              <button
-                onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-              >
-                📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
-              </button>
-            </div>
-
-            {/* Resumen ahorro */}
-            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{c.result_title}</h2>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
-                <div style={{ background: "rgba(239,68,68,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(239,68,68,0.2)", textAlign: "center" }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.without_cert}</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#ef4444" }}>USD {result.tariff_without?.amount?.toLocaleString()}</p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.tariff_without?.rate}</p>
-                </div>
-                <div style={{ background: "rgba(34,197,94,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(34,197,94,0.3)", textAlign: "center" }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.with_cert} — {result.agreement?.name}</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>USD {result.tariff_with?.amount?.toLocaleString()}</p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.tariff_with?.rate}</p>
-                </div>
-                <div style={{ background: "rgba(201,168,76,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(201,168,76,0.3)", textAlign: "center" }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.cert_cost}</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#C9A84C" }}>USD {result.certificate_cost?.amount?.toLocaleString()}</p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.certificate_cost?.issuer}</p>
-                </div>
-              </div>
-
-              {/* Ahorro neto destacado */}
-              <div style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(0,87,255,0.15))", borderRadius: 12, padding: "20px 24px", border: "1px solid rgba(34,197,94,0.3)", marginBottom: 16 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.net_saving}</p>
-                    <p style={{ fontSize: 32, fontWeight: 800, color: "#22c55e" }}>USD {result.savings?.net?.toLocaleString()}</p>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.roi}</p>
-                    <p style={{ fontSize: 32, fontWeight: 800, color: "#C9A84C" }}>{result.savings?.roi_percent}%</p>
-                  </div>
-                </div>
-                <p style={{ fontSize: 14, color: "#22c55e", marginTop: 12, fontWeight: 600 }}>✓ {result.savings?.recommendation}</p>
-              </div>
-
-              {/* Info del certificado */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
-                {[
-                  [c.processing, `${result.certificate_cost?.processing_days} ${c.days_label}`],
-                  [c.validity, `${result.certificate_cost?.validity_days} ${c.days}`],
-                  [c.issuer, result.certificate_cost?.issuer],
-                ].map(([label, value], i) => (
-                  <div key={i} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px" }}>
-                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{label}</p>
-                    <p style={{ fontSize: 13, fontWeight: 600 }}>{value}</p>
-                  </div>
+            {/* Búsqueda por código arancelario */}
+            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 20, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+              <p style={sectionStyle}>{lang === "es" ? "🔍 Código arancelario" : "🔍 Tariff Code"}</p>
+              {/* Selector de sistema */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                {["HS", "NCM", "TARIC"].map((s) => (
+                  <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "5px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
                 ))}
               </div>
-            </div>
-
-            {/* Requisitos */}
-            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{c.requirements_title}</h2>
-
-              <div style={{ background: "rgba(201,168,76,0.08)", borderRadius: 10, padding: "14px 16px", marginBottom: 16, border: "1px solid rgba(201,168,76,0.2)" }}>
-                <p style={{ fontSize: 12, color: "#C9A84C", fontWeight: 700, marginBottom: 4 }}>{c.origin_rule}</p>
-                <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>{result.requirements?.origin_rule}</p>
+              {/* Fila 1: código + botón */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <input
+                  type="text"
+                  value={tariffCode}
+                  onChange={(e) => setTariffCode(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                  placeholder={tariffSystem === "NCM" ? "ej: 63014000" : tariffSystem === "TARIC" ? "ej: 6301400010" : "ej: 630140"}
+                  style={{ ...inputStyle, flex: 1, fontFamily: "monospace", letterSpacing: 1 }}
+                />
+                <button
+                  onClick={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                  disabled={rateLoading || !tariffCode}
+                  style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.85)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+                >
+                  {rateLoading ? "⏳ Buscando..." : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
+                </button>
               </div>
 
-              <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: "rgba(255,255,255,0.7)" }}>{c.documents}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
-                {result.requirements?.documents?.map((doc: any, i: number) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid ${doc.mandatory ? "rgba(0,87,255,0.2)" : "rgba(255,255,255,0.07)"}` }}>
-                    <span style={{ fontSize: 16, marginTop: 1 }}>{doc.mandatory ? "✅" : "📋"}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 14, fontWeight: 600 }}>{doc.name}</span>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: doc.mandatory ? "rgba(0,87,255,0.2)" : "rgba(255,255,255,0.08)", color: doc.mandatory ? "#0057FF" : "rgba(255,255,255,0.4)" }}>
-                          {doc.mandatory ? c.mandatory : c.optional}
-                        </span>
-                      </div>
-                      {doc.notes && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>{doc.notes}</p>}
+              {/* Fila 2: origen → destino */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 4 }}>{lang === "es" ? "País de origen" : "Origin country"}</label>
+                  <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={{ ...inputStyle }}>
+                    <option value="">{lang === "es" ? "— Origen —" : "— Origin —"}</option>
+                    {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 4 }}>{lang === "es" ? "País de destino *" : "Destination country *"}</label>
+                  <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, borderColor: !destination ? "rgba(239,68,68,0.4)" : "rgba(0,87,255,0.3)" }}>
+                    <option value="">{lang === "es" ? "— Destino —" : "— Destination —"}</option>
+                    {["Argentina","Brasil","Uruguay","Paraguay","Chile","Bolivia","Perú","Colombia","Ecuador","México","Estados Unidos","Canadá","España","Alemania","Francia","Italia","China","Japón","Corea del Sur","India","Australia","Reino Unido"].map(co => <option key={co} value={co}>{co}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {rateError && <p style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>⚠ {rateError}</p>}
+
+              {rateLoading && (
+                <div style={{ padding: "10px 14px", background: "rgba(0,87,255,0.06)", borderRadius: 8, marginTop: 8 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>⏳ {lang === "es" ? "Consultando arancel con IA…" : "Looking up tariff with AI…"}</p>
+                </div>
+              )}
+
+              {rateInfo && (
+                <div style={{ marginTop: 10, padding: "14px 16px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 10 }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{rateInfo.description}</p>
+                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 6 }}>
+                    <div>
+                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa base → campo auto-completado ↓" : "Base rate → field auto-filled ↓"}</p>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: "#ef4444" }}>{rateInfo.base_rate}%</span>
                     </div>
+                    {rateInfo.has_preferential && (
+                      <div>
+                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa preferencial → campo auto-completado ↓" : "Preferential rate → auto-filled ↓"}</p>
+                        <span style={{ fontSize: 18, fontWeight: 800, color: "#22c55e" }}>{rateInfo.preferential_rate}%</span>
+                      </div>
+                    )}
+                    {rateInfo.agreement && rateInfo.agreement !== "null" && (
+                      <div>
+                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>Acuerdo</p>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>
+                      </div>
+                    )}
                   </div>
-                ))}
-              </div>
-
-              {result.requirements?.where_to_get && (
-                <div style={{ background: "rgba(0,87,255,0.08)", borderRadius: 10, padding: "14px 16px", border: "1px solid rgba(0,87,255,0.2)" }}>
-                  <p style={{ fontSize: 12, color: "#0057FF", fontWeight: 700, marginBottom: 4 }}>{c.where}</p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{result.requirements?.issuing_entity}</p>
+                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{rateInfo.notes}</p>}
                 </div>
               )}
             </div>
 
-            {/* Acción CIF */}
-            <div style={{ textAlign: "center" }}>
-              <Link href="/modulo04" style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
-                {c.calc_cif}
-              </Link>
+            {/* Selector Incoterm */}
+            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+              <p style={sectionStyle}>{c.incoterm_title}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+                {INCOTERMS.map((inc) => (
+                  <button key={inc.code} onClick={() => setIncoterm(inc.code)} style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${incoterm === inc.code ? "#0057FF" : "rgba(255,255,255,0.1)"}`, background: incoterm === inc.code ? "rgba(0,87,255,0.25)" : "transparent", color: incoterm === inc.code ? "#FFFFFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                    {inc.code}
+                  </button>
+                ))}
+              </div>
+              {selectedIncoterm && (
+                <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px 14px" }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: "#FFFFFF" }}>{selectedIncoterm.code} — {selectedIncoterm.name}</p>
+                  <p style={{ fontSize: 12, color: "#22c55e", marginBottom: 4 }}>📤 {c.seller_covers}: {selectedIncoterm.seller}</p>
+                  <p style={{ fontSize: 12, color: "#C9A84C" }}>📥 {c.buyer_covers}: {selectedIncoterm.buyer}</p>
+                </div>
+              )}
             </div>
 
-            <LegalDisclaimer lang={lang as "es" | "en"} context="certificate" />
+            {/* Campos */}
+            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)" }}>
+
+              <p style={sectionStyle}>{c.section_merch}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={labelStyle}>{c.fob_value}</label>
+                  <input type="number" value={fobValue} onChange={(e) => setFobValue(e.target.value)} placeholder="10000" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>{c.currency}</label>
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ ...inputStyle, cursor: "pointer" }}>
+                    {CURRENCIES.map((cu) => <option key={cu}>{cu}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>{c.quantity}</label>
+                <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="1" style={inputStyle} />
+              </div>
+
+              <p style={{ ...sectionStyle, marginTop: 20 }}>{c.section_logistics}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 4 }}>
+                <div>
+                  <label style={labelStyle}>{c.freight}</label>
+                  <input type="number" value={freight} onChange={(e) => setFreight(e.target.value)} placeholder="800" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>{c.insurance} (%)</label>
+                  <input type="number" value={insurancePct} onChange={(e) => setInsurancePct(e.target.value)} placeholder="0.8" step="0.1" style={inputStyle} />
+                </div>
+              </div>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginBottom: 16 }}>{c.insurance_pct}</p>
+
+              <p style={{ ...sectionStyle, marginTop: 4 }}>{c.section_origin}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+                <div>
+                  <label style={labelStyle}>{c.export_customs}</label>
+                  <input type="number" value={exportCustoms} onChange={(e) => setExportCustoms(e.target.value)} placeholder="200" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>{c.port_origin}</label>
+                  <input type="number" value={portOrigin} onChange={(e) => setPortOrigin(e.target.value)} placeholder="150" style={inputStyle} />
+                </div>
+              </div>
+
+              <p style={{ ...sectionStyle, marginTop: 4 }}>{c.section_destination}</p>
+              <div style={{ marginBottom: 12 }}>
+                <label style={labelStyle}>{c.tariff_rate}</label>
+                <input type="number" value={tariffRate} onChange={(e) => setTariffRate(e.target.value)} placeholder="14" style={inputStyle} />
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.07)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.2)", cursor: "pointer" }} onClick={() => setWithCert(!withCert)}>
+                <div style={{ width: 20, height: 20, borderRadius: 4, background: withCert ? "#22c55e" : "transparent", border: `2px solid ${withCert ? "#22c55e" : "rgba(255,255,255,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  {withCert && <span style={{ color: "#000", fontSize: 12, fontWeight: 700 }}>✓</span>}
+                </div>
+                <span style={{ fontSize: 13, color: withCert ? "#22c55e" : "rgba(255,255,255,0.6)", fontWeight: 600 }}>{c.with_cert}</span>
+              </div>
+              {withCert && (
+                <div style={{ marginBottom: 12 }}>
+                  <label style={labelStyle}>{c.pref_rate}</label>
+                  <input type="number" value={prefRate} onChange={(e) => setPrefRate(e.target.value)} placeholder="0" style={inputStyle} />
+                </div>
+              )}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>{c.import_customs}</label>
+                  <input type="number" value={importCustoms} onChange={(e) => setImportCustoms(e.target.value)} placeholder="300" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>{c.port_dest}</label>
+                  <input type="number" value={portDest} onChange={(e) => setPortDest(e.target.value)} placeholder="200" style={inputStyle} />
+                </div>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <label style={labelStyle}>{c.local_transport}</label>
+                <input type="number" value={localTransport} onChange={(e) => setLocalTransport(e.target.value)} placeholder="150" style={inputStyle} />
+              </div>
+            </div>
           </div>
-        )}
+
+          {/* Columna derecha — resultado */}
+          <div>
+            {result && result.fob > 0 ? (
+              <div style={{ position: "sticky", top: 24 }}>
+
+                {/* Botón exportar PDF */}
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+                  <button
+                    onClick={() => exportCIFPDF(result, { tariffCode, tariffSystem, origin, destination, incoterm, currency, fobValue, tariffRate, prefRate, withCert, lang, rateInfo })}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                  >
+                    📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
+                  </button>
+                </div>
+
+                {/* Total principal */}
+                <div style={{ background: "linear-gradient(135deg, #0D1B3E, #0A0A0F)", borderRadius: 16, padding: 24, border: "1px solid rgba(201,168,76,0.3)", marginBottom: 16 }}>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {currency}</p>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{c.total_without}</p>
+                    <p style={{ fontSize: 36, fontWeight: 800, color: n(tariffRate) > 0 ? "#ef4444" : "#FFFFFF" }}>{currency} {fmt(result.totalWithout)}</p>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {currency} {fmt(result.unitWithout)}</p>
+                  </div>
+
+                  {withCert && n(prefRate) < n(tariffRate) && (
+                    <>
+                      <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16, marginBottom: 16 }}>
+                        <p style={{ fontSize: 12, color: "#22c55e", marginBottom: 4 }}>{c.total_with}</p>
+                        <p style={{ fontSize: 36, fontWeight: 800, color: "#22c55e" }}>{currency} {fmt(result.totalWith)}</p>
+                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {currency} {fmt(result.unitWith)}</p>
+                      </div>
+                      <div style={{ background: "rgba(34,197,94,0.1)", borderRadius: 10, padding: "14px", border: "1px solid rgba(34,197,94,0.3)", textAlign: "center" }}>
+                        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{c.saving}</p>
+                        <p style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>{currency} {fmt(result.saving)}</p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Desglose */}
+                <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 20, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 16 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 14 }}>{c.breakdown}</p>
+                  {[
+                    [c.merch_value, result.fob, "#FFFFFF"],
+                    [c.freight, result.freight, "rgba(255,255,255,0.7)"],
+                    [`${c.insurance} (${insurancePct}%)`, result.insurance, "rgba(255,255,255,0.7)"],
+                    [c.origin_total, result.origCosts, "rgba(255,255,255,0.7)"],
+                    [`${c.tariff_amount} (${tariffRate}%)`, result.tariffAmt, "#ef4444"],
+                    ...(withCert && n(prefRate) < n(tariffRate) ? [[`${c.tariff_amount} preferencial (${prefRate}%)`, result.prefAmt, "#22c55e"]] : []),
+                    [c.dest_total, result.destCosts, "rgba(255,255,255,0.7)"],
+                  ].map(([label, value, color], i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{label as string}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: color as string }}>{currency} {fmt(value as number)}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Acciones */}
+                <Link href="/modulo02" style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 10 }}>
+                  {c.sim_cert}
+                </Link>
+
+                <LegalDisclaimer lang={lang as "es" | "en"} context="cif" />
+              </div>
+            ) : (
+              <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 40, border: "1px solid rgba(0,87,255,0.1)", textAlign: "center" }}>
+                <div style={{ fontSize: 48, marginBottom: 16 }}>📦</div>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15 }}>Ingresá el valor FOB para ver el cálculo en tiempo real</p>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — Simulación de referencia. No emite documentos oficiales.</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — Cálculo de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );
 }
 
-export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang }) {
-  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><Modulo03Inner defaultLang={defaultLang} /></Suspense>;
+export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
+  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><Modulo04Inner defaultLang={defaultLang} /></Suspense>;
 }
