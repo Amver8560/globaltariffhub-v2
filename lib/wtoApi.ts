@@ -4,34 +4,34 @@
 // Datos: tasas MFN aplicadas por código HS 6 dígitos
 // ─────────────────────────────────────────────────────────────
 
-// Mapa de países GTH → códigos ISO WTO
+// Mapa de países GTH → códigos numéricos WTO (3 dígitos, ISO 3166-1 numeric)
 const COUNTRY_TO_WTO: Record<string, string> = {
-  "Argentina":      "ARG",
-  "Brasil":         "BRA",
-  "Uruguay":        "URY",
-  "Paraguay":       "PRY",
-  "Chile":          "CHL",
-  "Colombia":       "COL",
-  "México":         "MEX",
-  "Perú":           "PER",
-  "España":         "ESP",
-  "Ecuador":        "ECU",
-  "Bolivia":        "BOL",
-  "Venezuela":      "VEN",
-  "Costa Rica":     "CRI",
-  "Guatemala":      "GTM",
-  "Panamá":         "PAN",
-  "Estados Unidos": "USA",
-  "China":          "CHN",
-  "Alemania":       "DEU",
-  "Francia":        "FRA",
-  "Italia":         "ITA",
-  "Reino Unido":    "GBR",
-  "Japón":          "JPN",
-  "Corea del Sur":  "KOR",
-  "India":          "IND",
-  "Canadá":         "CAN",
-  "Australia":      "AUS",
+  "Argentina":      "032",
+  "Brasil":         "076",
+  "Uruguay":        "858",
+  "Paraguay":       "600",
+  "Chile":          "152",
+  "Colombia":       "170",
+  "México":         "484",
+  "Perú":           "604",
+  "España":         "724",
+  "Ecuador":        "218",
+  "Bolivia":        "068",
+  "Venezuela":      "862",
+  "Costa Rica":     "188",
+  "Guatemala":      "320",
+  "Panamá":         "591",
+  "Estados Unidos": "842",
+  "China":          "156",
+  "Alemania":       "276",
+  "Francia":        "250",
+  "Italia":         "380",
+  "Reino Unido":    "826",
+  "Japón":          "392",
+  "Corea del Sur":  "410",
+  "India":          "356",
+  "Canadá":         "124",
+  "Australia":      "036",
 };
 
 export interface WTOTariffResult {
@@ -39,6 +39,7 @@ export interface WTOTariffResult {
   country: string;
   mfn_rate: number | null;       // Tasa MFN aplicada (%)
   year: number | null;
+  product_description?: string;  // Descripción oficial del producto según WTO
   source: "WTO" | "fallback";
   raw?: any;
 }
@@ -74,14 +75,12 @@ export async function getWTOMFNRate(
   try {
     const year = new Date().getFullYear() - 1; // Último año disponible
     const url = `https://api.wto.org/timeseries/v1/data?` +
-      `i=HS_M_0010&` +           // MFN applied tariff rate
-      `r=${wtoCode}&` +           // Reporter (importing country)
-      `p=000&` +                  // Partner: World (000)
+      `i=HS_A_0010&` +           // MFN simple average ad valorem duty by HS6
+      `r=${wtoCode}&` +           // Reporter (importing country, numeric code)
       `ps=${year}&` +             // Year
       `pc=${hs6}&` +              // HS6 product code
       `fmt=json&` +
-      `head=H&` +
-      `lang=1`;
+      `page=1&perPage=1`;
 
     const res = await fetch(url, {
       headers: {
@@ -101,11 +100,16 @@ export async function getWTOMFNRate(
     let mfn_rate: number | null = null;
     let dataYear: number | null = null;
 
+    let product_description: string | undefined;
+
     if (json?.Dataset && json.Dataset.length > 0) {
       const row = json.Dataset[0];
       if (row?.Value !== undefined && row.Value !== null) {
         mfn_rate = parseFloat(row.Value);
         dataYear = parseInt(row.Year || year);
+      }
+      if (row?.ProductOrSector) {
+        product_description = row.ProductOrSector;
       }
     }
 
@@ -114,6 +118,7 @@ export async function getWTOMFNRate(
       country: destination,
       mfn_rate,
       year: dataYear,
+      product_description,
       source: mfn_rate !== null ? "WTO" : "fallback",
       raw: json,
     };

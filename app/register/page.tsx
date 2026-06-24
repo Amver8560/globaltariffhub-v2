@@ -20,6 +20,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  const [acceptLegal, setAcceptLegal] = useState(false);
+
+  const allAccepted = acceptTerms && acceptPrivacy && acceptLegal;
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,20 +155,46 @@ export default function RegisterPage() {
             <p style={{ fontSize: 13, color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>{error}</p>
           )}
 
+          {/* Checkboxes legales obligatorios */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, padding: "16px", background: "rgba(0,87,255,0.06)", border: "1px solid rgba(0,87,255,0.2)", borderRadius: 10 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: 0.8, marginBottom: 4 }}>Aceptación obligatoria</p>
+
+            {[
+              {
+                checked: acceptTerms,
+                setter: setAcceptTerms,
+                label: <>Leí y acepto los <Link href="/terminos" target="_blank" style={{ color: "#C9A84C", fontWeight: 600 }}>Términos de Uso</Link></>
+              },
+              {
+                checked: acceptPrivacy,
+                setter: setAcceptPrivacy,
+                label: <>Leí y acepto la <Link href="/privacidad" target="_blank" style={{ color: "#C9A84C", fontWeight: 600 }}>Política de Privacidad</Link></>
+              },
+              {
+                checked: acceptLegal,
+                setter: setAcceptLegal,
+                label: <>Leí y acepto el <Link href="/legales" target="_blank" style={{ color: "#C9A84C", fontWeight: 600 }}>Aviso Legal</Link> — entiendo que GTH no reemplaza la consulta con un despachante de aduana habilitado</>
+              },
+            ].map(({ checked, setter, label }, i) => (
+              <label key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer" }}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => setter(e.target.checked)}
+                  style={{ marginTop: 2, width: 16, height: 16, accentColor: "#0057FF", flexShrink: 0, cursor: "pointer" }}
+                />
+                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{label}</span>
+              </label>
+            ))}
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
-            style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading ? "rgba(0,87,255,0.4)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", marginTop: 4 }}
+            disabled={loading || !allAccepted}
+            style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: (loading || !allAccepted) ? "rgba(0,87,255,0.25)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: (loading || !allAccepted) ? "rgba(255,255,255,0.4)" : "#FFF", fontSize: 15, fontWeight: 700, cursor: (loading || !allAccepted) ? "not-allowed" : "pointer", marginTop: 4, transition: "all 0.2s" }}
           >
-            {loading ? "Creando cuenta..." : "Crear cuenta gratis →"}
+            {loading ? "Creando cuenta..." : !allAccepted ? "Aceptá los términos para continuar" : "Crear cuenta gratis →"}
           </button>
-
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.25)", textAlign: "center", lineHeight: 1.5 }}>
-            Al registrarte aceptás los{" "}
-            <Link href="/terminos" style={{ color: "rgba(255,255,255,0.4)" }}>Términos de servicio</Link>
-            {" "}y la{" "}
-            <Link href="/privacidad" style={{ color: "rgba(255,255,255,0.4)" }}>Política de privacidad</Link>
-          </p>
         </form>
 
         <div style={{ marginTop: 20, textAlign: "center" }}>

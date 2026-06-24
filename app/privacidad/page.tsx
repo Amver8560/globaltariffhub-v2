@@ -26,7 +26,7 @@ export default function Privacidad() {
             Legal
           </span>
           <h1 style={{ fontSize: 36, fontWeight: 800, marginTop: 20, marginBottom: 8 }}>Política de Privacidad</h1>
-          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Última actualización: junio 2025</p>
+          <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Última actualización: junio 2026</p>
         </div>
 
         {[

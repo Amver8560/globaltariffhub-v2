@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import { exportViabilityPDF } from "@/lib/exportPDF";
 
 const ALL_COUNTRIES = [
   "China", "Estados Unidos", "Alemania", "Italia", "España", "Francia",
@@ -115,7 +116,7 @@ type Lang = "es" | "en";
 
 const fmt = (n: number) => `USD ${n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang }) {
+export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [lang, setLang] = useState<Lang>(defaultLang);
   const c = t[lang];
 
@@ -207,7 +208,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
 
         {/* HEADER */}
         <div style={{ marginBottom: 36, textAlign: "center" }}>
-          <div style={{ display: "inline-block", background: "rgba(201,168,76,0.1)", border: "1px solid #C9A84C", borderRadius: 20, padding: "4px 16px", fontSize: 11, fontWeight: 700, color: "#C9A84C", marginBottom: 12 }}>📦 Módulo 05</div>
+          <div style={{ display: "inline-block", background: "rgba(201,168,76,0.1)", border: "1px solid #C9A84C", borderRadius: 20, padding: "4px 16px", fontSize: 11, fontWeight: 700, color: "#C9A84C", marginBottom: 12 }}>📦 Módulo 04</div>
           <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{c.title}</h1>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{c.subtitle}</p>
         </div>
@@ -333,7 +334,10 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
             <div>
               {/* Botón PDF */}
               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                <button style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                <button
+                  onClick={() => exportViabilityPDF(result, { supplierCountry, destination, tariffSystem, fobUnit, quantity, lang })}
+                  style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                >
                   📄 {c.export_pdf}
                 </button>
               </div>
@@ -552,7 +556,7 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
               <div style={{ display: "flex", gap: 10 }}>
                 <Link href={`/modulo02?tariff_code=${encodeURIComponent(result.product.hs_code || "")}&system=HS&destination=${encodeURIComponent(destination)}`}
                   style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
-                  📄 {lang === "es" ? "Simular Certificado de Origen" : "Simulate Certificate of Origin"}
+                  {lang === "es" ? "📄 M02 — Simulador de Operaciones con Certificado de Origen →" : "📄 M02 — Certificate of Origin Operations Simulator →"}
                 </Link>
               </div>
             </div>

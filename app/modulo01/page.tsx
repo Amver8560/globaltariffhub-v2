@@ -17,7 +17,7 @@ const SYSTEMS = ["HS", "NCM", "TARIC"];
 const t = {
   es: {
     title: "Buscador Arancelario",
-    subtitle: "HS / NCM / TARIC",
+    subtitle: "HS · NCM · TARIC · Acuerdos Comerciales",
     origin: "País de origen",
     destination: "País de destino",
     select_country: "Seleccioná un país",
@@ -46,8 +46,8 @@ const t = {
     notes: "Notas",
     confidence: "Confianza",
     conf_alta: "Alta", conf_media: "Media", conf_baja: "Baja",
-    sim_cert: "Simular con/sin certificado →",
-    calc_cif: "Calcular CIF →",
+    sim_cert: "📄 M02 — Simulador de Operaciones con Certificado →",
+    calc_cif: "📦 M03 — Calculadora CIF →",
     disclaimer: "⚠ Datos de referencia. Verificar con la fuente oficial antes de operar.",
     error_image: "Seleccioná una imagen primero",
     error_text: "Escribí una descripción primero",
@@ -55,7 +55,7 @@ const t = {
   },
   en: {
     title: "Tariff Search",
-    subtitle: "HS / NCM / TARIC",
+    subtitle: "HS · NCM · TARIC · Trade Agreements",
     origin: "Country of origin",
     destination: "Destination country",
     select_country: "Select a country",
@@ -84,8 +84,8 @@ const t = {
     notes: "Notes",
     confidence: "Confidence",
     conf_alta: "High", conf_media: "Medium", conf_baja: "Low",
-    sim_cert: "Simulate with/without certificate →",
-    calc_cif: "Calculate CIF →",
+    sim_cert: "📄 M02 — Certificate of Origin Operations Simulator →",
+    calc_cif: "📦 M03 — CIF Calculator →",
     disclaimer: "⚠ Reference data. Verify with official source before operating.",
     error_image: "Select an image first",
     error_text: "Enter a description first",
@@ -210,6 +210,18 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 20, padding: "5px 16px", color: "#0057FF", fontSize: 12, fontWeight: 600 }}>Módulo 01</span>
           <h1 style={{ fontSize: 32, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
+          <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+            {[
+              { icon: "🔍", label: lang === "es" ? "Clasificación por imagen, descripción o código" : "Classification by image, description or code" },
+              { icon: "🤝", label: lang === "es" ? "Acuerdos comerciales entre países" : "Trade agreements between countries" },
+              { icon: "📋", label: lang === "es" ? "Documentación requerida en origen y destino" : "Required docs at origin and destination" },
+              { icon: "💰", label: lang === "es" ? "Arancel base y tasa preferencial" : "Base tariff and preferential rate" },
+            ].map((f, i) => (
+              <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "5px 14px", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+                {f.icon} {f.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* País origen / destino / nomenclatura */}
@@ -310,6 +322,16 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               </div>
             )}
 
+            {/* Aviso actualización de fuentes */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 16px", marginBottom: 16, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 13 }}>🔄</span>
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0 }}>
+                {lang === "es"
+                  ? "Tasas MFN: WTO API (datos oficiales) · Tasas TARIC-EU: actualización mensual · Clasificación HS/NCM: IA + fuentes oficiales"
+                  : "MFN rates: WTO API (official data) · TARIC-EU rates: monthly update · HS/NCM classification: AI + official sources"}
+              </p>
+            </div>
+
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>{c.results}</h2>
 
             {response.results.map((r, i) => (
@@ -406,7 +428,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                           📄 {c.sim_cert}
                         </Link>
                         <Link
-                          href={`/modulo02?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
+                          href={`/modulo03?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
                           style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                           📦 {c.calc_cif}
                         </Link>

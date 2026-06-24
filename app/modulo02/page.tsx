@@ -18,7 +18,7 @@ const UNITS = ["kg", "toneladas", "litros", "unidades", "m²", "cajas", "pallets
 
 const t = {
   es: {
-    title: "Simulación de Certificado de Origen",
+    title: "Simulación de Operaciones con Certificado de Origen",
     subtitle: "Calculá tu ahorro arancelario",
     disclaimer_banner: "⚠ Esta herramienta es una SIMULACIÓN. No emite certificados de origen ni documentos aduaneros.",
     step1: "Paso 1 — Datos de la operación",
@@ -51,13 +51,13 @@ const t = {
     documents: "Documentos necesarios",
     mandatory: "Obligatorio",
     optional: "Opcional",
-    calc_cif: "📦 Calcular CIF con este dato →",
+    calc_cif: "📦 M03 — Calculadora CIF →",
     back_search: "← Volver al buscador",
     error: "Error en la simulación. Intentá de nuevo.",
     days_label: "días hábiles",
   },
   en: {
-    title: "Certificate of Origin Simulation",
+    title: "Certificate of Origin Operations Simulation",
     subtitle: "Calculate your tariff savings",
     disclaimer_banner: "⚠ This tool is a SIMULATION only. It does not issue certificates of origin or customs documents.",
     step1: "Step 1 — Operation data",
@@ -90,7 +90,7 @@ const t = {
     documents: "Required documents",
     mandatory: "Mandatory",
     optional: "Optional",
-    calc_cif: "📦 Calculate CIF with this data →",
+    calc_cif: "📦 M03 — CIF Calculator →",
     back_search: "← Back to search",
     error: "Simulation error. Please try again.",
     days_label: "business days",
@@ -198,7 +198,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
         {/* Header */}
         <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", color: "#22c55e", fontSize: 12, fontWeight: 600 }}>Módulo 03</span>
+          <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", color: "#22c55e", fontSize: 12, fontWeight: 600 }}>Módulo 02</span>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
         </div>
@@ -207,6 +207,26 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 28, textAlign: "center" }}>
           <p style={{ fontSize: 13, color: "#ef4444", fontWeight: 600 }}>{c.disclaimer_banner}</p>
         </div>
+
+        {/* Tip standalone: mostrar solo si no hay params de M01 */}
+        {!searchParams.get("tariff_code") && !searchParams.get("origin") && (
+          <div style={{ background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 10, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 20 }}>💡</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontWeight: 600, marginBottom: 3 }}>
+                {lang === "es" ? "Podés usar este módulo en forma independiente" : "You can use this module independently"}
+              </p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>
+                {lang === "es"
+                  ? "Completá los campos manualmente. Si necesitás buscar tu código arancelario primero, usá el Módulo 01."
+                  : "Fill in the fields manually. If you need to look up your tariff code first, use Module 01."}
+              </p>
+            </div>
+            <Link href="/modulo01" style={{ padding: "8px 16px", borderRadius: 8, background: "rgba(0,87,255,0.25)", border: "1px solid rgba(0,87,255,0.5)", color: "#6B9FFF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
+              🔍 {lang === "es" ? "Buscar código →" : "Search code →"}
+            </Link>
+          </div>
+        )}
 
         {/* Formulario */}
         <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
@@ -307,7 +327,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
                 style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
-                📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
+                📄 {lang === "es" ? "Exportar informe de simulación PDF" : "Export simulation report PDF"}
               </button>
             </div>
 

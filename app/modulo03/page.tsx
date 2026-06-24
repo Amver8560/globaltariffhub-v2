@@ -58,7 +58,7 @@ const t = {
     dest_total: "Costos destino",
     btn_calc: "Calcular",
     back: "← Volver",
-    sim_cert: "📄 Simular certificado →",
+    sim_cert: "📄 M02 — Simulador de Operaciones con Certificado →",
     disclaimer: "⚠ Cálculo de referencia. Los valores reales pueden variar según el transportista, aduana y tipo de cambio.",
   },
   en: {
@@ -100,7 +100,7 @@ const t = {
     dest_total: "Destination costs",
     btn_calc: "Calculate",
     back: "← Back",
-    sim_cert: "📄 Simulate certificate →",
+    sim_cert: "📄 M02 — Certificate of Origin Operations Simulator →",
     disclaimer: "⚠ Reference calculation. Actual values may vary by carrier, customs and exchange rate.",
   },
 };
@@ -245,10 +245,30 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
         {/* Header */}
         <div style={{ marginBottom: 28, textAlign: "center" }}>
-          <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 20, padding: "5px 16px", color: "#0057FF", fontSize: 12, fontWeight: 600 }}>Módulo 04</span>
+          <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 20, padding: "5px 16px", color: "#0057FF", fontSize: 12, fontWeight: 600 }}>Módulo 03</span>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
         </div>
+
+        {/* Tip standalone */}
+        {!searchParams.get("tariff_code") && !searchParams.get("destination") && (
+          <div style={{ background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 10, padding: "14px 18px", marginBottom: 24, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 20 }}>💡</span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontWeight: 600, marginBottom: 3 }}>
+                {lang === "es" ? "Podés usar esta calculadora en forma independiente" : "You can use this calculator independently"}
+              </p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>
+                {lang === "es"
+                  ? "Ingresá tu código arancelario y país de destino, luego usá \"Buscar arancel\" para obtener la tasa automáticamente. O completá la tasa manualmente."
+                  : "Enter your tariff code and destination country, then click \"Look up tariff\" to get the rate automatically. Or fill in the rate manually."}
+              </p>
+            </div>
+            <Link href="/modulo01" style={{ padding: "8px 16px", borderRadius: 8, background: "rgba(0,87,255,0.25)", border: "1px solid rgba(0,87,255,0.5)", color: "#6B9FFF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
+              🔍 {lang === "es" ? "Buscar código →" : "Search code →"}
+            </Link>
+          </div>
+        )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
 
