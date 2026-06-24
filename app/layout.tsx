@@ -75,6 +75,92 @@ export const metadata: Metadata = {
   category: "business",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://globaltariffhub.com/#organization",
+      "name": "Global Tariff Hub",
+      "url": "https://globaltariffhub.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://globaltariffhub.com/og-image.png",
+        "width": 1200,
+        "height": 630,
+      },
+      "description":
+        "Plataforma de inteligencia arancelaria para emprendedores y pymes. Datos reales de la OMC, NCM y TARIC.",
+      "foundingDate": "2025",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "analia@globaltariffhub.com",
+        "contactType": "customer support",
+        "availableLanguage": ["Spanish", "English"],
+      },
+      "sameAs": [
+        "https://www.linkedin.com/company/globaltariffhub",
+        "https://twitter.com/globaltariffhub",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://globaltariffhub.com/#website",
+      "url": "https://globaltariffhub.com",
+      "name": "Global Tariff Hub",
+      "description":
+        "Inteligencia arancelaria para importadores y exportadores. Códigos HS, NCM, TARIC, simulaciones y cálculo de costos CIF.",
+      "publisher": { "@id": "https://globaltariffhub.com/#organization" },
+      "inLanguage": ["es", "en"],
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://globaltariffhub.com/modulo01?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://globaltariffhub.com/#app",
+      "name": "Global Tariff Hub",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://globaltariffhub.com",
+      "description":
+        "Plataforma SaaS de inteligencia arancelaria. Buscá códigos HS/NCM/TARIC, simulá ahorros con certificados de origen, calculá costos CIF y analizá viabilidad de importación con datos oficiales de la OMC.",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Plan Gratuito",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "3 consultas gratis sin tarjeta de crédito",
+        },
+        {
+          "@type": "Offer",
+          "name": "Plan Pro Anual",
+          "price": "238",
+          "priceCurrency": "USD",
+          "description": "Acceso completo por 12 meses — oferta de lanzamiento",
+        },
+      ],
+      "featureList": [
+        "Búsqueda de códigos HS, NCM y TARIC",
+        "Simulador de operaciones con certificado de origen",
+        "Calculadora CIF con Incoterms",
+        "Análisis de viabilidad de importación con IA",
+        "Datos reales de la OMC (WTO API)",
+        "Exportación de informes en PDF",
+        "Bilingüe español / inglés",
+      ],
+      "publisher": { "@id": "https://globaltariffhub.com/#organization" },
+      "inLanguage": ["es", "en"],
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -82,6 +168,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen">{children}</body>
     </html>
   );
