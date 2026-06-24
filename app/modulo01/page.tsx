@@ -96,6 +96,13 @@ const t = {
 type Tab = "image" | "text" | "code";
 type Lang = "es" | "en";
 
+interface TaxLine {
+  code: string;
+  rate: string;
+  label: string;
+  note: string;
+}
+
 interface SearchResult {
   hs_code: string;
   ncm_code: string;
@@ -110,6 +117,7 @@ interface SearchResult {
   destination_documents: string[];
   notes: string;
   confidence: "alta" | "media" | "baja";
+  taxes?: TaxLine[];
 }
 
 interface SearchResponse {
@@ -407,6 +415,38 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                         </ul>
                       </div>
                     </div>
+
+                    {/* Tributos en destino */}
+                    {r.taxes && r.taxes.length > 0 && (
+                      <div style={{ marginBottom: 16 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
+                          {lang === "es" ? "💰 Tributos en destino" : "💰 Destination taxes"}
+                        </p>
+                        <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, overflow: "hidden" }}>
+                          {r.taxes.map((tax, ti) => (
+                            <div key={ti} style={{
+                              display: "grid",
+                              gridTemplateColumns: "80px 60px 1fr",
+                              gap: 12,
+                              alignItems: "center",
+                              padding: "10px 16px",
+                              background: ti % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent",
+                              borderBottom: ti < r.taxes!.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
+                            }}>
+                              <span style={{ fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>{tax.code} %</span>
+                              <span style={{
+                                fontSize: 14, fontWeight: 800,
+                                color: tax.rate === "0%" ? "rgba(255,255,255,0.35)" : "#ef4444",
+                              }}>{tax.rate}</span>
+                              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+                                {tax.label}
+                                {tax.note ? <span style={{ color: "rgba(255,255,255,0.35)", marginLeft: 6 }}>— {tax.note}</span> : null}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {r.notes && (
                       <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px 16px", marginBottom: 16 }}>

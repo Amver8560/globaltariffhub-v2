@@ -27,7 +27,15 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
       "origin_documents": ["Factura comercial", "Packing list", "Certificado de origen MERCOSUR", "Certificado de calidad INAO"],
       "destination_documents": ["DI - Declaración de importación", "Análisis de laboratorio MAPA", "Registro de bebidas ANVISA"],
       "notes": "Para recipientes > 2 litros usar código 2204.29",
-      "confidence": "alta"
+      "confidence": "alta",
+      "taxes": [
+        { "code": "DIE", "rate": "14%", "label": "Derecho de Importación Extrazona", "note": "" },
+        { "code": "TE", "rate": "0.5%", "label": "Tasa Estadística", "note": "Máx. 3%" },
+        { "code": "IVA", "rate": "21%", "label": "I.V.A.", "note": "Alícuota general" },
+        { "code": "IVA Ad.", "rate": "10%", "label": "I.V.A. Percepción (Adicional)", "note": "R.G. 4461/19" },
+        { "code": "IG", "rate": "6%", "label": "Anticipo del Impuesto a las Ganancias", "note": "Ver Excepciones" },
+        { "code": "IIBB", "rate": "2.5%", "label": "Ingresos Brutos", "note": "" }
+      ]
     }
   ],
   "route_info": {
@@ -45,6 +53,16 @@ Reglas:
 - "destination_documents" son los que pide el país importador para el ingreso
 - Devolvé entre 1 y 3 resultados ordenados por relevancia
 - "confidence" puede ser "alta", "media" o "baja"
+- El campo "taxes" contiene los tributos que aplican en el país de DESTINO al momento de la importación.
+  Para Argentina incluí: DIE (o DII si es intrazona MERCOSUR), TE, IVA (10,5% si tiene alícuota reducida), IVA Ad., IG, IIBB.
+  Para Brasil incluí: II, IPI, PIS, COFINS, ICMS, AFRMM si aplica.
+  Para Chile incluí: Arancel general, IVA (19%), DAI preferencial si aplica.
+  Para México incluí: IGI, IVA (16%), DTA, PRE si aplica.
+  Para Colombia incluí: Arancel, IVA (19%), Arancel preferencial si aplica.
+  Para países de la UE incluí: Arancel TARIC, IVA del país, anti-dumping si aplica.
+  Para cualquier otro país incluí los tributos de importación más relevantes que conozcas.
+  Si un tributo tiene tasa 0% o no aplica, incluidlo igual con rate "0%" para transparencia.
+  Siempre incluí el campo "taxes" aunque sea vacío [].
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
 
 export async function POST(req: NextRequest) {

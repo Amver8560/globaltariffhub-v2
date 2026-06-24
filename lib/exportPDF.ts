@@ -375,6 +375,33 @@ export function exportSearchPDF(response: any, params: {
       y += 3;
     }
 
+    // Tributos en destino
+    if (r.taxes?.length) {
+      if (y > 245) { doc.addPage(); y = 20; }
+      y = sectionTitle(doc, es ? "TRIBUTOS EN DESTINO" : "DESTINATION TAXES", y);
+      r.taxes.forEach((tax: any) => {
+        if (y > 268) { doc.addPage(); y = 20; }
+        const isZero = String(tax.rate) === "0%";
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "bold");
+        setColor(doc, GOLD);
+        doc.text(`${tax.code} %`, 18, y);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(isZero ? 120 : 239, isZero ? 130 : 68, isZero ? 150 : 68);
+        doc.text(String(tax.rate), 52, y);
+        doc.setFont("helvetica", "normal");
+        setColor(doc, GRAY);
+        const labelText = tax.note ? `${tax.label} — ${tax.note}` : tax.label;
+        const labelLines = doc.splitTextToSize(labelText, 120);
+        doc.text(labelLines, 72, y);
+        const rowH = Math.max(7, labelLines.length * 4 + 2);
+        doc.setDrawColor(220, 225, 235);
+        doc.line(14, y + rowH - 2, 196, y + rowH - 2);
+        y += rowH;
+      });
+      y += 3;
+    }
+
     // Notas
     if (r.notes) {
       if (y > 258) { doc.addPage(); y = 20; }
