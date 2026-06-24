@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCertificatePDF } from "@/lib/exportPDF";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -402,7 +403,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               </Link>
             </div>
 
-            <p style={{ marginTop: 20, fontSize: 12, color: "rgba(255,255,255,0.3)", fontStyle: "italic", textAlign: "center" }}>{result.disclaimer}</p>
+            <LegalDisclaimer lang={lang as "es" | "en"} context="certificate" />
           </div>
         )}
       </main>

@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCIFPDF } from "@/lib/exportPDF";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -496,7 +497,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {c.sim_cert}
                 </Link>
 
-                <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontStyle: "italic", textAlign: "center" }}>{c.disclaimer}</p>
+                <LegalDisclaimer lang={lang as "es" | "en"} context="cif" />
               </div>
             ) : (
               <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 40, border: "1px solid rgba(0,87,255,0.1)", textAlign: "center" }}>

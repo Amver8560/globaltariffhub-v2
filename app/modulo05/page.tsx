@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 const ALL_COUNTRIES = [
   "China", "Estados Unidos", "Alemania", "Italia", "España", "Francia",
@@ -541,8 +542,10 @@ export default function Modulo05({ defaultLang = "es" }: { defaultLang?: Lang })
 
                 {/* Fuente y actualización */}
                 <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 12 }}>
-                  {c.updated} {result.taxes.last_updated} · {result.taxes.disclaimer}
+                  {c.updated} {result.taxes.last_updated}
                 </p>
+
+                <LegalDisclaimer lang={lang as "es" | "en"} context="viability" />
               </div>
 
               {/* Botones continuar */}

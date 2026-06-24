@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/admin/sync-taric",
+      "schedule": "0 20 * * *"
+    }
+  ]
+}

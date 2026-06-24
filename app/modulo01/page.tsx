@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { exportSearchPDF } from "@/lib/exportPDF";
+import LegalDisclaimer from "@/components/LegalDisclaimer";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -416,7 +417,13 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               </div>
             ))}
 
-            <p style={{ marginTop: 12, fontSize: 12, color: "rgba(255,255,255,0.35)", fontStyle: "italic" }}>{response.disclaimer}</p>
+            <LegalDisclaimer
+              lang={lang as "es" | "en"}
+              context="search"
+              wtoSource={response.results?.some((r: any) => r.wto_source)}
+              ncmSource={response.results?.some((r: any) => r.ncm_description_official)}
+              taricSource={response.results?.some((r: any) => r.taric_duty)}
+            />
           </div>
         )}
       </main>

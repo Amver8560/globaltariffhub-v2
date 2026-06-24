@@ -1,6 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
+import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
+import { getNCMCode, searchNCMByDescription, normalizeNCM8 } from "@/lib/ncmApi";
+import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -107,6 +110,54 @@ export async function POST(req: NextRequest) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON in response");
     const parsed = JSON.parse(jsonMatch[0]);
+
+    // Enriquecer cada resultado con datos oficiales en paralelo:
+    // WTO (tasas MFN) + NCM Siscomex (descripción oficial) + TARIC (EU)
+    if (parsed.results && Array.isArray(parsed.results) && destination) {
+      const enrichPromises = parsed.results.map(async (r: any) => {
+        const hs6      = normalizeHS6(r.hs_code || r.ncm_code || "");
+        const ncm8     = normalizeNCM8(r.ncm_code || r.hs_code || "");
+        const taricCode = hs6ToTaric(hs6);
+
+        // Consultas en paralelo a las tres fuentes
+        const [wto, ncm, taric] = await Promise.all([
+          hs6 ? getWTOMFNRate(hs6, destination) : Promise.resolve(null),
+          ncm8.length >= 6 ? getNCMCode(ncm8) : Promise.resolve(null),
+          hs6 ? getTARICRate(taricCode, r.origin || origin || "") : Promise.resolve(null),
+        ]);
+
+        const enriched = { ...r };
+
+        // WTO → tasa MFN real
+        if (wto?.source === "WTO" && wto.mfn_rate !== null) {
+          enriched.base_rate = `${wto.mfn_rate}%`;
+          enriched.wto_source = true;
+          enriched.wto_year  = wto.year;
+          enriched.confidence = "alta";
+        } else {
+          enriched.wto_source = false;
+        }
+
+        // NCM → descripción oficial y vigencia
+        if (ncm?.source === "NCM") {
+          enriched.ncm_description_official = ncm.descricao;
+          enriched.ncm_vigente = true;
+          enriched.ncm_desde   = ncm.data_inicio;
+        }
+
+        // TARIC → tasa EU si el destino es europeo
+        if (taric?.source === "TARIC") {
+          enriched.taric_duty    = taric.third_country_duty;
+          enriched.taric_unit    = taric.unit;
+          enriched.taric_footnotes = taric.footnotes;
+          enriched.taric_measures  = taric.measures;
+        }
+
+        return enriched;
+      });
+
+      parsed.results = await Promise.all(enrichPromises);
+    }
 
     return NextResponse.json(parsed);
   } catch (error) {
