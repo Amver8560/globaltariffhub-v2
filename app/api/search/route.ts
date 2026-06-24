@@ -63,6 +63,7 @@ Reglas:
   Para cualquier otro país incluí los tributos de importación más relevantes que conozcas.
   Si un tributo tiene tasa 0% o no aplica, incluidlo igual con rate "0%" para transparencia.
   Siempre incluí el campo "taxes" aunque sea vacío [].
+- IMPORTANTE — Argentina (actualización diciembre 2023): La SIRA (Sistema de Importaciones de la República Argentina) fue ELIMINADA. Ya no existe ni debe mencionarse. El sistema vigente es el SEDI (Sistema Estadístico de Declaraciones de Importaciones), que es una declaración estadística online sin licencia previa. Para importaciones a Argentina mencioná "SEDI - Declaración estadística de importación" en destination_documents, nunca SIRA.
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
 
 export async function POST(req: NextRequest) {
