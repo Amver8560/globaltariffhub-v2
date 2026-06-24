@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="margin:0;background:#000">
+<canvas id="c" width="1200" height="630"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 1200, H = 630;
+
+// Background
+const bg = ctx.createLinearGradient(0, 0, W, H);
+bg.addColorStop(0, '#0A0A0F');
+bg.addColorStop(0.6, '#0D1B3E');
+bg.addColorStop(1, '#0A0A0F');
+ctx.fillStyle = bg;
+ctx.fillRect(0, 0, W, H);
+
+// Grid lines (subtle)
+ctx.strokeStyle = 'rgba(0,87,255,0.08)';
+ctx.lineWidth = 1;
+for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+for (let y = 0; y < H; y += 60) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+// Glow top-left
+const glow1 = ctx.createRadialGradient(200, 150, 0, 200, 150, 400);
+glow1.addColorStop(0, 'rgba(0,87,255,0.18)');
+glow1.addColorStop(1, 'transparent');
+ctx.fillStyle = glow1;
+ctx.fillRect(0, 0, W, H);
+
+// Glow bottom-right
+const glow2 = ctx.createRadialGradient(1050, 500, 0, 1050, 500, 350);
+glow2.addColorStop(0, 'rgba(201,168,76,0.12)');
+glow2.addColorStop(1, 'transparent');
+ctx.fillStyle = glow2;
+ctx.fillRect(0, 0, W, H);
+
+// Logo box
+const lx = 80, ly = 72, ls = 56;
+const logoGrad = ctx.createLinearGradient(lx, ly, lx+ls, ly+ls);
+logoGrad.addColorStop(0, '#0057FF');
+logoGrad.addColorStop(1, '#0D1B3E');
+ctx.fillStyle = logoGrad;
+roundRect(ctx, lx, ly, ls, ls, 12);
+ctx.fillStyle = '#C9A84C';
+ctx.strokeStyle = '#C9A84C';
+ctx.lineWidth = 1.5;
+roundRect(ctx, lx, ly, ls, ls, 12, true);
+ctx.fillStyle = '#C9A84C';
+ctx.font = 'bold 15px Arial';
+ctx.textAlign = 'center';
+ctx.fillText('GTH', lx + ls/2, ly + ls/2 + 5);
+
+// Brand name
+ctx.fillStyle = '#FFFFFF';
+ctx.font = 'bold 26px Arial';
+ctx.textAlign = 'left';
+ctx.fillText('Global Tariff Hub', lx + ls + 16, ly + ls/2 + 9);
+
+// Divider line
+ctx.strokeStyle = 'rgba(0,87,255,0.3)';
+ctx.lineWidth = 1;
+ctx.beginPath(); ctx.moveTo(80, 160); ctx.lineTo(1120, 160); ctx.stroke();
+
+// Main headline
+ctx.fillStyle = '#FFFFFF';
+ctx.font = 'bold 58px Arial';
+ctx.textAlign = 'left';
+ctx.fillText('Inteligencia Arancelaria', 80, 260);
+
+// Subtitle line 1
+const grad = ctx.createLinearGradient(80, 290, 700, 290);
+grad.addColorStop(0, '#0057FF');
+grad.addColorStop(1, '#C9A84C');
+ctx.fillStyle = grad;
+ctx.font = 'bold 54px Arial';
+ctx.fillText('para Importadores y Exportadores', 80, 330);
+
+// Description
+ctx.fillStyle = 'rgba(255,255,255,0.55)';
+ctx.font = '24px Arial';
+ctx.fillText('Códigos HS · NCM · TARIC · Datos reales de la OMC · PDF Export', 80, 390);
+
+// Module pills
+const pills = ['📦 Buscador HS / NCM / TARIC', '📄 Simulador de Operaciones', '🧮 Calculadora CIF', '🔍 Viabilidad de Importación'];
+let px = 80;
+pills.forEach(p => {
+  ctx.font = '16px Arial';
+  const tw = ctx.measureText(p).width;
+  const pw = tw + 32, ph = 38, py = 440, pr = 20;
+  ctx.fillStyle = 'rgba(0,87,255,0.18)';
+  roundRect(ctx, px, py, pw, ph, pr);
+  ctx.strokeStyle = 'rgba(0,87,255,0.4)';
+  ctx.lineWidth = 1;
+  roundRect(ctx, px, py, pw, ph, pr, true);
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.textAlign = 'left';
+  ctx.fillText(p, px + 16, py + 25);
+  px += pw + 12;
+});
+
+// Bottom bar
+ctx.fillStyle = 'rgba(255,255,255,0.06)';
+ctx.fillRect(0, 540, W, 90);
+ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+ctx.lineWidth = 1;
+ctx.beginPath(); ctx.moveTo(0, 540); ctx.lineTo(W, 540); ctx.stroke();
+
+// Bottom sources
+const sources = ['WTO API', 'TARIC EU', 'NCM Siscomex', 'Anthropic Claude AI'];
+ctx.fillStyle = 'rgba(255,255,255,0.3)';
+ctx.font = '18px Arial';
+ctx.textAlign = 'left';
+ctx.fillText('Fuentes oficiales:', 80, 590);
+let sx = 280;
+sources.forEach((s, i) => {
+  if (i > 0) { ctx.fillStyle = 'rgba(255,255,255,0.15)'; ctx.fillText('·', sx - 10, 590); }
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.fillText(s, sx, 590);
+  sx += ctx.measureText(s).width + 24;
+});
+
+// URL bottom right
+ctx.fillStyle = '#C9A84C';
+ctx.font = 'bold 18px Arial';
+ctx.textAlign = 'right';
+ctx.fillText('globaltariffhub.com', W - 80, 590);
+
+// Helper
+function roundRect(ctx, x, y, w, h, r, strokeOnly = false) {
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+  ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  ctx.lineTo(x+r, y+h); ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+  ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+  ctx.closePath();
+  if (strokeOnly) ctx.stroke(); else ctx.fill();
+}
+
+// Download
+const a = document.createElement('a');
+a.download = 'og-image.png';
+a.href = canvas.toDataURL('image/png');
+a.click();
+</script>
+</body>
+</html>

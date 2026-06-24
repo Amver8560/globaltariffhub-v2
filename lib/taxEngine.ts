@@ -216,7 +216,7 @@ function calcBrasil(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Importação formal requer habilitação RADAR na Receita Federal. Obrigatório despachante aduaneiro para importações comerciais.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "ICMS varia por estado. IPI varia por NCM/TIPI. Taxas referenciais — verificar em Receita Federal (rf.gov.br).",
   };
 }
@@ -268,7 +268,7 @@ function calcUruguay(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Régimen simplificado para envíos hasta USD 200 (courier). Zonas Francas ofrecen exención total de tributos aduaneros.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Verificar tasas en DNA Uruguay (aduanas.gub.uy) y DGI (dgi.gub.uy). IMESI depende del producto específico.",
   };
 }
@@ -291,7 +291,7 @@ function calcParaguay(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Paraguay tiene baja carga tributaria. Ciudad del Este es zona especial con regímenes diferenciados.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Verificar en Dirección Nacional de Aduanas Paraguay (DNA). IVA general 10%.",
   };
 }
@@ -314,7 +314,7 @@ function calcChile(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Chile tiene TLCs con muchos países — arancel puede ser 0% según origen. Verificar acuerdo vigente.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Chile tiene TLC con China, EE.UU., UE y otros. La tasa real puede ser 0%. Verificar en Aduana Chile.",
   };
 }
@@ -339,7 +339,7 @@ function calcColombia(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Envíos hasta USD 200 ingresan sin arancel (franquicia courier). Importación formal requiere RUT importador.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Verificar en DIAN Colombia. Algunos productos tienen IVA diferencial (0%, 5% o 19%).",
   };
 }
@@ -364,7 +364,7 @@ function calcMexico(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "México tiene TLCAN/T-MEC con EE.UU. y Canadá. TLC con UE. Verificar origen para tasa preferencial.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Verificar en SAT México. DTA en MXN — monto USD referencial. IEPS aplica a productos específicos.",
   };
 }
@@ -389,7 +389,7 @@ function calcPeru(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Envíos hasta USD 200 libres de impuesto (modalidad courier). Perú tiene TLC con China desde 2010.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Verificar en SUNAT Perú. ISC aplica a productos específicos (alcohol, tabaco, vehículos).",
   };
 }
@@ -412,7 +412,7 @@ function calcEspana(cif: number, tariff_rate: number): TaxResult {
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: "Envíos hasta EUR 150 libres de arancel desde 2021 (fin franquicia IVA). Todo paga IVA desde primer euro.",
-    last_updated: "2025-06-01",
+    last_updated: "2026-06-01",
     disclaimer: "Tipo IVA puede ser 10% o 4% según producto. Verificar en TARIC Consulta (ec.europa.eu/taxation_customs).",
   };
 }
@@ -454,7 +454,7 @@ export function calculateTaxes(input: TaxInput): TaxResult {
         landed_cost: cif + total,
         tax_burden_pct: Math.round((total / cif) * 100),
         import_method_note: "Consultar con despachante local para tributos exactos.",
-        last_updated: "2025-06-01",
+        last_updated: "2026-06-01",
         disclaimer: "Cálculo referencial genérico. Verificar tributos exactos con autoridad aduanera del país de destino.",
       };
   }

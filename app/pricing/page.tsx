@@ -155,7 +155,7 @@ function PricingInner() {
             {[
               { q: "¿Qué incluyen las 3 consultas gratis?", a: "Acceso completo a todos los módulos — búsqueda, certificado, CIF y viabilidad. Sin tarjeta de crédito." },
               { q: "¿Puedo cancelar en cualquier momento?", a: "Sí. El plan mensual se puede cancelar antes del próximo ciclo. El anual no tiene reembolso parcial." },
-              { q: "¿Los datos son de fuentes oficiales?", a: "Las tasas base provienen de AFIP, Receita Federal y fuentes oficiales. Se actualizan mensualmente." },
+              { q: "¿Los datos son de fuentes oficiales?", a: "Las tasas base provienen de ARCA (ex AFIP), Receita Federal, WTO y fuentes oficiales. Se actualizan periódicamente." },
               { q: "¿Reemplaza a un despachante de aduana?", a: "No. GTH es una herramienta de análisis previo. El despacho formal requiere un profesional habilitado." },
             ].map((item) => (
               <div key={item.q}>
