@@ -94,7 +94,7 @@ const T = {
     eyebrow:     "COMING SOON",
     h1a:         "Is it worth importing",
     h1b:         "or exporting this product?",
-    sub:         "Take a photo and get an indicative tariff rate in seconds. No customs agents. No consultants. No hassle.",
+    sub:         "Take a photo and get an indicative tariff rate in seconds. No customs brokers. No consultants. No hassle.",
     tagline:     "From Product to Trade Intelligence™",
     flow: [
       { step:"01", icon:"📷", label:"Take a photo of the product" },
@@ -494,7 +494,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
               {href:"/register", label:lang==="es"?"Registrarse":"Register"},
               {href:"/pricing",  label:"Pricing"},
               {href:lang==="es"?"/privacidad":"/privacy", label:lang==="es"?"Privacidad":"Privacy"},
-              {href:"/terminos", label:lang==="es"?"Términos":"Terms"},
+              {href:lang==="es"?"/terminos":"/terms", label:lang==="es"?"Términos":"Terms"},
               {href:"/legales",  label:lang==="es"?"Aviso Legal":"Legal Notice"},
             ].map(l=>(
               <Link key={l.href} href={l.href} style={{ fontSize:12, color:C.textMuted, textDecoration:"none", fontWeight:500 }}>{l.label}</Link>
