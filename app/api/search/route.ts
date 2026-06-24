@@ -30,11 +30,11 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
       "confidence": "alta",
       "taxes": [
         { "code": "DIE", "rate": "14%", "label": "Derecho de Importación Extrazona", "note": "" },
-        { "code": "TE", "rate": "0.5%", "label": "Tasa Estadística", "note": "Máx. 3%" },
-        { "code": "IVA", "rate": "21%", "label": "I.V.A.", "note": "Alícuota general" },
-        { "code": "IVA Ad.", "rate": "10%", "label": "I.V.A. Percepción (Adicional)", "note": "R.G. 4461/19" },
-        { "code": "IG", "rate": "6%", "label": "Anticipo del Impuesto a las Ganancias", "note": "Ver Excepciones" },
-        { "code": "IIBB", "rate": "2.5%", "label": "Ingresos Brutos", "note": "" }
+        { "code": "TE", "rate": "3%", "label": "Tasa Estadística", "note": "Tope USD 500 por despacho" },
+        { "code": "IVA", "rate": "21%", "label": "I.V.A. Importación", "note": "Alícuota general — 10,5% para bienes de capital y alimentos básicos" },
+        { "code": "IVA Ad.", "rate": "10%", "label": "I.V.A. Percepción (Adicional)", "note": "10% inscriptos / 20% no inscriptos — R.G. ARCA 4461/19" },
+        { "code": "IG", "rate": "6%", "label": "Percepción Ganancias", "note": "R.G. ARCA 2281/07 — acreditable anual" },
+        { "code": "IIBB", "rate": "2.5%", "label": "Ingresos Brutos (Percepción)", "note": "Varía por provincia y actividad" }
       ]
     }
   ],
@@ -53,17 +53,24 @@ Reglas:
 - "destination_documents" son los que pide el país importador para el ingreso
 - Devolvé entre 1 y 3 resultados ordenados por relevancia
 - "confidence" puede ser "alta", "media" o "baja"
-- El campo "taxes" contiene los tributos que aplican en el país de DESTINO al momento de la importación.
-  Para Argentina incluí: DIE (o DII si es intrazona MERCOSUR), TE, IVA (10,5% si tiene alícuota reducida), IVA Ad., IG, IIBB.
-  Para Brasil incluí: II, IPI, PIS, COFINS, ICMS, AFRMM si aplica.
-  Para Chile incluí: Arancel general, IVA (19%), DAI preferencial si aplica.
-  Para México incluí: IGI, IVA (16%), DTA, PRE si aplica.
-  Para Colombia incluí: Arancel, IVA (19%), Arancel preferencial si aplica.
-  Para países de la UE incluí: Arancel TARIC, IVA del país, anti-dumping si aplica.
-  Para cualquier otro país incluí los tributos de importación más relevantes que conozcas.
-  Si un tributo tiene tasa 0% o no aplica, incluidlo igual con rate "0%" para transparencia.
-  Siempre incluí el campo "taxes" aunque sea vacío [].
-- IMPORTANTE — Argentina (actualización diciembre 2023): La SIRA (Sistema de Importaciones de la República Argentina) fue ELIMINADA. Ya no existe ni debe mencionarse. El sistema vigente es el SEDI (Sistema Estadístico de Declaraciones de Importaciones), que es una declaración estadística online sin licencia previa. Para importaciones a Argentina mencioná "SEDI - Declaración estadística de importación" en destination_documents, nunca SIRA.
+- El campo "taxes" es OBLIGATORIO y debe contener SIEMPRE todos los tributos del país de DESTINO. NUNCA pongas información de tributos en el campo "notes" — los tributos van EXCLUSIVAMENTE en el array "taxes". Si el destino es Argentina, el array "taxes" DEBE tener exactamente estas líneas (en este orden), ajustando la tasa "rate" según la posición arancelaria del producto:
+  1. { "code": "DIE", "rate": "<tasa DI%>", "label": "Derecho de Importación Extrazona", "note": "DII 0% si origen MERCOSUR" }
+  2. { "code": "TE", "rate": "3%", "label": "Tasa Estadística", "note": "Tope USD 500 por despacho" }
+  3. Solo si el producto paga Impuesto Interno (celulares ~9,5%, bebidas alcohólicas, tabaco, seguros, vehículos de alta gama): { "code": "II", "rate": "<tasa II%>", "label": "Impuesto Interno", "note": "Ley 24.674" }
+  4. { "code": "IVA", "rate": "21%", "label": "IVA Importación", "note": "10,5% bienes de capital y alimentos básicos" }
+  5. { "code": "IVA Ad.", "rate": "10%", "label": "IVA Percepción Adicional", "note": "20% no inscriptos — R.G. ARCA 4461/19" }
+  6. { "code": "IG", "rate": "6%", "label": "Percepción Ganancias", "note": "R.G. ARCA 2281/07 — acreditable anual" }
+  7. { "code": "IIBB", "rate": "2,5%", "label": "Ingresos Brutos Percepción", "note": "Varía por provincia y actividad" }
+  Para Brasil incluí en taxes[]: II, IPI, PIS (2,1%), COFINS (9,65%), ICMS (varía por estado), AFRMM si es marítimo.
+  Para Chile incluí en taxes[]: Arancel (6% general o preferencial), IVA (19%).
+  Para México incluí en taxes[]: IGI, DTA (0,8‰), IVA (16%).
+  Para Colombia incluí en taxes[]: Arancel, IVA (19%), Arancel Consular (1,2%).
+  Para países de la UE incluí en taxes[]: Arancel TARIC, IVA del país miembro, antidumping si aplica.
+  Para cualquier otro país incluí en taxes[] los tributos de importación más relevantes.
+  Si un tributo tiene tasa 0% incluidlo igual con rate "0%" para transparencia.
+- IMPORTANTE — Argentina documentos VIGENTES (actualización 2024-2025): Los siguientes sistemas fueron ELIMINADOS y NO deben mencionarse nunca: SIRA (eliminado dic 2023), SIMI (eliminado), DJAI (eliminado 2015), DJCP (no existe). El sistema estadístico vigente es el SEDI (Sistema Estadístico de Declaraciones de Importaciones) — declaración online sin licencia previa. Para destination_documents de Argentina usá únicamente documentos vigentes: "SEDI - Declaración estadística de importación", "DUA - Declaración Única Aduanera", "Factura comercial", "Packing list", "Conocimiento de embarque (B/L o AWB)", y según el producto: certificados de organismos como ENACOM (electrónica/telecom), SENASA (alimentos/animales), ANMAT (medicamentos/cosméticos), INAL (alimentos), secretaría de Energía (energía), etc. Si el producto requiere Licencia No Automática (LNA) mencioná "LNA - Licencia No Automática" pero NUNCA SIMI, SIRA, DJAI ni DJCP.
+- IMPORTANTE — Argentina (AFIP → ARCA): La AFIP fue renombrada ARCA (Agencia de Recaudación y Control Aduanero) en 2024. Siempre mencioná ARCA, nunca AFIP.
+- IMPORTANTE — Argentina celulares/smartphones/tablets (posiciones NCM 8517.13, 8517.12, 8471): Los tributos correctos son: DI 20% (puede ser 0% bajo régimen BIT Res. MEyP 669/2024), TE 3%, Impuesto Interno ~9,5% (Ley 24.674 Cap. VI), IVA 21%, IVA Percepción 10% (inscriptos), Percepción Ganancias 6%, Ingresos Brutos ~2,5%. NUNCA indiques IVA 9,5% para celulares — el IVA es siempre 21%; el 9,5% es el Impuesto Interno. Incluí todos estos tributos en el campo "taxes".
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
 
 export async function POST(req: NextRequest) {

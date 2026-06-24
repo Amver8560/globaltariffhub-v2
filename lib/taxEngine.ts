@@ -5,9 +5,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface TaxInput {
-  cif: number;          // Valor CIF en USD
-  tariff_rate: number;  // Tasa arancelaria específica del producto (%)
-  destination: string;  // País de destino
+  cif: number;              // Valor CIF en USD
+  tariff_rate: number;      // Tasa arancelaria específica del producto (%)
+  destination: string;      // País de destino
+  iva_rate?: number;        // Tasa IVA en % (Argentina: 21 general, 10.5 reducida). Default: 21
+  impuesto_interno_rate?: number; // Impuesto Interno % si aplica (celulares, bebidas, etc.). Default: 0
 }
 
 export interface TaxLineItem {
@@ -34,78 +36,113 @@ export interface TaxResult {
 }
 
 // ── ARGENTINA ──────────────────────────────────────────────────────────────
-function calcArgentina(cif: number, tariff_rate: number): TaxResult {
+function calcArgentina(
+  cif: number,
+  tariff_rate: number,
+  iva_rate: number = 21,
+  impuesto_interno_rate: number = 0
+): TaxResult {
   const DI = cif * (tariff_rate / 100);
   const TE = Math.min(cif * 0.03, 500);
-  const baseIVA = cif + DI + TE;
-  const IVA = baseIVA * 0.21;
-  const IVA_AD = baseIVA * 0.20;
+  const II = impuesto_interno_rate > 0 ? cif * (impuesto_interno_rate / 100) : 0;
+  const baseIVA = cif + DI + TE + II;
+  const IVA = baseIVA * (iva_rate / 100);
+  const IVA_AD = baseIVA * 0.10;   // 10% responsables inscriptos (20% no inscriptos)
   const GANANCIAS = baseIVA * 0.06;
-  const total = DI + TE + IVA + IVA_AD + GANANCIAS;
+  const IIBB = baseIVA * 0.025;    // 2,5% Ingresos Brutos (promedio ARCA — varía por provincia)
+  const total = DI + TE + II + IVA + IVA_AD + GANANCIAS + IIBB;
+
+  const lines: TaxLineItem[] = [
+    {
+      code: "DI",
+      name: "Derecho de Importación",
+      base: "CIF",
+      rate: `${tariff_rate}%`,
+      amount: DI,
+      legal_basis: "Ley 22.415 — Código Aduanero. NCM / Posición SIM",
+      description: "Arancel principal que grava la importación de mercaderías. La tasa varía según la posición arancelaria del producto (NCM/SIM). Para países del MERCOSUR aplica el Arancel Externo Común (AEC).",
+      exceptions: "Bienes de capital (BK) y bienes de informática y telecomunicaciones (BIT) pueden tener DI 0% o diferencial. MERCOSUR: DII 0% entre socios.",
+    },
+    {
+      code: "TE",
+      name: "Tasa Estadística",
+      base: "CIF",
+      rate: "3% (tope USD 500 por despacho)",
+      amount: TE,
+      legal_basis: "Dec. 108/99 y modificatorias. Res. MEyP 5/2024",
+      description: "Tributo que financia el servicio estadístico aduanero. Se aplica sobre el valor CIF con un tope máximo de USD 500 por despacho de importación.",
+      exceptions: "Exentos: importaciones desde países del MERCOSUR (intrazona), bienes del Estado, organismos internacionales, correo diplomático. IMPORTANTE: los bienes BIT y BK NO están exentos de TE — la exención BIT/BK aplica únicamente sobre el DI. Celulares, tablets y laptops pagan TE aunque tengan DI 0%.",
+    },
+  ];
+
+  if (impuesto_interno_rate > 0) {
+    lines.push({
+      code: "II",
+      name: "Impuesto Interno",
+      base: "CIF",
+      rate: `${impuesto_interno_rate}%`,
+      amount: II,
+      legal_basis: "Ley 24.674 — Impuestos Internos. ARCA (ex AFIP)",
+      description: "Impuesto selectivo que grava ciertos bienes en la etapa de importación o fabricación. Para celulares y smartphones aplica sobre el valor CIF. Tasa varía según tipo de producto.",
+      exceptions: "Aplica a celulares/smartphones, bebidas alcohólicas, tabacos, seguros, vehículos de alta gama. Verificar capítulo específico en Ley 24.674 según posición NCM del producto.",
+    });
+  }
+
+  lines.push(
+    {
+      code: "IVA",
+      name: "IVA Importación",
+      base: "CIF + DI + TE" + (impuesto_interno_rate > 0 ? " + II" : ""),
+      rate: `${iva_rate}%`,
+      amount: IVA,
+      legal_basis: "Ley 23.349 — Art. 1° inc. b) y Art. 28",
+      description: "Impuesto al Valor Agregado sobre importaciones definitivas. Se aplica sobre la base imponible CIF + DI + TE (+ II si hubiera impuesto interno). Es recuperable como crédito fiscal para responsables inscriptos en IVA.",
+      exceptions: "Alícuota reducida 10,5%: alimentos de la canasta básica, bienes de capital nuevos (Art. 28 inc. e), publicaciones periódicas, medicamentos. Exentos: libros, determinados alimentos. Celulares y electrónica en general: 21%.",
+    },
+    {
+      code: "IVA Ad.",
+      name: "IVA Adicional (Percepción)",
+      base: "CIF + DI + TE" + (impuesto_interno_rate > 0 ? " + II" : ""),
+      rate: "10% inscriptos / 20% no inscriptos",
+      amount: IVA_AD,
+      legal_basis: "R.G. ARCA (ex AFIP) 2937/2010 y R.G. 4461/2019",
+      description: "Percepción de IVA a cuenta del impuesto que corresponda tributar. Para responsables inscriptos en IVA la alícuota es 10%. Para no inscriptos: 20%.",
+      exceptions: "Responsables inscriptos en IVA: 10%. No inscriptos y monotributistas: 20%. Exentos de IVA: también exentos de esta percepción.",
+    },
+    {
+      code: "IG",
+      name: "Percepción Ganancias",
+      base: "CIF + DI + TE" + (impuesto_interno_rate > 0 ? " + II" : ""),
+      rate: "6% (3% para algunos casos)",
+      amount: GANANCIAS,
+      legal_basis: "R.G. ARCA (ex AFIP) 2281/2007 y modificatorias",
+      description: "Anticipo del Impuesto a las Ganancias a cuenta del impuesto anual. Se aplica sobre la base imponible aduanera. Es acreditable contra el Impuesto a las Ganancias anual.",
+      exceptions: "Exentos: entidades sin fines de lucro, importaciones del Estado. Alícuota 3%: determinadas operaciones especiales. No aplicable a sujetos exentos en Ganancias.",
+    },
+    {
+      code: "IIBB",
+      name: "Ingresos Brutos (Percepción)",
+      base: "CIF + DI + TE" + (impuesto_interno_rate > 0 ? " + II" : ""),
+      rate: "2,5% (varía por provincia y actividad)",
+      amount: IIBB,
+      legal_basis: "Convenio Multilateral (CM) — Resolución General ARCA. Código Fiscal provincial",
+      description: "Percepción a cuenta del Impuesto sobre los Ingresos Brutos. La tasa varía según la provincia de destino y la actividad del importador. Se acredita contra el IIBB provincial que corresponda.",
+      exceptions: "Tasa referencial 2,5%. Buenos Aires puede ser 3%, CABA varía según actividad. Exentos: importadores con certificado de exención IIBB. Verificar con ARCA y aduana de ingreso.",
+    }
+  );
 
   return {
     country: "Argentina",
     cif,
-    lines: [
-      {
-        code: "DI",
-        name: "Derecho de Importación",
-        base: "CIF",
-        rate: `${tariff_rate}%`,
-        amount: DI,
-        legal_basis: "Ley 22.415 — Código Aduanero. NCM / Posición SIM",
-        description: "Arancel principal que grava la importación de mercaderías. La tasa varía según la posición arancelaria del producto (NCM/SIM). Para países del MERCOSUR aplica el Arancel Externo Común (AEC).",
-        exceptions: "Bienes de capital (BK) y bienes de informática y telecomunicaciones (BIT) pueden tener DI 0% o diferencial. MERCOSUR: DII 0% entre socios.",
-      },
-      {
-        code: "TE",
-        name: "Tasa Estadística",
-        base: "CIF",
-        rate: "3% (tope USD 500 por despacho)",
-        amount: TE,
-        legal_basis: "Dec. 108/99 y modificatorias. Res. MEyP 5/2024",
-        description: "Tributo que financia el servicio estadístico aduanero. Se aplica sobre el valor CIF con un tope máximo de USD 500 por despacho de importación.",
-        exceptions: "Exentos: importaciones desde países del MERCOSUR (intrazona), bienes del Estado, organismos internacionales, correo diplomático. IMPORTANTE: los bienes BIT y BK NO están exentos de TE — la exención BIT/BK aplica únicamente sobre el DI. Celulares, tablets y laptops pagan TE aunque tengan DI 0%.",
-      },
-      {
-        code: "IVA",
-        name: "IVA Importación",
-        base: "CIF + DI + TE",
-        rate: "21% (10,5% para productos con alícuota reducida)",
-        amount: IVA,
-        legal_basis: "Ley 23.349 — Art. 1° inc. b) y Art. 28",
-        description: "Impuesto al Valor Agregado sobre importaciones definitivas. Se aplica sobre la base imponible CIF + DI + TE. Es recuperable como crédito fiscal para responsables inscriptos en IVA.",
-        exceptions: "Alícuota reducida 10,5%: alimentos de la canasta básica, bienes de capital nuevos (Art. 28 inc. e), publicaciones periódicas, medicamentos. Exentos: libros, determinados alimentos.",
-      },
-      {
-        code: "IVA Ad.",
-        name: "IVA Adicional (Percepción)",
-        base: "CIF + DI + TE",
-        rate: "20% (10% para responsables inscriptos)",
-        amount: IVA_AD,
-        legal_basis: "R.G. AFIP 2937/2010 y R.G. AFIP 4461/2019",
-        description: "Percepción de IVA a cuenta del impuesto que corresponda tributar. Para importadores no inscriptos en IVA la alícuota es 20%. Para responsables inscriptos es 10%.",
-        exceptions: "Responsables inscriptos en IVA: 10%. No inscriptos: 20%. Exentos de IVA: también exentos de esta percepción. Monotributistas: 20%.",
-      },
-      {
-        code: "IG",
-        name: "Percepción Ganancias",
-        base: "CIF + DI + TE",
-        rate: "6% (3% para algunos casos)",
-        amount: GANANCIAS,
-        legal_basis: "R.G. AFIP 2281/2007 y modificatorias",
-        description: "Anticipo del Impuesto a las Ganancias a cuenta del impuesto anual. Se aplica sobre la base imponible aduanera. Es acreditable contra el Impuesto a las Ganancias anual.",
-        exceptions: "Exentos: entidades sin fines de lucro, importaciones del Estado. Alícuota 3%: determinadas operaciones especiales. No aplicable a sujetos exentos en Ganancias.",
-      },
-    ],
+    lines,
     total_taxes: total,
     landed_cost: cif + total,
     tax_burden_pct: Math.round((total / cif) * 100),
     import_method_note: cif < 200
       ? "Monto CIF bajo. Evaluar régimen de envíos de particular a particular (courier) — franquicia USD 200 libre de derechos para uso personal."
-      : "Despacho formal obligatorio para importaciones comerciales. Requiere despachante de aduana matriculado.",
-    last_updated: "2025-06-01",
-    disclaimer: "Tasas vigentes a junio 2025. No incluye percepciones de IIBB provinciales ni otros tributos locales. Verificar con AFIP y despachante habilitado.",
+      : "Despacho formal obligatorio para importaciones comerciales. Requiere despachante de aduana matriculado. Presentar SEDI (declaración estadística online) antes del despacho.",
+    last_updated: "2026-06-01",
+    disclaimer: "Tasas vigentes a junio 2026. IIBB varía por provincia. Impuesto Interno varía por producto. Verificar con ARCA (arca.gob.ar) y despachante habilitado.",
   };
 }
 
@@ -389,10 +426,10 @@ export const SUPPORTED_COUNTRIES = [
 ];
 
 export function calculateTaxes(input: TaxInput): TaxResult {
-  const { cif, tariff_rate, destination } = input;
+  const { cif, tariff_rate, destination, iva_rate, impuesto_interno_rate } = input;
 
   switch (destination) {
-    case "Argentina": return calcArgentina(cif, tariff_rate);
+    case "Argentina": return calcArgentina(cif, tariff_rate, iva_rate ?? 21, impuesto_interno_rate ?? 0);
     case "Brasil":    return calcBrasil(cif, tariff_rate);
     case "Uruguay":   return calcUruguay(cif, tariff_rate);
     case "Paraguay":  return calcParaguay(cif, tariff_rate);
