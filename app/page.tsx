@@ -361,22 +361,13 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           </div>
         </div>
 
-        {/* Columna derecha — ilustración */}
-        <div style={{ display:"flex", flexDirection:"column", gap:16, alignItems:"center" }}>
-          <GlobeIllustration />
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, width:"100%", maxWidth:300 }}>
-            {[
-              { n:"164", label:lang==="es"?"Países\nOMC":"WTO\nCountries" },
-              { n:"3",   label:lang==="es"?"Sistemas\narancelarios":"Tariff\nsystems" },
-              { n:"4",   label:lang==="es"?"Módulos\nespecializados":"Specialized\nmodules" },
-              { n:"IA",  label:lang==="es"?"Foto →\nClasificación":"Photo →\nClassification" },
-            ].map((s,i)=>(
-              <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"14px 12px", textAlign:"center" }}>
-                <p style={{ fontSize:22, fontWeight:900, color:C.white, letterSpacing:-0.5, lineHeight:1 }}>{s.n}</p>
-                <p style={{ fontSize:10, color:C.textSec, marginTop:6, lineHeight:1.4, whiteSpace:"pre-line" }}>{s.label}</p>
-              </div>
-            ))}
-          </div>
+        {/* Columna derecha — imagen real */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <img
+            src="/hero-globe.png"
+            alt="Global trade intelligence — contenedor, globo digital y rutas comerciales"
+            style={{ width:"100%", maxWidth:520, borderRadius:16, filter:"drop-shadow(0 0 40px rgba(37,99,235,0.3))" }}
+          />
         </div>
       </section>
 
