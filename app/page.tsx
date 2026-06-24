@@ -21,7 +21,7 @@ const T = {
   es: {
     nav_tagline: "Inteligencia para el Comercio Global",
     nav_login:   "Iniciar sesión",
-    nav_cta:     "Registrarse gratis",
+    nav_cta:     "Registrarse →",
     eyebrow:     "PRÓXIMAMENTE",
     h1a:         "Para Importadores",
     h1b:         "y Exportadores",
@@ -73,9 +73,9 @@ const T = {
       { icon:"🌎", label:"Comercio exterior",       desc:"Herramientas profesionales en una sola plataforma integrada." },
       { icon:"🤝", label:"Consultores",             desc:"Acelerá los análisis iniciales y ofrecé más valor a tus clientes." },
     ],
-    cta_title:   "Empezá gratis ahora",
-    cta_sub:     "3 consultas gratis · Sin tarjeta de crédito · Sin compromiso",
-    cta_btn:     "Crear cuenta gratis →",
+    cta_title:   "Registrate y reservá tu lugar",
+    cta_sub:     "Al lanzar recibís 3 consultas gratis · Sin tarjeta de crédito · Sin compromiso",
+    cta_btn:     "Crear cuenta →",
     login_msg:   "El acceso a la plataforma estará disponible próximamente.",
     sources_title:"Fuentes de referencia utilizadas",
     sources: [
@@ -90,7 +90,7 @@ const T = {
   en: {
     nav_tagline: "Intelligence for Global Trade",
     nav_login:   "Sign in",
-    nav_cta:     "Register free",
+    nav_cta:     "Register →",
     eyebrow:     "COMING SOON",
     h1a:         "For Importers",
     h1b:         "and Exporters",
@@ -142,9 +142,9 @@ const T = {
       { icon:"🌎", label:"Trade teams",        desc:"Professional tools in one integrated platform." },
       { icon:"🤝", label:"Consultants",        desc:"Speed up initial analysis and deliver more value to clients." },
     ],
-    cta_title:   "Start free now",
-    cta_sub:     "3 free consultations · No credit card · No commitment",
-    cta_btn:     "Create free account →",
+    cta_title:   "Register and reserve your spot",
+    cta_sub:     "At launch you get 3 free consultations · No credit card · No commitment",
+    cta_btn:     "Create account →",
     login_msg:   "Platform access will be available soon.",
     sources_title:"Reference sources used",
     sources: [
