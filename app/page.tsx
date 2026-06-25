@@ -34,6 +34,13 @@ const T = {
       { step:"03", icon:"📊", label:"Analizá costos, acuerdos y requisitos" },
       { step:"04", icon:"✅", label:"Decidí con información real" },
     ],
+    mission_title:  "Nuestra misión",
+    mission_tag:    "Por qué existimos",
+    mission_p1:     "Democratizar el comercio internacional mediante inteligencia artificial.",
+    mission_p2:     "Creemos que importar y exportar no debería ser un privilegio reservado para grandes corporaciones o especialistas.",
+    mission_p3:     "Global Tariff Hub nace para transformar información técnica, regulaciones complejas y miles de páginas de normativa aduanera en respuestas claras, precisas y accionables.",
+    mission_p4:     "Nuestra misión es permitir que cualquier emprendedor, pyme o empresa pueda evaluar una operación internacional en minutos, comprendiendo costos, clasificación arancelaria, reglas de origen, tratados comerciales y viabilidad económica antes de tomar una decisión.",
+    mission_close:  "Queremos convertir la complejidad del comercio global en una ventaja competitiva accesible para todos.",
     problem_title: "El problema que resolvemos",
     problem_sub:   "Las startups, pymes y empresas medianas que quieren crecer no pueden pagar agentes de comercio exterior ni despachantes de aduana. Pero igual necesitan responder:",
     problems: [
@@ -108,6 +115,13 @@ const T = {
       { step:"03", icon:"📊", label:"Analyze costs, agreements & docs" },
       { step:"04", icon:"✅", label:"Decide with real information" },
     ],
+    mission_title:  "Our mission",
+    mission_tag:    "Why we exist",
+    mission_p1:     "Democratizing international trade through artificial intelligence.",
+    mission_p2:     "We believe importing and exporting should not be a privilege reserved for large corporations or specialists.",
+    mission_p3:     "Global Tariff Hub was built to transform technical information, complex regulations and thousands of pages of customs rules into clear, precise and actionable answers.",
+    mission_p4:     "Our mission is to allow any entrepreneur, SME or company to evaluate an international operation in minutes — understanding costs, tariff classification, rules of origin, trade agreements and economic viability before making a decision.",
+    mission_close:  "We want to turn the complexity of global trade into a competitive advantage accessible to everyone.",
     problem_title: "The problem we solve",
     problem_sub:   "Startups, SMEs and growing companies can't afford customs agents or trade consultants. But they still need to answer:",
     problems: [
@@ -379,6 +393,21 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
             alt="Global trade intelligence — contenedor, globo digital y rutas comerciales"
             style={{ width:"100%", maxWidth:560, mixBlendMode:"screen", filter:"drop-shadow(0 0 24px rgba(37,99,235,0.4)) brightness(1.05)" }}
           />
+        </div>
+      </section>
+
+      {/* ── Misión ─────────────────────────────────── */}
+      <section style={{ padding:"72px 48px", borderBottom:`1px solid ${C.border}` }}>
+        <div style={{ maxWidth:820, margin:"0 auto", textAlign:"center" }}>
+          <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.mission_tag}</span>
+          <h2 style={{ fontSize:"clamp(22px,3vw,34px)", fontWeight:800, marginTop:12, marginBottom:28, letterSpacing:-0.5 }}>{t.mission_title}</h2>
+          <p style={{ fontSize:20, fontWeight:700, color:C.gold, marginBottom:24, lineHeight:1.4 }}>{t.mission_p1}</p>
+          <p style={{ fontSize:16, color:C.textSec, marginBottom:16, lineHeight:1.8 }}>{t.mission_p2}</p>
+          <p style={{ fontSize:16, color:C.textSec, marginBottom:16, lineHeight:1.8 }}>{t.mission_p3}</p>
+          <p style={{ fontSize:16, color:C.textSec, marginBottom:32, lineHeight:1.8 }}>{t.mission_p4}</p>
+          <div style={{ background:`linear-gradient(135deg,rgba(244,197,66,0.1),rgba(244,197,66,0.04))`, border:`1px solid ${C.borderGold}`, borderRadius:14, padding:"24px 32px" }}>
+            <p style={{ fontSize:17, fontWeight:700, color:C.white, lineHeight:1.6 }}>{t.mission_close}</p>
+          </div>
         </div>
       </section>
 
