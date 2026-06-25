@@ -19,13 +19,14 @@ const C = {
 
 const T = {
   es: {
-    nav_tagline: "Inteligencia para el Comercio Global",
+    nav_tagline: "Comercio internacional ágil",
     nav_login:   "Iniciar sesión",
     nav_cta:     "Registrarse →",
     eyebrow:     "PRÓXIMAMENTE",
     h1a:         "¿Vale la pena importar",
     h1b:         "o exportar este producto?",
-    sub:         "Sacá una foto y la IA te da el arancel orientativo en segundos. Sin despachantes. Sin consultores. Sin vueltas.",
+    sub:         "Importá y exportá con los datos que necesitás para negociar mejor.",
+    sub2:        "Pensado para emprendedores y pymes que necesitan tomar decisiones con información real: aranceles, costos CIF y simulaciones de ahorro en segundos.",
     tagline:     "From Product to Trade Intelligence™",
     flow: [
       { step:"01", icon:"📷", label:"Sacá una foto del producto" },
@@ -92,13 +93,14 @@ const T = {
     footer_copy: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
   },
   en: {
-    nav_tagline: "Intelligence for Global Trade",
+    nav_tagline: "Agile international trade",
     nav_login:   "Sign in",
     nav_cta:     "Register →",
     eyebrow:     "COMING SOON",
     h1a:         "Is it worth importing",
     h1b:         "or exporting this product?",
-    sub:         "Take a photo and get an indicative tariff rate in seconds. No customs brokers. No consultants. No hassle.",
+    sub:         "Import and export with the data you need to negotiate better.",
+    sub2:        "Built for entrepreneurs and SMEs who need to make decisions with real information: tariffs, CIF costs and savings simulations in seconds.",
     tagline:     "From Product to Trade Intelligence™",
     flow: [
       { step:"01", icon:"📷", label:"Take a photo of the product" },
@@ -341,7 +343,8 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <h1 style={{ fontSize:"clamp(40px,5vw,72px)", fontWeight:800, lineHeight:1.05, letterSpacing:-2, marginBottom:16, color:C.white }}>
             {t.h1a}<br/>{t.h1b}
           </h1>
-          <p style={{ fontSize:18, color:C.textSec, marginBottom:8, lineHeight:1.5 }}>{t.sub}</p>
+          <p style={{ fontSize:18, color:C.white, fontWeight:600, marginBottom:8, lineHeight:1.5 }}>{t.sub}</p>
+          <p style={{ fontSize:14, color:C.textSec, marginBottom:32, lineHeight:1.7 }}>{(t as any).sub2}</p>
           <p style={{ fontSize:12, color:`${C.gold}99`, fontWeight:600, marginBottom:40, letterSpacing:0.5, fontStyle:"italic" }}>{t.tagline}</p>
 
           {/* Flujo 4 pasos */}
