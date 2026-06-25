@@ -48,19 +48,23 @@ const T = {
     modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
-        title:"¿Qué impuestos paga este producto?",
+        title:"Clasificación Inteligente de Productos",
+        question:"¿Qué impuestos paga este producto?",
         desc:"Sacá una foto o describí el producto. La IA te dice qué impuestos aplican, qué documentos necesitás y si hay algún beneficio que te permita pagar menos — sin necesitar saber nada de aduanas.",
         tags:["HS Code","NCM Mercosur","TARIC Europa","Acuerdos Comerciales"] },
       { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
-        title:"¿Podés pagar menos impuestos?",
+        title:"Simulador con Certificado de Origen",
+        question:"¿Podés pagar menos impuestos?",
         desc:"Entre muchos países existen acuerdos comerciales que reducen o eliminan los impuestos de importación. Te mostramos si tu operación califica, cuánto ahorrás en dólares y cómo tramitar el certificado que lo habilita.",
         tags:["MERCOSUR","TLC","SGP","Ahorro arancelario"] },
       { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
-        title:"¿Cuánto cuesta realmente traerlo?",
+        title:"Calculadora CIF",
+        question:"¿Cuánto cuesta realmente traerlo?",
         desc:"El precio del proveedor es solo el comienzo. Calculá el costo total de traer el producto hasta tu depósito: flete, seguro, impuestos y todos los gastos intermedios. Ingresás el precio y el destino — obtenés el número final.",
         tags:["Incoterms","CIF","FOB","Costo nacionalizado"] },
       { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
-        title:"¿Conviene el negocio?",
+        title:"Viabilidad de Importación",
+        question:"¿Conviene el negocio?",
         desc:"Ingresás el precio del proveedor, la cantidad y el destino. La plataforma te dice el costo final, el precio mínimo de venta para no perder plata, y si hay restricciones o permisos especiales que necesitás gestionar.",
         tags:["Restricciones","Organismos","Precio sugerido","ROI"] },
     ],
@@ -117,19 +121,23 @@ const T = {
     modules_title: "Four modules. One platform.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
-        title:"What taxes does this product pay?",
+        title:"Intelligent Product Classification",
+        question:"What taxes does this product pay?",
         desc:"Take a photo or describe the product. AI tells you what taxes apply, what documents you need and whether any trade agreement lets you pay less — no customs knowledge required.",
         tags:["HS Code","NCM Mercosur","TARIC Europe","Trade Agreements"] },
       { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
-        title:"Can you pay less in taxes?",
+        title:"Certificate of Origin Simulator",
+        question:"Can you pay less in taxes?",
         desc:"Many countries have trade agreements that reduce or eliminate import taxes. We show you if your shipment qualifies, how much you save in dollars, and how to get the certificate that unlocks it.",
         tags:["MERCOSUR","FTA","GSP","Tariff savings"] },
       { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
-        title:"What does it really cost to bring it in?",
+        title:"CIF Calculator",
+        question:"What does it really cost to bring it in?",
         desc:"The supplier price is just the start. Calculate the full cost of getting the product to your warehouse: freight, insurance, taxes and all fees in between. Enter the price and destination — get the real number.",
         tags:["Incoterms","CIF","FOB","Landed cost"] },
       { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
-        title:"Is the business worth it?",
+        title:"Import Viability",
+        question:"Is the business worth it?",
         desc:"Enter the supplier price, quantity and destination. The platform tells you the final cost, the minimum selling price to break even, and whether there are special permits or restrictions you need to handle.",
         tags:["Restrictions","Agencies","Suggested price","ROI"] },
     ],
@@ -413,7 +421,10 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
                 onMouseLeave={e=>{ e.currentTarget.style.background=C.bgCard; e.currentTarget.style.boxShadow="none"; }}>
                 <div style={{ width:52, height:52, borderRadius:14, background:m.colorBg, border:`1.5px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{m.icon}</div>
                 <div>
-                  <h3 style={{ fontSize:15, fontWeight:700, color:C.white, marginBottom:10, lineHeight:1.3 }}>{m.title}</h3>
+                  <h3 style={{ fontSize:15, fontWeight:700, color:C.white, marginBottom:6, lineHeight:1.3 }}>{m.title}</h3>
+                  {(m as any).question && (
+                    <p style={{ fontSize:13, fontWeight:600, color:C.gold, marginBottom:8, lineHeight:1.4 }}>{(m as any).question}</p>
+                  )}
                   <p style={{ fontSize:13, color:C.textSec, lineHeight:1.75, marginBottom:16 }}>{m.desc}</p>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                     {m.tags.map((tag,j)=>(
