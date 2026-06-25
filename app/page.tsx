@@ -41,6 +41,10 @@ const T = {
     mission_p3:     "Global Tariff Hub nace para transformar información técnica, regulaciones complejas y miles de páginas de normativa aduanera en respuestas claras, precisas y accionables.",
     mission_p4:     "Nuestra misión es permitir que cualquier emprendedor, pyme o empresa pueda evaluar una operación internacional en minutos, comprendiendo costos, clasificación arancelaria, reglas de origen, tratados comerciales y viabilidad económica antes de tomar una decisión.",
     mission_close:  "Queremos convertir la complejidad del comercio global en una ventaja competitiva accesible para todos.",
+    vision_title:  "Nuestra visión",
+    vision_tag:    "Hacia dónde vamos",
+    vision_p1:     "Imaginamos un mundo donde cualquier empresa pueda vender o comprar en cualquier país con la misma facilidad con la que hoy busca información en Internet.",
+    vision_p2:     "Aspiramos a construir la plataforma de inteligencia comercial más completa del mundo para operaciones internacionales.",
     problem_title: "El problema que resolvemos",
     problem_sub:   "Las startups, pymes y empresas medianas que quieren crecer no pueden pagar agentes de comercio exterior ni despachantes de aduana. Pero igual necesitan responder:",
     problems: [
@@ -122,6 +126,10 @@ const T = {
     mission_p3:     "Global Tariff Hub was built to transform technical information, complex regulations and thousands of pages of customs rules into clear, precise and actionable answers.",
     mission_p4:     "Our mission is to allow any entrepreneur, SME or company to evaluate an international operation in minutes — understanding costs, tariff classification, rules of origin, trade agreements and economic viability before making a decision.",
     mission_close:  "We want to turn the complexity of global trade into a competitive advantage accessible to everyone.",
+    vision_title:  "Our vision",
+    vision_tag:    "Where we're headed",
+    vision_p1:     "We imagine a world where any company can buy or sell in any country as easily as searching for information on the Internet today.",
+    vision_p2:     "We aspire to build the world's most complete commercial intelligence platform for international operations.",
     problem_title: "The problem we solve",
     problem_sub:   "Startups, SMEs and growing companies can't afford customs agents or trade consultants. But they still need to answer:",
     problems: [
@@ -408,6 +416,16 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <div style={{ background:`linear-gradient(135deg,rgba(244,197,66,0.1),rgba(244,197,66,0.04))`, border:`1px solid ${C.borderGold}`, borderRadius:14, padding:"24px 32px" }}>
             <p style={{ fontSize:17, fontWeight:700, color:C.white, lineHeight:1.6 }}>{t.mission_close}</p>
           </div>
+        </div>
+      </section>
+
+      {/* ── Visión ─────────────────────────────────── */}
+      <section style={{ padding:"72px 48px", borderBottom:`1px solid ${C.border}`, background:`linear-gradient(135deg,rgba(37,99,235,0.05),rgba(7,21,47,0.8))` }}>
+        <div style={{ maxWidth:820, margin:"0 auto", textAlign:"center" }}>
+          <span style={{ fontSize:11, fontWeight:800, color:C.blueBright, letterSpacing:2.5, textTransform:"uppercase" }}>{t.vision_tag}</span>
+          <h2 style={{ fontSize:"clamp(22px,3vw,34px)", fontWeight:800, marginTop:12, marginBottom:28, letterSpacing:-0.5 }}>{t.vision_title}</h2>
+          <p style={{ fontSize:18, color:C.white, fontWeight:500, marginBottom:20, lineHeight:1.8 }}>{(t as any).vision_p1}</p>
+          <p style={{ fontSize:16, color:C.textSec, lineHeight:1.8 }}>{(t as any).vision_p2}</p>
         </div>
       </section>
 
