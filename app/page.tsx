@@ -540,6 +540,15 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
         </div>
       </section>
 
+      {/* ── Cierre ─────────────────────────────────── */}
+      <section style={{ padding:"64px 48px", borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
+        <p style={{ fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:C.textSec, lineHeight:1.6, maxWidth:700, margin:"0 auto" }}>
+          {lang === "es"
+            ? <>Nuestra misión no es calcular aranceles.<br/><span style={{ color:C.white }}>Nuestra misión es reducir la incertidumbre del comercio internacional.</span></>
+            : <>Our mission is not to calculate tariffs.<br/><span style={{ color:C.white }}>Our mission is to reduce the uncertainty of international trade.</span></>}
+        </p>
+      </section>
+
       {/* ── Footer ─────────────────────────────────── */}
       <footer style={{ borderTop:`1px solid rgba(255,255,255,0.06)`, padding:"32px 48px" }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:20 }}>
