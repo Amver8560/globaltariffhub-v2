@@ -440,6 +440,31 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                     )}
                   </div>
                   {r.agreement_note && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginTop: 8, fontStyle: "italic" }}>{r.agreement_note}</p>}
+
+                  {/* Links fuente oficial — siempre visibles */}
+                  {(() => {
+                    const orig = getCodeFromResult(r, origin);
+                    const dest = getCodeFromResult(r, destination);
+                    const systems = Array.from(new Set([orig.system, dest.system]));
+                    const links: { label: string; url: string }[] = [];
+                    if (systems.includes("NCM")) links.push({ label: "POLCOM MERCOSUR", url: "https://polcom.mercosur.int" });
+                    if (systems.includes("TARIC")) links.push({ label: "TARIC Comisión Europea", url: "https://trade.ec.europa.eu/taxation_customs/dds2/taric/taric_consultation.jsp" });
+                    if (systems.includes("HS")) links.push({ label: "WCO HS Database", url: "https://www.wcoomd.org/en/topics/nomenclature/instrument-and-tools/hs-nomenclature-2022-edition.aspx" });
+                    return links.length > 0 ? (
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)" }}>
+                          {lang === "es" ? "Verificar en fuente oficial:" : "Verify at official source:"}
+                        </span>
+                        {links.map((l) => (
+                          <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
+                            style={{ fontSize: 11, color: "#0057FF", textDecoration: "none", background: "rgba(0,87,255,0.1)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 20, padding: "3px 12px", fontWeight: 600 }}
+                            onClick={(e) => e.stopPropagation()}>
+                            ↗ {l.label}
+                          </a>
+                        ))}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
 
                 {/* Detalle expandido */}
