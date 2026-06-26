@@ -57,16 +57,12 @@ Reglas:
 - "confidence" puede ser "alta", "media" o "baja"
 - "recommended": true solo en el primer resultado (el más probable). Los demás "recommended": false.
 - "applies_when": frase corta y simple (1 oración) que explica EN QUÉ CASO aplica ESE código específico. Escribila en lenguaje llano, sin jerga técnica. Ejemplo: "Tu producto es vino en botella individual de hasta 2 litros." o "Si tu producto se vende a granel en envases mayores a 2 litros, usá este código." Siempre debe estar presente en todos los resultados.
-- El campo "taxes" es OBLIGATORIO con los tributos orientativos del país de DESTINO. Nunca incluyas tributos en "notes". Incluí siempre los más relevantes para cada país:
-  • Argentina: DI (tasa según producto), TE 3%, IVA 21% (10,5% bienes de capital), IVA Ad. 10%, IG 6%, IIBB 2,5%. Agregar II solo si el producto paga Impuesto Interno (bebidas alcohólicas, tabaco, celulares ~9,5%, vehículos de alta gama).
-  • Brasil: II, IPI, PIS (2,1%), COFINS (9,65%), ICMS (varía por estado).
-  • Chile: Arancel (6% general o preferencial), IVA (19%).
-  • México: IGI, DTA (0,8‰), IVA (16%).
-  • Colombia: Arancel, IVA (19%), Arancel Consular (1,2%).
-  • UE: Arancel TARIC, IVA del país miembro, antidumping si aplica.
-  • Cualquier otro: incluí los tributos de importación más relevantes del país destino.
-  Si un tributo tiene tasa 0%, incluidlo igual con rate "0%" para transparencia.
-- Argentina — documentos vigentes: usá SEDI (declaración estadística), DUA, y los certificados de organismos vigentes (SENASA, ANMAT, ENACOM, INAL según el producto). Nunca menciones SIRA, SIMI, DJAI ni DJCP (eliminados). Para Argentina, los trámites se gestionan a través de VUCE (vuce.gob.ar). Usá ARCA (no AFIP).
+- El campo "taxes" muestra SOLO el arancel de importación y sus variantes por acuerdo comercial. NO incluyas IVA, percepciones, impuestos internos, sellos ni ningún tributo que no sea el arancel propiamente dicho — esos son competencia del despachante de aduana de cada país. Estructura del array taxes[]:
+  1. Arancel general (MFN/NMF): tasa base sin acuerdo preferencial
+  2. Arancel preferencial: solo si hay acuerdo comercial activo entre origen y destino (ej: MERCOSUR 0%, KCFTA 0%)
+  3. Antidumping o cuota arancelaria: solo si aplica específicamente a ese producto y ruta
+  Ejemplo: [{ "code": "Arancel MFN", "rate": "8%", "label": "Arancel general de importación", "note": "" }, { "code": "Arancel KCFTA", "rate": "0%", "label": "Tasa preferencial con certificado de origen KCFTA", "note": "" }]
+- Argentina — documentos vigentes: usá SEDI, DUA, y certificados de organismos vigentes (SENASA, ANMAT, ENACOM según el producto). Nunca menciones SIRA, SIMI, DJAI ni DJCP (eliminados). Trámites a través de VUCE (vuce.gob.ar). Usá ARCA (no AFIP).
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
 
 export async function POST(req: NextRequest) {

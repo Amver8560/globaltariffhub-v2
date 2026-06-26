@@ -391,7 +391,7 @@ export function exportSearchPDF(response: any, params: {
     // Tributos en destino — 3 columnas en la misma línea: código | tasa | descripción
     if (r.taxes?.length) {
       if (y > 245) { doc.addPage(); y = 20; }
-      y = sectionTitle(doc, es ? "TRIBUTOS EN DESTINO" : "DESTINATION TAXES", y);
+      y = sectionTitle(doc, es ? "ARANCELES EN DESTINO" : "DESTINATION TARIFFS", y);
       r.taxes.forEach((tax: any, ti: number) => {
         if (y > 265) { doc.addPage(); y = 20; }
         const isZero = String(tax.rate) === "0%";

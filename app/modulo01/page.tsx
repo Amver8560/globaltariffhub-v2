@@ -537,7 +537,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                     {r.taxes && r.taxes.length > 0 && (
                       <div style={{ marginBottom: 16 }}>
                         <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
-                          {lang === "es" ? "💰 Tributos en destino" : "💰 Destination taxes"}
+                          {lang === "es" ? "🌐 Aranceles en destino" : "🌐 Destination tariffs"}
                         </p>
                         <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, overflow: "hidden" }}>
                           {r.taxes.map((tax, ti) => (
