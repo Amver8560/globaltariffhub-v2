@@ -25,7 +25,7 @@ const T = {
     eyebrow:     "PRÓXIMAMENTE",
     h1a:         "Inteligencia comercial global",
     h1b:         "potenciada por inteligencia artificial.",
-    sub:         "Entendé cualquier producto. Analizá cualquier mercado. Calculá cada decisión de importación.",
+    sub:         "Entendé cualquier producto. Analizá cualquier mercado. Calculá cada decisión de importación o exportación.",
     sub2:        "Desde la clasificación arancelaria hasta los acuerdos comerciales, Global Tariff Hub transforma la complejidad del comercio internacional en inteligencia de negocios.",
     tagline:     "From Product to Trade Intelligence™",
     flow: [
@@ -110,7 +110,7 @@ const T = {
     eyebrow:     "COMING SOON",
     h1a:         "AI-Powered Global",
     h1b:         "Trade Intelligence.",
-    sub:         "Understand any product. Analyze any market. Calculate every import decision.",
+    sub:         "Understand any product. Analyze any market. Calculate every import or export decision.",
     sub2:        "From tariff classification to trade agreements, Global Tariff Hub transforms international trade complexity into business intelligence.",
     tagline:     "From Product to Trade Intelligence™",
     flow: [
