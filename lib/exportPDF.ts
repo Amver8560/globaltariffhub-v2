@@ -289,19 +289,27 @@ export function exportCIFPDF(result: any, params: {
 // ── MÓDULO 01 — Búsqueda Arancelaria ─────────────────────────────────────────
 export function exportSearchPDF(response: any, params: {
   origin: string; destination: string; system: string;
-  query: string; lang: string;
+  query: string; lang: string; operation?: string;
 }) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const { origin, destination, system, query, lang } = params;
+  const { origin, destination, system, query, lang, operation } = params;
   const es = lang === "es";
   const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
 
-  header(doc, es ? "Informe de Búsqueda Arancelaria" : "Tariff Search Report", date);
+  const opLabel = operation === "importacion" ? (es ? "Importación" : "Import")
+    : operation === "exportacion" ? (es ? "Exportación" : "Export")
+    : "";
+  const reportTitle = opLabel
+    ? `${es ? "Informe de" : "Report —"} ${opLabel} ${es ? "— Búsqueda Arancelaria" : "Tariff Search"}`
+    : (es ? "Informe de Búsqueda Arancelaria" : "Tariff Search Report");
+
+  header(doc, reportTitle, date);
 
   let y = 38;
 
   // Datos de la consulta
   y = sectionTitle(doc, es ? "DATOS DE LA CONSULTA" : "SEARCH DETAILS", y);
+  if (opLabel) y = row(doc, es ? "Operación" : "Operation", opLabel, y, GOLD);
   y = row(doc, es ? "País de origen" : "Country of origin", origin || "—", y);
   y = row(doc, es ? "País de destino" : "Country of destination", destination || "—", y);
   y = row(doc, es ? "Sistema de nomenclatura" : "Nomenclature system", system, y);
@@ -380,46 +388,48 @@ export function exportSearchPDF(response: any, params: {
       y += 3;
     }
 
-    // Tributos en destino
+    // Tributos en destino — 3 columnas en la misma línea: código | tasa | descripción
     if (r.taxes?.length) {
       if (y > 245) { doc.addPage(); y = 20; }
       y = sectionTitle(doc, es ? "TRIBUTOS EN DESTINO" : "DESTINATION TAXES", y);
-      r.taxes.forEach((tax: any) => {
+      r.taxes.forEach((tax: any, ti: number) => {
         if (y > 265) { doc.addPage(); y = 20; }
         const isZero = String(tax.rate) === "0%";
         const codeText = safe(String(tax.code));
         const rateText = safe(String(tax.rate));
         const labelText = safe(tax.note ? `${tax.label} — ${tax.note}` : tax.label);
 
-        // Columna izquierda: código (bold dorado) + tasa (bold color)
+        // Fondo alternado
+        if (ti % 2 === 0) {
+          doc.setFillColor(245, 247, 252);
+          doc.rect(14, y - 4, 182, 10, "F");
+        }
+
+        // Col 1 — Código (dorado, bold, 8pt) — x=18, max 52mm
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         setColor(doc, GOLD);
-        const codeLines = doc.splitTextToSize(codeText, 55);
+        const codeLines = doc.splitTextToSize(codeText, 52);
         doc.text(codeLines, 18, y);
 
-        // Tasa debajo del código o en la misma línea si cabe
-        const rateY = y + (codeLines.length > 1 ? codeLines.length * 4 : 0);
-        doc.setFontSize(10);
-        doc.setTextColor(isZero ? 150 : 239, isZero ? 150 : 68, isZero ? 150 : 68);
-        doc.text(rateText, 18, rateY + (codeLines.length > 1 ? 0 : 5));
+        // Col 2 — Tasa (bold, coloreada, 9pt) — x=72
+        doc.setFontSize(9);
+        doc.setTextColor(isZero ? 160 : 220, isZero ? 160 : 50, isZero ? 160 : 50);
+        doc.text(rateText, 72, y);
 
-        // Columna derecha: descripción
+        // Col 3 — Descripción (normal, gris, 7.5pt) — x=92, max 100mm
         doc.setFontSize(7.5);
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
-        const labelLines = doc.splitTextToSize(labelText, 108);
-        doc.text(labelLines, 88, y);
+        const labelLines = doc.splitTextToSize(labelText, 100);
+        doc.text(labelLines, 92, y);
 
-        const leftH = (codeLines.length * 4) + 6 + 5; // código + tasa
-        const rightH = labelLines.length * 4.5;
-        const rowH = Math.max(leftH, rightH, 12);
-
+        const rowH = Math.max(codeLines.length * 4.5, labelLines.length * 4.2, 8);
         doc.setDrawColor(220, 225, 235);
-        doc.line(14, y + rowH, 196, y + rowH);
-        y += rowH + 2;
+        doc.line(14, y + rowH - 1, 196, y + rowH - 1);
+        y += rowH + 1;
       });
-      y += 3;
+      y += 4;
     }
 
     // Notas

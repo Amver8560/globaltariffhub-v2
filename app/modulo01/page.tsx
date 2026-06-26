@@ -111,6 +111,7 @@ const t = {
 
 type Tab = "image" | "text" | "code";
 type Lang = "es" | "en";
+type Operation = "importacion" | "exportacion";
 
 interface TaxLine {
   code: string;
@@ -146,6 +147,7 @@ interface SearchResponse {
 
 export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [lang, setLang] = useState<Lang>(defaultLang);
+  const [operation, setOperation] = useState<Operation | null>(null);
   const [tab, setTab] = useState<Tab>("image");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -180,6 +182,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
     setError("");
     setResponse(null);
     setExpanded(null);
+    if (!operation) { setError(lang === "es" ? "Seleccioná la operación (Importación o Exportación) antes de buscar." : "Select the trade operation (Import or Export) before searching."); return; }
     if (!origin || !destination) { setError(lang === "es" ? "Seleccioná el país de origen y destino antes de buscar." : "Please select origin and destination country before searching."); return; }
     if (tab === "image" && !image) { setError(c.error_image); return; }
     if ((tab === "text" || tab === "code") && !query.trim()) { setError(c.error_text); return; }
@@ -251,6 +254,31 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 20, padding: "5px 14px", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
                 {f.icon} {f.label}
               </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Operación de Comercio Exterior */}
+        <div style={{ marginBottom: 20 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+            {lang === "es" ? "Operación de Comercio Exterior" : "Trade Operation"}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {([
+              { key: "importacion" as Operation, icon: "📥", es: "Importación", en: "Import", desc_es: "Traer un producto al país", desc_en: "Bring a product into the country" },
+              { key: "exportacion" as Operation, icon: "📤", es: "Exportación", en: "Export", desc_es: "Enviar un producto al exterior", desc_en: "Send a product abroad" },
+            ]).map((op) => (
+              <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); }}
+                style={{
+                  padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#C9A84C" : "rgba(255,255,255,0.1)"}`,
+                  background: operation === op.key ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)",
+                  color: "#FFFFFF", cursor: "pointer", textAlign: "left",
+                  transition: "all 0.15s",
+                }}>
+                <div style={{ fontSize: 22, marginBottom: 6 }}>{op.icon}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 3 }}>{lang === "es" ? op.es : op.en}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{lang === "es" ? op.desc_es : op.desc_en}</div>
+              </button>
             ))}
           </div>
         </div>
@@ -338,7 +366,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
             {/* Botón exportar PDF */}
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
               <button
-                onClick={() => exportSearchPDF(response, { origin, destination, system, query, lang })}
+                onClick={() => exportSearchPDF(response, { origin, destination, system, query, lang, operation: operation || undefined })}
                 style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
