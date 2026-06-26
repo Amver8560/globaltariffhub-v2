@@ -60,7 +60,7 @@ const T = {
     modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
-        title:"Clasificación Inteligente de Productos",
+        title:"Clasificación Arancelaria de Productos con IA",
         question:"¿Qué impuestos paga este producto?",
         desc:"Sacá una foto o describí el producto. La IA te dice qué impuestos aplican, qué documentos necesitás y si hay algún beneficio que te permita pagar menos — sin necesitar saber nada de aduanas.",
         tags:["HS Code","NCM Mercosur","TARIC Europa","Acuerdos Comerciales"] },

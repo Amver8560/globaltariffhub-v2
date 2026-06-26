@@ -16,7 +16,7 @@ const SYSTEMS = ["HS", "NCM", "TARIC"];
 
 const t = {
   es: {
-    title: "Buscador Arancelario",
+    title: "Clasificación Arancelaria de Productos con IA",
     subtitle: "HS · NCM · TARIC · Acuerdos Comerciales",
     origin: "País de origen",
     destination: "País de destino",
@@ -54,7 +54,7 @@ const t = {
     error_general: "Error al procesar. Intentá de nuevo.",
   },
   en: {
-    title: "Tariff Search",
+    title: "AI-Powered Product Tariff Classification",
     subtitle: "HS · NCM · TARIC · Trade Agreements",
     origin: "Country of origin",
     destination: "Destination country",
