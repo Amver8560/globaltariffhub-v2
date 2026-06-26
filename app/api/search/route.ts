@@ -117,73 +117,83 @@ export async function POST(req: NextRequest) {
       ];
     }
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system: [
-        {
-          type: "text",
-          text: SYSTEM_PROMPT,
-          cache_control: { type: "ephemeral" },
-        },
-      ],
-      messages,
+    const ENRICHED_MARKER = "\x00ENRICHED\x00";
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        const enc = new TextEncoder();
+        let fullText = "";
+
+        try {
+          // Stream Claude response
+          const stream = client.messages.stream({
+            model: "claude-sonnet-4-6",
+            max_tokens: 2048,
+            system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+            messages,
+          });
+
+          stream.on("text", (chunk) => {
+            fullText += chunk;
+            controller.enqueue(enc.encode(chunk));
+          });
+
+          await stream.finalMessage();
+
+          // Enriquecer con fuentes oficiales
+          const jsonMatch = fullText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (parsed.results && Array.isArray(parsed.results) && destination) {
+              const enrichPromises = parsed.results.map(async (r: any) => {
+                const hs6 = normalizeHS6(r.hs_code || r.ncm_code || "");
+                const ncm8 = normalizeNCM8(r.ncm_code || r.hs_code || "");
+                const taricCode = hs6ToTaric(hs6);
+                const [wto, ncm, taric] = await Promise.all([
+                  hs6 ? getWTOMFNRate(hs6, destination) : Promise.resolve(null),
+                  ncm8.length >= 6 ? getNCMCode(ncm8) : Promise.resolve(null),
+                  hs6 ? getTARICRate(taricCode, r.origin || origin || "") : Promise.resolve(null),
+                ]);
+                const enriched = { ...r };
+                if (wto?.source === "WTO" && wto.mfn_rate !== null) {
+                  enriched.base_rate = `${wto.mfn_rate}%`;
+                  enriched.wto_source = true;
+                  enriched.wto_year = wto.year;
+                  enriched.confidence = "alta";
+                } else { enriched.wto_source = false; }
+                if (ncm?.source === "NCM") {
+                  enriched.ncm_description_official = ncm.descricao;
+                  enriched.ncm_vigente = true;
+                }
+                if (taric?.source === "TARIC") {
+                  enriched.taric_duty = taric.third_country_duty;
+                  enriched.taric_measures = taric.measures;
+                }
+                return enriched;
+              });
+              parsed.results = await Promise.all(enrichPromises);
+            }
+            // Enviar datos enriquecidos al final del stream
+            controller.enqueue(enc.encode(ENRICHED_MARKER + JSON.stringify(parsed)));
+          }
+        } catch (err) {
+          console.error(err);
+          controller.enqueue(enc.encode(ENRICHED_MARKER + JSON.stringify({
+            error: lang === "en" ? "Search error. Please try again." : "Error al procesar la búsqueda. Intentá de nuevo."
+          })));
+        } finally {
+          controller.close();
+        }
+      }
     });
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "";
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    // Enriquecer cada resultado con datos oficiales en paralelo:
-    // WTO (tasas MFN) + NCM Siscomex (descripción oficial) + TARIC (EU)
-    if (parsed.results && Array.isArray(parsed.results) && destination) {
-      const enrichPromises = parsed.results.map(async (r: any) => {
-        const hs6      = normalizeHS6(r.hs_code || r.ncm_code || "");
-        const ncm8     = normalizeNCM8(r.ncm_code || r.hs_code || "");
-        const taricCode = hs6ToTaric(hs6);
-
-        // Consultas en paralelo a las tres fuentes
-        const [wto, ncm, taric] = await Promise.all([
-          hs6 ? getWTOMFNRate(hs6, destination) : Promise.resolve(null),
-          ncm8.length >= 6 ? getNCMCode(ncm8) : Promise.resolve(null),
-          hs6 ? getTARICRate(taricCode, r.origin || origin || "") : Promise.resolve(null),
-        ]);
-
-        const enriched = { ...r };
-
-        // WTO → tasa MFN real
-        if (wto?.source === "WTO" && wto.mfn_rate !== null) {
-          enriched.base_rate = `${wto.mfn_rate}%`;
-          enriched.wto_source = true;
-          enriched.wto_year  = wto.year;
-          enriched.confidence = "alta";
-        } else {
-          enriched.wto_source = false;
-        }
-
-        // NCM → descripción oficial y vigencia
-        if (ncm?.source === "NCM") {
-          enriched.ncm_description_official = ncm.descricao;
-          enriched.ncm_vigente = true;
-          enriched.ncm_desde   = ncm.data_inicio;
-        }
-
-        // TARIC → tasa EU si el destino es europeo
-        if (taric?.source === "TARIC") {
-          enriched.taric_duty    = taric.third_country_duty;
-          enriched.taric_unit    = taric.unit;
-          enriched.taric_footnotes = taric.footnotes;
-          enriched.taric_measures  = taric.measures;
-        }
-
-        return enriched;
-      });
-
-      parsed.results = await Promise.all(enrichPromises);
-    }
-
-    return NextResponse.json(parsed);
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "no-cache",
+      },
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

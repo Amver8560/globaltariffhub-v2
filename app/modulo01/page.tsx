@@ -156,6 +156,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streamStep, setStreamStep] = useState(0);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -187,6 +188,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
     if (tab === "image" && !image) { setError(c.error_image); return; }
     if ((tab === "text" || tab === "code") && !query.trim()) { setError(c.error_text); return; }
     setLoading(true);
+    setStreamStep(1);
     try {
       const fd = new FormData();
       if (tab === "image" && image) fd.append("image", image);
@@ -195,21 +197,48 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       fd.append("origin", origin);
       fd.append("destination", destination);
       fd.append("system", system);
+
       const res = await fetch("/api/search", { method: "POST", body: fd });
-      const data = await res.json();
+      if (!res.ok || !res.body) throw new Error("stream error");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      const ENRICHED_MARKER = "\x00ENRICHED\x00";
+      let accumulated = "";
+      let stepTimer = 1;
+
+      // Leer el stream
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        // Avanzar el paso visual cada ~30 chars nuevos
+        stepTimer += value?.length || 0;
+        if (stepTimer > 200 && streamStep < 3) { setStreamStep(2); }
+        if (stepTimer > 600) { setStreamStep(3); }
+      }
+
+      setStreamStep(4);
+
+      // Extraer datos enriquecidos del final del stream
+      const markerIdx = accumulated.indexOf(ENRICHED_MARKER);
+      if (markerIdx < 0) throw new Error("no enriched data");
+      const enrichedJson = accumulated.slice(markerIdx + ENRICHED_MARKER.length);
+      const data = JSON.parse(enrichedJson);
+
       if (data.error) {
         if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
         if (data.code === "NO_CREDITS") { window.location.href = "/pricing"; return; }
         setError(data.error); return;
       }
       setResponse(data);
-      // Auto-expandir el resultado recomendado
       const recIdx = data.results?.findIndex((r: SearchResult) => r.recommended);
       setExpanded(recIdx >= 0 ? recIdx : 0);
     } catch {
       setError(c.error_general);
     } finally {
       setLoading(false);
+      setStreamStep(0);
     }
   };
 
@@ -358,6 +387,30 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_searching : c.btn_search}
           </button>
+
+          {/* Pasos animados durante la búsqueda */}
+          {loading && (
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { step: 1, icon: "🔍", es: "Identificando el producto...", en: "Identifying the product..." },
+                { step: 2, icon: "📋", es: "Clasificando con HS / NCM / TARIC...", en: "Classifying with HS / NCM / TARIC..." },
+                { step: 3, icon: "🤝", es: "Verificando acuerdos comerciales...", en: "Checking trade agreements..." },
+                { step: 4, icon: "✓", es: "Preparando resultados...", en: "Preparing results..." },
+              ].map((s) => {
+                const active = streamStep === s.step;
+                const done = streamStep > s.step;
+                return (
+                  <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 10, opacity: done ? 0.4 : active ? 1 : 0.2, transition: "opacity 0.4s" }}>
+                    <span style={{ fontSize: 16 }}>{done ? "✓" : s.icon}</span>
+                    <span style={{ fontSize: 13, color: active ? "#C9A84C" : done ? "#22c55e" : "rgba(255,255,255,0.4)", fontWeight: active ? 600 : 400 }}>
+                      {lang === "es" ? s.es : s.en}
+                    </span>
+                    {active && <span style={{ marginLeft: 4, animation: "pulse 1s infinite", color: "#C9A84C" }}>●</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Resultados */}
