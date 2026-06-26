@@ -14,6 +14,22 @@ const COUNTRIES = [
 
 const SYSTEMS = ["HS", "NCM", "TARIC"];
 
+const NCM_COUNTRIES = ["Argentina", "Brasil", "Uruguay", "Paraguay", "Bolivia"];
+const TARIC_COUNTRIES = ["España", "Alemania", "Francia", "Italia", "Reino Unido"];
+
+function getSystemForCountry(country: string): string {
+  if (NCM_COUNTRIES.includes(country)) return "NCM";
+  if (TARIC_COUNTRIES.includes(country)) return "TARIC";
+  return "HS";
+}
+
+function getCodeFromResult(r: SearchResult, country: string): { code: string; system: string } {
+  const sys = getSystemForCountry(country);
+  if (sys === "NCM") return { code: r.ncm_code, system: "NCM" };
+  if (sys === "TARIC") return { code: r.taric_code, system: "TARIC" };
+  return { code: r.hs_code, system: "HS" };
+}
+
 const t = {
   es: {
     title: "Clasificación Arancelaria de Productos con IA",
@@ -46,8 +62,8 @@ const t = {
     notes: "Notas",
     confidence: "Confianza",
     conf_alta: "Alta", conf_media: "Media", conf_baja: "Baja",
-    sim_cert: "📄 M02 — Simulador de Operaciones con Certificado →",
-    calc_cif: "📦 M03 — Calculadora CIF →",
+    sim_cert: "¿Podés pagar menos? — Simulá con Certificado de Origen →",
+    calc_cif: "¿Cuánto cuesta traerlo? — Calculadora CIF →",
     disclaimer: "⚠ Datos de referencia. Verificar con la fuente oficial antes de operar.",
     error_image: "Seleccioná una imagen primero",
     error_text: "Escribí una descripción primero",
@@ -84,8 +100,8 @@ const t = {
     notes: "Notes",
     confidence: "Confidence",
     conf_alta: "High", conf_media: "Medium", conf_baja: "Low",
-    sim_cert: "📄 M02 — Certificate of Origin Operations Simulator →",
-    calc_cif: "📦 M03 — CIF Calculator →",
+    sim_cert: "Could you pay less? — Simulate with Certificate of Origin →",
+    calc_cif: "What's the real cost? — CIF Calculator →",
     disclaimer: "⚠ Reference data. Verify with official source before operating.",
     error_image: "Select an image first",
     error_text: "Enter a description first",
@@ -152,8 +168,10 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
   };
 
   const swapCountries = () => {
-    setOrigin(destination);
+    const newOrigin = destination;
+    setOrigin(newOrigin);
     setDestination(origin);
+    if (newOrigin) setSystem(getSystemForCountry(newOrigin));
   };
 
   const handleSearch = async () => {
@@ -237,7 +255,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
             <div>
               <label style={labelStyle}>{c.origin}</label>
-              <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
+              <select value={origin} onChange={(e) => { const v = e.target.value; setOrigin(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>
                 <option value="">{c.select_country}</option>
                 {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -349,10 +367,39 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 <div onClick={() => setExpanded(expanded === i ? null : i)} style={{ padding: "20px 24px", cursor: "pointer" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 8 }}>
                     <div>
-                      <span style={{ fontFamily: "monospace", fontSize: 24, fontWeight: 800, color: "#C9A84C", letterSpacing: 2 }}>
-                        {system === "NCM" ? r.ncm_code : system === "TARIC" ? r.taric_code : r.hs_code}
-                      </span>
-                      <span style={{ marginLeft: 10, background: "rgba(0,87,255,0.2)", color: "#0057FF", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)" }}>{system}</span>
+                      {(() => {
+                        const orig = getCodeFromResult(r, origin);
+                        const dest = getCodeFromResult(r, destination);
+                        const sameSystem = orig.system === dest.system;
+                        return (
+                          <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap" }}>
+                            <div>
+                              <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 2 }}>
+                                {lang === "es" ? "Origen" : "Origin"} · {orig.system}
+                              </span>
+                              <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#C9A84C", letterSpacing: 2 }}>
+                                {orig.code || "—"}
+                              </span>
+                            </div>
+                            {!sameSystem && dest.code && (
+                              <>
+                                <span style={{ color: "rgba(255,255,255,0.25)", fontSize: 16, marginBottom: 4 }}>→</span>
+                                <div>
+                                  <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 2 }}>
+                                    {lang === "es" ? "Destino" : "Destination"} · {dest.system}
+                                  </span>
+                                  <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#0057FF", letterSpacing: 2 }}>
+                                    {dest.code}
+                                  </span>
+                                </div>
+                              </>
+                            )}
+                            {sameSystem && (
+                              <span style={{ background: "rgba(0,87,255,0.2)", color: "#0057FF", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)", marginBottom: 4 }}>{orig.system}</span>
+                            )}
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                       <span style={{ fontSize: 12, color: confColor[r.confidence] || "#22c55e", fontWeight: 600 }}>● {c.confidence}: {r.confidence === "alta" ? c.conf_alta : r.confidence === "media" ? c.conf_media : c.conf_baja}</span>
@@ -491,7 +538,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );
