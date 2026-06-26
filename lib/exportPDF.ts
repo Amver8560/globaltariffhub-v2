@@ -12,6 +12,11 @@ type RGB = readonly [number, number, number];
 function setColor(doc: jsPDF, color: RGB) { doc.setTextColor(color[0], color[1], color[2]); }
 function setFill(doc: jsPDF, color: RGB) { doc.setFillColor(color[0], color[1], color[2]); }
 
+// Elimina caracteres no soportados por jsPDF (CJK, árabe, etc.)
+function safe(text: string): string {
+  return (text || "").replace(/[^\x00-\x7FÀ-ɏ -ÿ]/g, "");
+}
+
 function header(doc: jsPDF, title: string, subtitle: string) {
   // Fondo header
   setFill(doc, DARK);
@@ -348,7 +353,7 @@ export function exportSearchPDF(response: any, params: {
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
         doc.setFontSize(7);
-        const dLines = doc.splitTextToSize(`• ${d}`, 170);
+        const dLines = doc.splitTextToSize(`• ${safe(d)}`, 170);
         doc.text(dLines, 22, y);
         y += dLines.length * 4;
       });
@@ -368,7 +373,7 @@ export function exportSearchPDF(response: any, params: {
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
         doc.setFontSize(7);
-        const dLines = doc.splitTextToSize(`• ${d}`, 170);
+        const dLines = doc.splitTextToSize(`• ${safe(d)}`, 170);
         doc.text(dLines, 22, y);
         y += dLines.length * 4;
       });
@@ -380,24 +385,39 @@ export function exportSearchPDF(response: any, params: {
       if (y > 245) { doc.addPage(); y = 20; }
       y = sectionTitle(doc, es ? "TRIBUTOS EN DESTINO" : "DESTINATION TAXES", y);
       r.taxes.forEach((tax: any) => {
-        if (y > 268) { doc.addPage(); y = 20; }
+        if (y > 265) { doc.addPage(); y = 20; }
         const isZero = String(tax.rate) === "0%";
-        doc.setFontSize(9);
+        const codeText = safe(String(tax.code));
+        const rateText = safe(String(tax.rate));
+        const labelText = safe(tax.note ? `${tax.label} — ${tax.note}` : tax.label);
+
+        // Columna izquierda: código (bold dorado) + tasa (bold color)
+        doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         setColor(doc, GOLD);
-        doc.text(`${tax.code} %`, 18, y);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(isZero ? 120 : 239, isZero ? 130 : 68, isZero ? 150 : 68);
-        doc.text(String(tax.rate), 52, y);
+        const codeLines = doc.splitTextToSize(codeText, 55);
+        doc.text(codeLines, 18, y);
+
+        // Tasa debajo del código o en la misma línea si cabe
+        const rateY = y + (codeLines.length > 1 ? codeLines.length * 4 : 0);
+        doc.setFontSize(10);
+        doc.setTextColor(isZero ? 150 : 239, isZero ? 150 : 68, isZero ? 150 : 68);
+        doc.text(rateText, 18, rateY + (codeLines.length > 1 ? 0 : 5));
+
+        // Columna derecha: descripción
+        doc.setFontSize(7.5);
         doc.setFont("helvetica", "normal");
         setColor(doc, GRAY);
-        const labelText = tax.note ? `${tax.label} — ${tax.note}` : tax.label;
-        const labelLines = doc.splitTextToSize(labelText, 120);
-        doc.text(labelLines, 72, y);
-        const rowH = Math.max(7, labelLines.length * 4 + 2);
+        const labelLines = doc.splitTextToSize(labelText, 108);
+        doc.text(labelLines, 88, y);
+
+        const leftH = (codeLines.length * 4) + 6 + 5; // código + tasa
+        const rightH = labelLines.length * 4.5;
+        const rowH = Math.max(leftH, rightH, 12);
+
         doc.setDrawColor(220, 225, 235);
-        doc.line(14, y + rowH - 2, 196, y + rowH - 2);
-        y += rowH;
+        doc.line(14, y + rowH, 196, y + rowH);
+        y += rowH + 2;
       });
       y += 3;
     }
@@ -408,7 +428,7 @@ export function exportSearchPDF(response: any, params: {
       doc.setFontSize(7);
       doc.setFont("helvetica", "italic");
       setColor(doc, GRAY);
-      const noteLines = doc.splitTextToSize(r.notes, 174);
+      const noteLines = doc.splitTextToSize(safe(r.notes), 174);
       doc.text(noteLines, 18, y);
       y += noteLines.length * 4 + 4;
     }
