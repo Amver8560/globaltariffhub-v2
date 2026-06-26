@@ -405,24 +405,30 @@ export function exportSearchPDF(response: any, params: {
           doc.rect(14, y - 4, 182, 10, "F");
         }
 
-        // Col 1 — Código (dorado, bold, 8pt) — x=18, max 52mm
+        // Col 1 — Código (dorado, bold, 8pt) — x=18, max 48mm
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         setColor(doc, GOLD);
-        const codeLines = doc.splitTextToSize(codeText, 52);
-        doc.text(codeLines, 18, y);
+        const codeLines = doc.splitTextToSize(codeText, 48);
+        doc.text(codeLines, 20, y);
 
-        // Col 2 — Tasa (bold, coloreada, 9pt) — x=72
-        doc.setFontSize(9);
-        doc.setTextColor(isZero ? 160 : 220, isZero ? 160 : 50, isZero ? 160 : 50);
+        // Col 2 — Tasa (bold, coloreada, 10pt) — x=72, centrada
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(isZero ? 150 : 210, isZero ? 150 : 50, isZero ? 150 : 50);
         doc.text(rateText, 72, y);
 
-        // Col 3 — Descripción (normal, gris, 7.5pt) — x=92, max 100mm
-        doc.setFontSize(7.5);
+        // Col 3 — Descripción (normal, claro, 8pt) — x=96, max 96mm
+        doc.setFontSize(8);
         doc.setFont("helvetica", "normal");
-        setColor(doc, GRAY);
-        const labelLines = doc.splitTextToSize(labelText, 100);
-        doc.text(labelLines, 92, y);
+        setColor(doc, [180, 190, 210]);
+        const labelLines = doc.splitTextToSize(labelText, 96);
+        doc.text(labelLines, 96, y);
+
+        // Separadores verticales
+        doc.setDrawColor(40, 60, 100);
+        doc.line(68, y - 4, 68, y + Math.max(codeLines.length * 4.5, labelLines.length * 4.5, 7));
+        doc.line(92, y - 4, 92, y + Math.max(codeLines.length * 4.5, labelLines.length * 4.5, 7));
 
         const rowH = Math.max(codeLines.length * 4.5, labelLines.length * 4.2, 8);
         doc.setDrawColor(220, 225, 235);
@@ -432,15 +438,30 @@ export function exportSearchPDF(response: any, params: {
       y += 4;
     }
 
-    // Notas
+    // Notas — por qué este código arancelario
     if (r.notes) {
-      if (y > 258) { doc.addPage(); y = 20; }
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "italic");
-      setColor(doc, GRAY);
-      const noteLines = doc.splitTextToSize(safe(r.notes), 174);
-      doc.text(noteLines, 18, y);
-      y += noteLines.length * 4 + 4;
+      if (y > 255) { doc.addPage(); y = 20; }
+      // Fondo destacado
+      const noteText = safe(r.notes);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      setColor(doc, [200, 210, 230]);
+      const noteLines = doc.splitTextToSize(noteText, 166);
+      const noteH = noteLines.length * 5.5 + 10;
+      doc.setFillColor(13, 27, 62);
+      doc.setDrawColor(201, 168, 76);
+      doc.roundedRect(14, y - 4, 182, noteH, 3, 3, "FD");
+      // Etiqueta
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      setColor(doc, GOLD);
+      doc.text("¿Por qué este código?", 20, y + 2);
+      // Texto
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      setColor(doc, [200, 210, 230]);
+      doc.text(noteLines, 20, y + 9);
+      y += noteH + 6;
     }
 
     y += 5;
