@@ -408,12 +408,6 @@ export function exportSearchPDF(response: any, params: {
         const rowH = Math.max(codeLines.length * 5.5, labelLines.length * 5, 10);
         const pad = 3;
 
-        // Fondo alternado con altura correcta
-        if (ti % 2 === 0) {
-          doc.setFillColor(240, 244, 252);
-          doc.rect(14, y - pad, 182, rowH + pad, "F");
-        }
-
         // Separadores verticales con altura correcta
         doc.setDrawColor(180, 200, 230);
         doc.line(68, y - pad, 68, y + rowH);
