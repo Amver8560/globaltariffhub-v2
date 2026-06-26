@@ -262,7 +262,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               <label style={labelStyle}>{c.origin}</label>
               <select value={origin} onChange={(e) => { const v = e.target.value; setOrigin(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>
                 <option value="">{c.select_country}</option>
-                {COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
               </select>
             </div>
             <button onClick={swapCountries} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
