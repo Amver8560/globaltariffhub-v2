@@ -270,6 +270,7 @@ function GlobeIllustration() {
 export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"en" }) {
   const [lang, setLang]   = useState<"es"|"en">(defaultLang as "es"|"en");
   const [mounted, setMounted]     = useState(false);
+  const [isMobile, setIsMobile]   = useState(false);
   const [loginHover, setLoginHover] = useState(false);
   const [showModal, setShowModal]   = useState(false);
   const [modalEmail, setModalEmail] = useState("");
@@ -277,12 +278,19 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
 
   useEffect(() => { setMounted(true); }, []);
   useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  useEffect(() => {
     if (showModal) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => { document.body.style.overflow = ""; };
   }, [showModal]);
   if (!mounted) return null;
   const t = T[lang];
+  const px = isMobile ? "20px" : "48px"; // padding lateral global
 
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,55 +308,59 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
     <div style={{ backgroundColor:C.bg, minHeight:"100vh", color:C.white, fontFamily:"var(--font-inter),'Helvetica Neue',Arial,sans-serif" }}>
 
       {/* ── Navbar ─────────────────────────────────── */}
-      <nav style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"14px 48px", borderBottom:`1px solid ${C.border}`, background:"rgba(7,21,47,0.97)", position:"sticky", top:0, zIndex:100, backdropFilter:"blur(16px)" }}>
+      <nav style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:`14px ${px}`, borderBottom:`1px solid ${C.border}`, background:"rgba(7,21,47,0.97)", position:"sticky", top:0, zIndex:100, backdropFilter:"blur(16px)" }}>
         {/* Logo */}
-        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ width:40, height:40, borderRadius:9, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:12, color:C.gold, border:`1.5px solid ${C.gold}` }}>GTH</div>
+        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <div style={{ width:36, height:36, flexShrink:0, borderRadius:9, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:11, color:C.gold, border:`1.5px solid ${C.gold}` }}>GTH</div>
           <div>
-            <p style={{ fontWeight:800, fontSize:15, color:C.white, lineHeight:1.1, letterSpacing:-0.2 }}>Global Tariff Hub</p>
-            <p style={{ fontSize:10, color:`${C.gold}BB`, fontWeight:500 }}>{t.nav_tagline}</p>
+            <p style={{ fontWeight:800, fontSize:isMobile?13:15, color:C.white, lineHeight:1.1, letterSpacing:-0.2 }}>Global Tariff Hub</p>
+            {!isMobile && <p style={{ fontSize:10, color:`${C.gold}BB`, fontWeight:500 }}>{t.nav_tagline}</p>}
           </div>
         </div>
 
-        {/* Links */}
-        <div style={{ display:"flex", alignItems:"center", gap:28 }}>
-          {[["#flujo","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
-            <a key={href} href={href} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
-              onMouseEnter={e=>(e.currentTarget.style.color=C.white)}
-              onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{label}</a>
-          ))}
-        </div>
+        {/* Links — ocultos en mobile */}
+        {!isMobile && (
+          <div style={{ display:"flex", alignItems:"center", gap:28 }}>
+            {[["#flujo","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
+              <a key={href} href={href} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
+                onMouseEnter={e=>(e.currentTarget.style.color=C.white)}
+                onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{label}</a>
+            ))}
+          </div>
+        )}
 
         {/* Acciones */}
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ display:"flex", background:"rgba(255,255,255,0.06)", borderRadius:20, padding:3, border:`1px solid ${C.border}` }}>
             {(["es","en"] as const).map(l=>(
-              <button key={l} onClick={()=>setLang(l)} style={{ padding:"3px 12px", borderRadius:16, border:"none", cursor:"pointer", fontSize:11, fontWeight:700, background:lang===l?C.blue:"transparent", color:lang===l?C.white:C.textMuted }}>{l.toUpperCase()}</button>
+              <button key={l} onClick={()=>setLang(l)} style={{ padding:"3px 10px", borderRadius:16, border:"none", cursor:"pointer", fontSize:11, fontWeight:700, background:lang===l?C.blue:"transparent", color:lang===l?C.white:C.textMuted }}>{l.toUpperCase()}</button>
             ))}
           </div>
 
-          {/* Login deshabilitado */}
-          <div style={{ position:"relative" }}
-            onMouseEnter={()=>setLoginHover(true)}
-            onMouseLeave={()=>setLoginHover(false)}>
-            <button style={{ fontSize:13, color:"rgba(184,196,217,0.3)", fontWeight:500, border:`1px solid rgba(59,130,246,0.1)`, borderRadius:8, padding:"7px 16px", background:"transparent", cursor:"not-allowed", display:"flex", alignItems:"center", gap:6 }}>
-              🔒 {t.nav_login}
-            </button>
-            {loginHover && (
-              <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", whiteSpace:"nowrap", fontSize:12, color:C.textSec, zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,0.4)" }}>
-                🔒 {t.login_msg}
-              </div>
-            )}
-          </div>
+          {/* Login deshabilitado — oculto en mobile */}
+          {!isMobile && (
+            <div style={{ position:"relative" }}
+              onMouseEnter={()=>setLoginHover(true)}
+              onMouseLeave={()=>setLoginHover(false)}>
+              <button style={{ fontSize:13, color:"rgba(184,196,217,0.3)", fontWeight:500, border:`1px solid rgba(59,130,246,0.1)`, borderRadius:8, padding:"7px 16px", background:"transparent", cursor:"not-allowed", display:"flex", alignItems:"center", gap:6 }}>
+                🔒 {t.nav_login}
+              </button>
+              {loginHover && (
+                <div style={{ position:"absolute", top:"calc(100% + 8px)", right:0, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:10, padding:"10px 14px", whiteSpace:"nowrap", fontSize:12, color:C.textSec, zIndex:200, boxShadow:"0 8px 24px rgba(0,0,0,0.4)" }}>
+                  🔒 {t.login_msg}
+                </div>
+              )}
+            </div>
+          )}
 
-          <Link href="/register" style={{ fontSize:13, fontWeight:700, color:C.bg, background:`linear-gradient(135deg,${C.gold},#F9D96A)`, border:"none", borderRadius:8, padding:"8px 20px", textDecoration:"none" }}>
-            {t.nav_cta}
+          <Link href="/register" style={{ fontSize:12, fontWeight:700, color:C.bg, background:`linear-gradient(135deg,${C.gold},#F9D96A)`, border:"none", borderRadius:8, padding:isMobile?"7px 14px":"8px 20px", textDecoration:"none" }}>
+            {isMobile ? (lang==="es"?"Registrarse":"Register") : t.nav_cta}
           </Link>
         </div>
       </nav>
 
       {/* ── Hero ───────────────────────────────────── */}
-      <section style={{ maxWidth:1200, margin:"0 auto", padding:"68px 48px 56px", display:"grid", gridTemplateColumns:"65fr 35fr", gap:56, alignItems:"center" }}>
+      <section style={{ maxWidth:1200, margin:"0 auto", padding:isMobile?"48px 20px 40px":`68px ${px} 56px`, display:"grid", gridTemplateColumns:isMobile?"1fr":"65fr 35fr", gap:isMobile?32:56, alignItems:"center" }}>
         <div>
           {/* Eyebrow — botón clickeable que abre popup */}
           <button
@@ -370,7 +382,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <p style={{ fontSize:12, color:`${C.gold}99`, fontWeight:600, marginBottom:40, letterSpacing:0.5, fontStyle:"italic" }}>{t.tagline}</p>
 
           {/* Flujo 4 pasos */}
-          <div id="flujo" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:8, marginBottom:36 }}>
+          <div id="flujo" style={{ display:"grid", gridTemplateColumns:isMobile?"repeat(2,1fr)":"repeat(4,1fr)", gap:8, marginBottom:36 }}>
             {t.flow.map((f,i)=>(
               <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 12px", textAlign:"center", position:"relative" }}>
                 {i < t.flow.length-1 && (
@@ -405,7 +417,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Misión ─────────────────────────────────── */}
-      <section style={{ padding:"72px 48px", borderBottom:`1px solid ${C.border}` }}>
+      <section style={{ padding:isMobile?`48px ${px}`:`72px ${px}`, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ maxWidth:820, margin:"0 auto", textAlign:"center" }}>
           <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.mission_tag}</span>
           <h2 style={{ fontSize:"clamp(22px,3vw,34px)", fontWeight:800, marginTop:12, marginBottom:28, letterSpacing:-0.5 }}>{t.mission_title}</h2>
@@ -420,7 +432,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Visión ─────────────────────────────────── */}
-      <section style={{ padding:"72px 48px", borderBottom:`1px solid ${C.border}`, background:`linear-gradient(135deg,rgba(37,99,235,0.05),rgba(7,21,47,0.8))` }}>
+      <section style={{ padding:isMobile?`48px ${px}`:`72px ${px}`, borderBottom:`1px solid ${C.border}`, background:`linear-gradient(135deg,rgba(37,99,235,0.05),rgba(7,21,47,0.8))` }}>
         <div style={{ maxWidth:820, margin:"0 auto", textAlign:"center" }}>
           <span style={{ fontSize:11, fontWeight:800, color:C.blueBright, letterSpacing:2.5, textTransform:"uppercase" }}>{t.vision_tag}</span>
           <h2 style={{ fontSize:"clamp(22px,3vw,34px)", fontWeight:800, marginTop:12, marginBottom:28, letterSpacing:-0.5 }}>{t.vision_title}</h2>
@@ -430,7 +442,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── El problema que resolvemos ─────────────── */}
-      <section style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:"72px 48px" }}>
+      <section style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:isMobile?`48px ${px}`:`72px ${px}` }}>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:48 }}>
             <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>Por qué existimos</span>
@@ -458,7 +470,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Módulos ────────────────────────────────── */}
-      <section id="modulos" style={{ padding:"72px 48px" }}>
+      <section id="modulos" style={{ padding:isMobile?`48px ${px}`:`72px ${px}` }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:48 }}>
             <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang==="es"?"Funcionalidades":"Features"}</span>
@@ -489,7 +501,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Diseñado para ──────────────────────────── */}
-      <section id="para-quien" style={{ background:`linear-gradient(135deg,rgba(11,30,61,0.8),rgba(7,21,47,1))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:"72px 48px" }}>
+      <section id="para-quien" style={{ background:`linear-gradient(135deg,rgba(11,30,61,0.8),rgba(7,21,47,1))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:isMobile?`48px ${px}`:`72px ${px}` }}>
         <div style={{ maxWidth:1200, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:48 }}>
             <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang==="es"?"Audiencia":"Audience"}</span>
@@ -512,7 +524,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Fuentes ────────────────────────────────── */}
-      <section id="fuentes" style={{ padding:"56px 48px" }}>
+      <section id="fuentes" style={{ padding:isMobile?`40px ${px}`:`56px ${px}` }}>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <p style={{ textAlign:"center", fontSize:11, color:C.textMuted, marginBottom:24, textTransform:"uppercase", letterSpacing:1.5, fontWeight:600 }}>{t.sources_title}</p>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:10 }}>
@@ -529,7 +541,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── CTA final ──────────────────────────────── */}
-      <section style={{ maxWidth:720, margin:"0 auto 80px", padding:"0 48px" }}>
+      <section style={{ maxWidth:720, margin:"0 auto 80px", padding:`0 ${px}` }}>
         <div style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.14),${C.bgCard})`, border:`1px solid ${C.border}`, borderRadius:20, padding:"56px 48px", textAlign:"center" }}>
           <p style={{ fontSize:11, color:C.gold, fontWeight:800, letterSpacing:2, textTransform:"uppercase", marginBottom:14 }}>From Product to Trade Intelligence™</p>
           <h2 style={{ fontSize:28, fontWeight:800, marginBottom:12, letterSpacing:-0.5 }}>{t.cta_title}</h2>
@@ -541,7 +553,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Cierre ─────────────────────────────────── */}
-      <section style={{ padding:"64px 48px", borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
+      <section style={{ padding:isMobile?`48px ${px}`:`64px ${px}`, borderTop:`1px solid ${C.border}`, textAlign:"center" }}>
         <p style={{ fontSize:"clamp(18px,2.5vw,26px)", fontWeight:700, color:C.textSec, lineHeight:1.6, maxWidth:700, margin:"0 auto" }}>
           {lang === "es"
             ? <>Nuestra misión no es calcular aranceles.<br/><span style={{ color:C.white }}>Nuestra misión es reducir la incertidumbre del comercio internacional.</span></>
@@ -550,7 +562,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Footer ─────────────────────────────────── */}
-      <footer style={{ borderTop:`1px solid rgba(255,255,255,0.06)`, padding:"32px 48px" }}>
+      <footer style={{ borderTop:`1px solid rgba(255,255,255,0.06)`, padding:`32px ${px}` }}>
         <div style={{ maxWidth:1200, margin:"0 auto", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:20 }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:32, height:32, borderRadius:7, background:`linear-gradient(135deg,${C.blue},#0D2247)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:10, color:C.gold, border:`1.5px solid ${C.gold}` }}>GTH</div>
