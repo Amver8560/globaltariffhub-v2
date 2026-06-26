@@ -28,6 +28,8 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
       "destination_documents": ["DI - Declaración de importación", "Análisis de laboratorio MAPA", "Registro de bebidas ANVISA"],
       "notes": "Para recipientes > 2 litros usar código 2204.29",
       "confidence": "alta",
+      "recommended": true,
+      "applies_when": "Tu producto es vino en botella o envase individual de hasta 2 litros.",
       "taxes": [
         { "code": "DIE", "rate": "14%", "label": "Derecho de Importación Extrazona", "note": "" },
         { "code": "TE", "rate": "3%", "label": "Tasa Estadística", "note": "Tope USD 500 por despacho" },
@@ -51,8 +53,10 @@ Reglas:
 - Si no hay acuerdo preferencial entre los países, "preferential_rate" debe ser igual a "base_rate" y "trade_agreement" debe ser "Ninguno"
 - "origin_documents" son los documentos que el exportador necesita en el país de origen
 - "destination_documents" son los que pide el país importador para el ingreso
-- Devolvé entre 1 y 3 resultados ordenados por relevancia
+- Devolvé entre 1 y 3 resultados ordenados por relevancia. El primer resultado SIEMPRE debe ser el más probable y tener "recommended": true. Los siguientes deben tener "recommended": false.
 - "confidence" puede ser "alta", "media" o "baja"
+- "recommended": true solo en el primer resultado (el más probable). Los demás "recommended": false.
+- "applies_when": frase corta y simple (1 oración) que explica EN QUÉ CASO aplica ESE código específico. Escribila en lenguaje llano, sin jerga técnica. Ejemplo: "Tu producto es vino en botella individual de hasta 2 litros." o "Si tu producto se vende a granel en envases mayores a 2 litros, usá este código." Siempre debe estar presente en todos los resultados.
 - El campo "taxes" es OBLIGATORIO y debe contener SIEMPRE todos los tributos del país de DESTINO. NUNCA pongas información de tributos en el campo "notes" — los tributos van EXCLUSIVAMENTE en el array "taxes". Si el destino es Argentina, el array "taxes" DEBE tener exactamente estas líneas (en este orden), ajustando la tasa "rate" según la posición arancelaria del producto:
   1. { "code": "DIE", "rate": "<tasa DI%>", "label": "Derecho de Importación Extrazona", "note": "DII 0% si origen MERCOSUR" }
   2. { "code": "TE", "rate": "3%", "label": "Tasa Estadística", "note": "Tope USD 500 por despacho" }

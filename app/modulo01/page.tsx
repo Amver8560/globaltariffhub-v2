@@ -133,6 +133,8 @@ interface SearchResult {
   destination_documents: string[];
   notes: string;
   confidence: "alta" | "media" | "baja";
+  recommended?: boolean;
+  applies_when?: string;
   taxes?: TaxLine[];
 }
 
@@ -198,6 +200,9 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         setError(data.error); return;
       }
       setResponse(data);
+      // Auto-expandir el resultado recomendado
+      const recIdx = data.results?.findIndex((r: SearchResult) => r.recommended);
+      setExpanded(recIdx >= 0 ? recIdx : 0);
     } catch {
       setError(c.error_general);
     } finally {
@@ -351,7 +356,29 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>{c.results}</h2>
 
             {response.results.map((r, i) => (
-              <div key={i} style={{ background: "#0D1B3E", borderRadius: 14, border: "1px solid rgba(201,168,76,0.25)", marginBottom: 16, overflow: "hidden" }}>
+              <div key={i} style={{ background: "#0D1B3E", borderRadius: 14, border: `1px solid ${r.recommended ? "rgba(201,168,76,0.5)" : "rgba(255,255,255,0.08)"}`, marginBottom: 16, overflow: "hidden" }}>
+
+                {/* Banner recomendado / alternativa */}
+                {r.recommended ? (
+                  <div style={{ background: "rgba(201,168,76,0.12)", borderBottom: "1px solid rgba(201,168,76,0.25)", padding: "8px 20px", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 13 }}>✓</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>
+                      {lang === "es" ? "Resultado más probable" : "Most likely result"}
+                    </span>
+                    {r.applies_when && (
+                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginLeft: 4 }}>— {r.applies_when}</span>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "8px 20px", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>
+                      {lang === "es" ? "Variante posible" : "Possible variant"}
+                    </span>
+                    {r.applies_when && (
+                      <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginLeft: 4 }}>— {r.applies_when}</span>
+                    )}
+                  </div>
+                )}
 
                 {/* Header resultado */}
                 <div onClick={() => setExpanded(expanded === i ? null : i)} style={{ padding: "20px 24px", cursor: "pointer" }}>
