@@ -260,7 +260,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
         {/* Operación de Comercio Exterior */}
         <div style={{ marginBottom: 20 }}>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1, fontWeight: 600 }}>
+          <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
             {lang === "es" ? "Operación de Comercio Exterior" : "Trade Operation"}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
