@@ -399,41 +399,47 @@ export function exportSearchPDF(response: any, params: {
         const rateText = safe(String(tax.rate));
         const labelText = safe(tax.note ? `${tax.label} — ${tax.note}` : tax.label);
 
-        // Fondo alternado
+        // Calcular líneas PRIMERO para saber la altura real de la fila
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        const codeLines = doc.splitTextToSize(codeText, 48);
+        doc.setFont("helvetica", "normal");
+        const labelLines = doc.splitTextToSize(labelText, 96);
+        const rowH = Math.max(codeLines.length * 5.5, labelLines.length * 5, 10);
+        const pad = 3;
+
+        // Fondo alternado con altura correcta
         if (ti % 2 === 0) {
-          doc.setFillColor(245, 247, 252);
-          doc.rect(14, y - 4, 182, 10, "F");
+          doc.setFillColor(240, 244, 252);
+          doc.rect(14, y - pad, 182, rowH + pad, "F");
         }
 
-        // Col 1 — Código (dorado, bold, 8pt) — x=18, max 48mm
+        // Separadores verticales con altura correcta
+        doc.setDrawColor(180, 200, 230);
+        doc.line(68, y - pad, 68, y + rowH);
+        doc.line(92, y - pad, 92, y + rowH);
+
+        // Col 1 — Código (dorado, bold, 8pt)
         doc.setFontSize(8);
         doc.setFont("helvetica", "bold");
         setColor(doc, GOLD);
-        const codeLines = doc.splitTextToSize(codeText, 48);
         doc.text(codeLines, 20, y);
 
-        // Col 2 — Tasa (bold, coloreada, 10pt) — x=72, centrada
+        // Col 2 — Tasa (bold, coloreada, 10pt)
         doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
         doc.setTextColor(isZero ? 150 : 210, isZero ? 150 : 50, isZero ? 150 : 50);
         doc.text(rateText, 72, y);
 
-        // Col 3 — Descripción (normal, claro, 8pt) — x=96, max 96mm
+        // Col 3 — Descripción (normal, 8pt)
         doc.setFontSize(8);
         doc.setFont("helvetica", "normal");
-        setColor(doc, [180, 190, 210]);
-        const labelLines = doc.splitTextToSize(labelText, 96);
+        setColor(doc, [100, 120, 150]);
         doc.text(labelLines, 96, y);
 
-        // Separadores verticales
-        doc.setDrawColor(40, 60, 100);
-        doc.line(68, y - 4, 68, y + Math.max(codeLines.length * 4.5, labelLines.length * 4.5, 7));
-        doc.line(92, y - 4, 92, y + Math.max(codeLines.length * 4.5, labelLines.length * 4.5, 7));
-
-        const rowH = Math.max(codeLines.length * 4.5, labelLines.length * 4.2, 8);
-        doc.setDrawColor(220, 225, 235);
-        doc.line(14, y + rowH - 1, 196, y + rowH - 1);
-        y += rowH + 1;
+        // Línea horizontal separadora
+        doc.setDrawColor(210, 218, 235);
+        doc.line(14, y + rowH, 196, y + rowH);
+        y += rowH + 2;
       });
       y += 4;
     }
