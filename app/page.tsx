@@ -374,8 +374,9 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
             <span style={{ fontSize:11, color:C.textMuted, marginLeft:2 }}>→</span>
           </button>
 
-          <h1 style={{ fontSize:"clamp(40px,5vw,72px)", fontWeight:800, lineHeight:1.05, letterSpacing:-2, marginBottom:16, color:C.white }}>
-            {t.h1a}<br/>{t.h1b}
+          <h1 style={{ fontSize:"clamp(40px,5vw,72px)", fontWeight:800, lineHeight:1.05, letterSpacing:-2, marginBottom:16 }}>
+            <span style={{ color:C.white }}>{t.h1a}</span><br/>
+            <span style={{ color:C.gold }}>{t.h1b}</span>
           </h1>
           <p style={{ fontSize:18, color:C.white, fontWeight:600, marginBottom:8, lineHeight:1.5 }}>{t.sub}</p>
           <p style={{ fontSize:14, color:C.textSec, marginBottom:32, lineHeight:1.7 }}>{(t as any).sub2}</p>
