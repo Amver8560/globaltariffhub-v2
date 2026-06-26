@@ -45,7 +45,7 @@ const T = {
     vision_tag:    "Hacia dónde vamos",
     vision_p1:     "Imaginamos un mundo donde cualquier empresa pueda vender o comprar en cualquier país con la misma facilidad con la que hoy busca información en Internet.",
     vision_p2:     "Aspiramos a construir la plataforma de inteligencia comercial más completa del mundo para operaciones internacionales.",
-    problem_title: "El problema que resolvemos",
+    problem_title: "¿Cómo funciona Global Tariff Hub?",
     problem_sub:   "Las startups, pymes y empresas medianas que quieren crecer no pueden pagar agentes de comercio exterior ni despachantes de aduana. Pero igual necesitan responder:",
     problems: [
       "¿Puedo importar este producto?",
@@ -56,7 +56,7 @@ const T = {
       "¿Cuál sería el costo total?",
       "¿Hay beneficios arancelarios disponibles?",
     ],
-    problem_answer: "Con Global Tariff Hub, cualquier persona — aunque no sepa nada de comercio exterior — puede subir una foto y obtener un arancel orientativo al instante. Esa es la magia.",
+    problem_answer: "Cualquier organización puede explorar las oportunidades del comercio exterior — subiendo una foto y obteniendo un arancel orientativo al instante. Esa es la magia.",
     modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
@@ -130,7 +130,7 @@ const T = {
     vision_tag:    "Where we're headed",
     vision_p1:     "We imagine a world where any company can buy or sell in any country as easily as searching for information on the Internet today.",
     vision_p2:     "We aspire to build the world's most complete commercial intelligence platform for international operations.",
-    problem_title: "The problem we solve",
+    problem_title: "How does Global Tariff Hub work?",
     problem_sub:   "Startups, SMEs and growing companies can't afford customs agents or trade consultants. But they still need to answer:",
     problems: [
       "Can I import this product?",
@@ -141,7 +141,7 @@ const T = {
       "What would the total cost be?",
       "Are there any tariff benefits available?",
     ],
-    problem_answer: "With Global Tariff Hub, anyone — even without trade expertise — can upload a photo and get an indicative tariff rate instantly. That's the magic.",
+    problem_answer: "Any organization can explore international trade opportunities — by uploading a photo and getting an indicative tariff rate instantly. That's the magic.",
     modules_title: "Four modules. One platform.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
@@ -446,7 +446,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       <section style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:isMobile?`48px ${px}`:`72px ${px}` }}>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:48 }}>
-            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>Por qué existimos</span>
+            <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang === "es" ? "Cómo funciona" : "How it works"}</span>
             <h2 style={{ fontSize:"clamp(24px,3vw,36px)", fontWeight:800, marginTop:12, marginBottom:16, letterSpacing:-0.5 }}>{t.problem_title}</h2>
             <p style={{ fontSize:16, color:C.textSec, maxWidth:580, margin:"0 auto", lineHeight:1.7 }}>{t.problem_sub}</p>
           </div>
