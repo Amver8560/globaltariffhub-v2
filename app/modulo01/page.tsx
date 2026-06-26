@@ -348,16 +348,6 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               </div>
             )}
 
-            {/* Aviso actualización de fuentes */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 16px", marginBottom: 16, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 13 }}>🔄</span>
-              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", margin: 0 }}>
-                {lang === "es"
-                  ? "Fuentes de referencia: WTO API · TARIC-EU (actualización mensual) · Siscomex/NCM · Resultados IA orientativos — verificar con profesional habilitado"
-                  : "Reference sources: WTO API · TARIC-EU (monthly update) · Siscomex/NCM · AI results are indicative — verify with a qualified professional"}
-              </p>
-            </div>
-
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>{c.results}</h2>
 
             {response.results.map((r, i) => (
@@ -525,6 +515,13 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 )}
               </div>
             ))}
+
+            {/* Fuentes — al pie, discreta */}
+            <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", textAlign: "center", marginTop: 8, marginBottom: 16 }}>
+              {lang === "es"
+                ? "Fuentes: WTO API · TARIC-EU · Siscomex/NCM · Datos orientativos generados con IA"
+                : "Sources: WTO API · TARIC-EU · Siscomex/NCM · Indicative data generated with AI"}
+            </p>
 
             <LegalDisclaimer
               lang={lang as "es" | "en"}
