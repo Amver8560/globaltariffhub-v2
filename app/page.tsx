@@ -541,8 +541,8 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           </div>
           <p style={{ marginTop:24, fontSize:11, color:"rgba(255,255,255,0.25)", lineHeight:1.7, textAlign:"center", maxWidth:720, margin:"24px auto 0" }}>
             {lang === "es"
-              ? "Global Tariff Hub combina información aduanera y comercial oficial con Inteligencia Artificial para asistir en la clasificación y el análisis arancelario. La plataforma es independiente y no está afiliada ni avalada por la Organización Mundial del Comercio, la Comisión Europea, el MERCOSUR ni ninguna administración aduanera nacional. Los usuarios son responsables de verificar los requisitos legales aplicables ante las autoridades competentes."
-              : "Global Tariff Hub combines official customs and trade information with Artificial Intelligence to assist classification and tariff analysis. The platform is independent and is not affiliated with or endorsed by the World Trade Organization, the European Commission, MERCOSUR, or any national customs administration. Users remain responsible for verifying the applicable legal requirements with the relevant authorities."}
+              ? "Global Tariff Hub combina bases de datos aduaneras oficiales con análisis asistido por inteligencia artificial. Las determinaciones arancelarias definitivas siempre deben verificarse ante la autoridad aduanera competente."
+              : "Global Tariff Hub combines official customs databases with AI-assisted analysis. Final tariff determinations should always be verified against the competent customs authority."}
           </p>
         </div>
       </section>
