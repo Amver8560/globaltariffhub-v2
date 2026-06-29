@@ -19,6 +19,7 @@ export default function Legales() {
         <div style={{ display: "flex", gap: 24 }}>
           <Link href="/terminos" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>Términos de Uso</Link>
           <Link href="/privacidad" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>Privacidad</Link>
+          <Link href="/legal" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>View in English</Link>
         </div>
       </nav>
 

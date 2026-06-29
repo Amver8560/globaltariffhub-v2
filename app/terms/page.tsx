@@ -105,7 +105,7 @@ export default function Terms() {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>© 2025 Global Tariff Hub. All rights reserved.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>© 2026 Global Tariff Hub. All rights reserved.</p>
       </footer>
     </div>
   );

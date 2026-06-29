@@ -102,7 +102,7 @@ export default function Terminos() {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "24px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>© 2025 Global Tariff Hub. Todos los derechos reservados.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>© 2026 Global Tariff Hub. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

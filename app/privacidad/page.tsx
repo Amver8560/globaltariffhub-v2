@@ -44,7 +44,7 @@ export default function Privacidad() {
           },
           {
             title: "4. Servicios de terceros",
-            body: "Utilizamos Resend (resend.com) como proveedor de envío de correos electrónicos. Tu email puede ser procesado por sus servidores conforme a su propia política de privacidad. No utilizamos cookies de seguimiento ni plataformas de análisis de comportamiento en esta etapa."
+            body: "GTH utiliza los siguientes proveedores externos que pueden procesar tus datos: (a) Supabase (supabase.com) — gestión de cuentas de usuario y autenticación; tus credenciales de acceso se almacenan en su infraestructura. (b) Anthropic (anthropic.com) — motor de inteligencia artificial que procesa las consultas que ingresás en los módulos de la plataforma; las consultas pueden incluir descripciones de productos o imágenes que subís. (c) Resend (resend.com) — envío de correos electrónicos de confirmación y notificaciones. Cada proveedor opera conforme a su propia política de privacidad. GTH no vende ni comparte tus datos con terceros para fines publicitarios."
           },
           {
             title: "5. Conservación de datos",
@@ -78,7 +78,7 @@ export default function Privacidad() {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "24px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub. Todos los derechos reservados.</p>
+        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 Global Tariff Hub. Todos los derechos reservados.</p>
       </footer>
     </div>
   );
