@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCertificatePDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
-import TermsCheckbox from "@/components/TermsCheckbox";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -115,7 +114,6 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [rateLoading, setRateLoading] = useState(false);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [rateInfo, setRateInfo] = useState<any>(null);
 
   // Pre-fill from Module 01 params
@@ -315,9 +313,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
 
-          <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} lang={lang} />
-
-          <button onClick={handleSimulate} disabled={loading || !fobValue || !termsAccepted} style={{ marginTop: 12, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue || !termsAccepted ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue || !termsAccepted ? "not-allowed" : "pointer" }}>
+          <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_simulating : c.btn_simulate}
           </button>
         </div>

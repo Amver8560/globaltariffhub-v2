@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCIFPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
-import TermsCheckbox from "@/components/TermsCheckbox";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -132,7 +131,6 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [portDest, setPortDest] = useState("");
   const [localTransport, setLocalTransport] = useState("");
   const [result, setResult] = useState<any>(null);
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const c = t[lang];
 
   const n = (v: string) => parseFloat(v) || 0;
@@ -457,14 +455,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
           {/* Columna derecha — resultado */}
           <div>
-            <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} lang={lang} />
-            {result && result.fob > 0 && !termsAccepted ? (
-              <div style={{ marginTop: 20, padding: "20px", borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)", textAlign: "center" }}>
-                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
-                  {lang === "es" ? "Aceptá los términos para ver los resultados." : "Accept the terms to view results."}
-                </p>
-              </div>
-            ) : result && result.fob > 0 ? (
+            {result && result.fob > 0 ? (
               <div style={{ position: "sticky", top: 24 }}>
 
                 {/* Botón exportar PDF */}
