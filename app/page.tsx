@@ -95,10 +95,10 @@ const T = {
     login_msg:   "El acceso a la plataforma estará disponible próximamente.",
     sources_title:"Fuentes de referencia utilizadas",
     sources: [
-      { icon:"", name:"WTO API",          desc:"Tasas MFN por código HS — 164 países miembro" },
-      { icon:"", name:"Siscomex / NCM",  desc:"Nomenclatura oficial MERCOSUR en tiempo real" },
-      { icon:"", name:"TARIC EU",        desc:"Base arancelaria de la Unión Europea" },
-      { icon:"", name:"Anthropic Claude", desc:"Clasificación por imagen o descripción" },
+      { icon:"🌐", name:"World Trade Organization", desc:"Aranceles MFN por código HS — 164 países miembro" },
+      { icon:"📦", name:"MERCOSUR NCM",              desc:"Nomenclatura arancelaria oficial de referencia" },
+      { icon:"🛡️", name:"European Union TARIC",      desc:"Base arancelaria de la Unión Europea" },
+      { icon:"✦",  name:"AI Classification Engine",  desc:"Clasificación asistida por inteligencia artificial" },
     ],
     disclaimer: "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
     footer_copy: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
@@ -180,10 +180,10 @@ const T = {
     login_msg:   "Platform access will be available soon.",
     sources_title:"Reference sources used",
     sources: [
-      { icon:"🌐", name:"WTO API",          desc:"MFN rates by HS code — 164 member countries" },
-      { icon:"🇧🇷", name:"Siscomex / NCM",  desc:"Official MERCOSUR nomenclature in real time" },
-      { icon:"🇪🇺", name:"TARIC EU",        desc:"European Union tariff database" },
-      { icon:"🤖", name:"Anthropic Claude", desc:"Classification by image or description" },
+      { icon:"🌐", name:"World Trade Organization", desc:"Official tariff schedules and trade data" },
+      { icon:"📦", name:"MERCOSUR NCM",              desc:"Official tariff nomenclature" },
+      { icon:"🛡️", name:"European Union TARIC",      desc:"EU customs tariff database" },
+      { icon:"✦",  name:"AI Classification Engine",  desc:"AI-assisted product classification" },
     ],
     disclaimer: "GTH provides support tools for international trade analysis. Definitive tariff classification and regulatory requirements must be verified by qualified professionals. AI-generated results are indicative and do not constitute legal, tax or customs advice.",
     footer_copy: "© 2025 Global Tariff Hub. All rights reserved.",
@@ -530,14 +530,20 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <p style={{ textAlign:"center", fontSize:11, color:C.textMuted, marginBottom:24, textTransform:"uppercase", letterSpacing:1.5, fontWeight:600 }}>{t.sources_title}</p>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:10 }}>
             {t.sources.map((s,i)=>(
-              <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:12, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"18px 20px" }}>
+              <div key={i} style={{ display:"flex", flexDirection:"column", gap:10, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px 20px 18px" }}>
+                <span style={{ fontSize:22, lineHeight:1 }}>{s.icon}</span>
                 <div>
-                  <p style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.8)", marginBottom:4 }}>{s.name}</p>
-                  <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.5 }}>{s.desc}</p>
+                  <p style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.85)", marginBottom:4 }}>{s.name}</p>
+                  <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.55 }}>{s.desc}</p>
                 </div>
               </div>
             ))}
           </div>
+          <p style={{ marginTop:24, fontSize:11, color:"rgba(255,255,255,0.25)", lineHeight:1.7, textAlign:"center", maxWidth:720, margin:"24px auto 0" }}>
+            {lang === "es"
+              ? "Global Tariff Hub combina información aduanera y comercial oficial con Inteligencia Artificial para asistir en la clasificación y el análisis arancelario. La plataforma es independiente y no está afiliada ni avalada por la Organización Mundial del Comercio, la Comisión Europea, el MERCOSUR ni ninguna administración aduanera nacional. Los usuarios son responsables de verificar los requisitos legales aplicables ante las autoridades competentes."
+              : "Global Tariff Hub combines official customs and trade information with Artificial Intelligence to assist classification and tariff analysis. The platform is independent and is not affiliated with or endorsed by the World Trade Organization, the European Commission, MERCOSUR, or any national customs administration. Users remain responsible for verifying the applicable legal requirements with the relevant authorities."}
+          </p>
         </div>
       </section>
 
