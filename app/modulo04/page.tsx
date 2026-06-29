@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import TermsCheckbox from "@/components/TermsCheckbox";
 import { exportViabilityPDF } from "@/lib/exportPDF";
 
 const ALL_COUNTRIES = [
@@ -136,6 +137,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [expandedTax, setExpandedTax] = useState<number | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,10 +322,12 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
 
             {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)" }}>{error}</p>}
 
+            <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} lang={lang} />
+
             <button
               onClick={handleAnalyze}
-              disabled={loading}
-              style={{ width: "100%", padding: "16px", borderRadius: 10, border: "none", background: loading ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer" }}
+              disabled={loading || !termsAccepted}
+              style={{ marginTop: 12, width: "100%", padding: "16px", borderRadius: 10, border: "none", background: loading || !termsAccepted ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 16, fontWeight: 700, cursor: loading || !termsAccepted ? "not-allowed" : "pointer" }}
             >
               {loading ? `⏳ ${c.analyzing}` : `🔍 ${c.analyze}`}
             </button>

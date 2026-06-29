@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { exportSearchPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import TermsCheckbox from "@/components/TermsCheckbox";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -160,6 +161,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [error, setError] = useState("");
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const c = t[lang];
 
@@ -384,7 +386,9 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{error}</p>}
 
-          <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
+          <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} lang={lang} />
+
+          <button onClick={handleSearch} disabled={loading || !origin || !destination || !termsAccepted} style={{ marginTop: 12, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination || !termsAccepted ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination || !termsAccepted ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_searching : c.btn_search}
           </button>
 
