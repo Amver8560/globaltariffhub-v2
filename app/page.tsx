@@ -40,7 +40,7 @@ const T = {
     mission_p2:     "Creemos que el conocimiento necesario para importar y exportar debería estar al alcance de cualquier empresa, sin importar su tamaño o experiencia.",
     mission_p3:     "Global Tariff Hub transforma regulaciones complejas, clasificación arancelaria, reglas de origen y normativa aduanera en información clara, precisa y accionable.",
     mission_p4:     "Ayudamos a emprendedores, pymes y empresas a evaluar operaciones internacionales en minutos, comprender costos, tratados comerciales y riesgos, y tomar mejores decisiones con confianza.",
-    mission_close:  "Transformamos la complejidad del comercio global en inteligencia accesible para todos.",
+    mission_close:  "Transformamos la complejidad del comercio exterior en conocimiento accesible para todos.",
     vision_title:  "Nuestra visión",
     vision_tag:    "Hacia dónde vamos",
     vision_p1:     "Imaginamos un mundo donde cualquier empresa pueda vender o comprar en cualquier país con la misma facilidad con la que hoy busca información en Internet.",
