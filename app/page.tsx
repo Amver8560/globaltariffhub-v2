@@ -531,7 +531,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:10 }}>
             {t.sources.map((s,i)=>(
               <div key={i} style={{ display:"flex", flexDirection:"column", gap:10, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px 20px 18px" }}>
-                <span style={{ fontSize:22, lineHeight:1 }}>{s.icon}</span>
+                <span style={{ display:"inline-block", width:10, height:10, borderRadius:"50%", background:"rgba(255,255,255,0.25)", flexShrink:0 }} />
                 <div>
                   <p style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.85)", marginBottom:4 }}>{s.name}</p>
                   <p style={{ fontSize:11, color:C.textMuted, lineHeight:1.55 }}>{s.desc}</p>
