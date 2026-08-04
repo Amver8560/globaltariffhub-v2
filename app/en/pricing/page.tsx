@@ -1,24 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
-function PricingInner() {
-  const searchParams = useSearchParams();
-  const highlightAnnual = searchParams.get("plan") === "annual";
-
-  const cardStyle = (highlight: boolean): React.CSSProperties => ({
-    background: highlight ? "linear-gradient(135deg, #0D2A6E, #0D1B3E)" : "#0D1B3E",
-    borderRadius: 20,
-    padding: 36,
-    border: highlight ? "2px solid #C9A84C" : "1px solid rgba(0,87,255,0.2)",
-    position: "relative",
-    flex: 1,
-    minWidth: 260,
-    maxWidth: 340,
-  });
-
+export default function PricingPageEN() {
   return (
     <div style={{ minHeight: "100vh", background: "#0A0A0F", color: "#FFF", fontFamily: "Arial, sans-serif" }}>
 
@@ -34,133 +18,20 @@ function PricingInner() {
         </div>
       </nav>
 
-      <main style={{ maxWidth: 900, margin: "0 auto", padding: "60px 24px" }}>
-
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 48 }}>
-          <h1 style={{ fontSize: 36, fontWeight: 900, marginBottom: 12 }}>Plans & Pricing</h1>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", maxWidth: 500, margin: "0 auto" }}>
-            Start free. Scale when you&apos;re ready.
-          </p>
-
-        </div>
-
-        {/* Plans */}
-        <div style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "wrap", marginBottom: 48 }}>
-
-          {/* Free plan */}
-          <div style={cardStyle(false)}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.4)", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Free</p>
-            <p style={{ fontSize: 40, fontWeight: 900, marginBottom: 4 }}>USD 0</p>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 28 }}>To explore the platform</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-              {[
-                "3 free consultations",
-                "All modules",
-                "Export PDF",
-                "Bilingual ES / EN",
-              ].map((f) => (
-                <div key={f} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <span style={{ color: "#22c55e", fontWeight: 700 }}>✓</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{f}</span>
-                </div>
-              ))}
-            </div>
-            <Link href="/register" style={{ display: "block", padding: "12px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)", fontSize: 14, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
-              Start for free
-            </Link>
-          </div>
-
-          {/* Monthly plan */}
-          <div style={cardStyle(false)}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#0057FF", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Monthly</p>
-            <p style={{ fontSize: 40, fontWeight: 900, marginBottom: 4 }}>USD 39<span style={{ fontSize: 16, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>/mo</span></p>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 28 }}>Billed monthly</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-              {[
-                "Unlimited consultations",
-                "All modules",
-                "Export PDF with GTH branding",
-                "Bilingual ES / EN",
-                "Rate updates",
-                "Email support",
-              ].map((f) => (
-                <div key={f} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <span style={{ color: "#22c55e", fontWeight: 700 }}>✓</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{f}</span>
-                </div>
-              ))}
-            </div>
-            <a
-              href="mailto:analia@globaltariffhub.com?subject=Monthly%20plan%20GTH%20%E2%80%94%20USD%2039%2Fmo&body=Hi%2C%20I%20want%20to%20activate%20the%20monthly%20plan%20for%20Global%20Tariff%20Hub%20(USD%2039%2Fmo).%0A%0AName%3A%20%0AAccount%20email%3A%20%0A%0AI%20will%20wait%20for%20payment%20instructions.%20Thank%20you."
-              style={{ display: "block", width: "100%", padding: "13px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, cursor: "pointer", textDecoration: "none", textAlign: "center", boxSizing: "border-box" }}
-            >
-              Choose monthly →
-            </a>
-          </div>
-
-          {/* Annual plan — highlighted */}
-          <div style={cardStyle(true)}>
-            {/* Badge */}
-            <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "#C9A84C", borderRadius: 20, padding: "4px 18px", fontSize: 11, fontWeight: 800, color: "#000", whiteSpace: "nowrap" }}>
-              MOST POPULAR
-            </div>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Annual</p>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-              <p style={{ fontSize: 40, fontWeight: 900 }}>USD 290</p>
-            </div>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 28 }}>Billed annually</p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
-              {[
-                "Unlimited consultations",
-                "All modules",
-                "Export PDF with GTH branding",
-                "Bilingual ES / EN",
-                "Rate updates",
-                "Priority support",
-                "Access to new modules",
-              ].map((f) => (
-                <div key={f} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <span style={{ color: "#C9A84C", fontWeight: 700 }}>✓</span>
-                  <span style={{ fontSize: 13, color: "rgba(255,255,255,0.85)" }}>{f}</span>
-                </div>
-              ))}
-            </div>
-            <a
-              href="mailto:analia@globaltariffhub.com?subject=Annual%20plan%20GTH%20%E2%80%94%20USD%20290%2Fyr&body=Hi%2C%20I%20want%20to%20activate%20the%20annual%20plan%20for%20Global%20Tariff%20Hub%20(USD%20290%2Fyr).%0A%0AName%3A%20%0AAccount%20email%3A%20%0A%0AI%20will%20wait%20for%20payment%20instructions.%20Thank%20you."
-              style={{ display: "block", width: "100%", padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#C9A84C,#A07830)", color: "#000", fontSize: 14, fontWeight: 800, cursor: "pointer", textDecoration: "none", textAlign: "center", boxSizing: "border-box" }}
-            >
-              Choose annual →
-            </a>
-          </div>
-        </div>
-
-        {/* FAQ */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 32, border: "1px solid rgba(0,87,255,0.15)" }}>
-          <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20, textAlign: "center" }}>Frequently asked questions</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 20 }}>
-            {[
-              { q: "What do the 3 free consultations include?", a: "Full access to all modules — search, certificate of origin, CIF calculator, and import viability. No credit card required." },
-              { q: "Can I cancel at any time?", a: "Yes. The monthly plan can be cancelled before the next billing cycle. The annual plan has no partial refunds." },
-              { q: "Is the data from official sources?", a: "Base tariff rates come from official sources including WTO, Brazil's Receita Federal, and the EU TARIC database. Updated monthly." },
-              { q: "Does it replace a customs broker?", a: "No. GTH is a preliminary analysis tool. Formal customs clearance requires a licensed professional." },
-            ].map((item) => (
-              <div key={item.q}>
-                <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, color: "#FFF" }}>{item.q}</p>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>{item.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+      <main style={{ maxWidth: 600, margin: "0 auto", padding: "100px 24px", textAlign: "center" }}>
+        <div style={{ fontSize: 40, marginBottom: 24 }}>🔒</div>
+        <h1 style={{ fontSize: 32, fontWeight: 900, marginBottom: 16 }}>Plans & Pricing</h1>
+        <p style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, marginBottom: 40 }}>
+          Subscription plans will be available soon.<br />
+          We are finishing the setup of our payment platform.
+        </p>
+        <Link
+          href="/en"
+          style={{ display: "inline-block", padding: "13px 32px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+        >
+          ← Back to home
+        </Link>
       </main>
     </div>
-  );
-}
-
-export default function PricingPageEN() {
-  return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}>
-      <PricingInner />
-    </Suspense>
   );
 }
