@@ -321,7 +321,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
         {/* Links — ocultos en mobile */}
         {!isMobile && (
           <div style={{ display:"flex", alignItems:"center", gap:28 }}>
-            {[["#flujo","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
+            {[["#mision","Nuestra Misión"],["#como-funciona","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
               <a key={href} href={href} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
                 onMouseEnter={e=>(e.currentTarget.style.color=C.white)}
                 onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{label}</a>
@@ -418,7 +418,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── Misión ─────────────────────────────────── */}
-      <section style={{ padding:isMobile?`48px ${px}`:`72px ${px}`, borderBottom:`1px solid ${C.border}` }}>
+      <section id="mision" style={{ padding:isMobile?`48px ${px}`:`72px ${px}`, borderBottom:`1px solid ${C.border}` }}>
         <div style={{ maxWidth:820, margin:"0 auto", textAlign:"center" }}>
           <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{t.mission_tag}</span>
           <h2 style={{ fontSize:"clamp(22px,3vw,34px)", fontWeight:800, marginTop:12, marginBottom:28, letterSpacing:-0.5 }}>{t.mission_title}</h2>
@@ -443,7 +443,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
       </section>
 
       {/* ── El problema que resolvemos ─────────────── */}
-      <section style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:isMobile?`48px ${px}`:`72px ${px}` }}>
+      <section id="como-funciona" style={{ background:`linear-gradient(135deg,rgba(37,99,235,0.06),rgba(11,30,61,0.8))`, borderTop:`1px solid ${C.border}`, borderBottom:`1px solid ${C.border}`, padding:isMobile?`48px ${px}`:`72px ${px}` }}>
         <div style={{ maxWidth:960, margin:"0 auto" }}>
           <div style={{ textAlign:"center", marginBottom:48 }}>
             <span style={{ fontSize:11, fontWeight:800, color:C.gold, letterSpacing:2.5, textTransform:"uppercase" }}>{lang === "es" ? "Cómo funciona" : "How it works"}</span>
