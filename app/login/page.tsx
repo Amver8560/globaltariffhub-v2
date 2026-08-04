@@ -102,11 +102,6 @@ function LoginInner() {
           </p>
         </div>
 
-        {/* Oferta de lanzamiento */}
-        <div style={{ marginTop: 24, background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 10, padding: "12px 16px", textAlign: "center" }}>
-          <p style={{ fontSize: 11, color: "#C9A84C", fontWeight: 700, marginBottom: 4 }}>⚡ OFERTA DE LANZAMIENTO</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>Plan anual con 2 meses gratis — tiempo limitado</p>
-        </div>
       </div>
     </div>
   );

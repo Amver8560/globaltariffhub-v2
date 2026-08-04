@@ -4,17 +4,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
-const LAUNCH_OFFER_END = new Date("2025-07-22T23:59:59");
-
-function daysLeft() {
-  const diff = LAUNCH_OFFER_END.getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
-
 function PricingInner() {
   const searchParams = useSearchParams();
   const highlightAnnual = searchParams.get("plan") === "annual";
-  const days = daysLeft();
 
   const cardStyle = (highlight: boolean): React.CSSProperties => ({
     background: highlight ? "linear-gradient(135deg, #0D2A6E, #0D1B3E)" : "#0D1B3E",
@@ -48,12 +40,6 @@ function PricingInner() {
             Empezá gratis. Escalá cuando estés listo.
           </p>
 
-          {/* Banner oferta */}
-          {days > 0 && (
-            <div style={{ display: "inline-block", marginTop: 20, background: "linear-gradient(135deg, rgba(201,168,76,0.2), rgba(201,168,76,0.08))", border: "1px solid #C9A84C", borderRadius: 30, padding: "8px 24px" }}>
-              <p style={{ fontSize: 13, color: "#C9A84C", fontWeight: 700 }}>⚡ Oferta de lanzamiento — quedan {days} días · Plan anual con 2 meses gratis</p>
-            </div>
-          )}
         </div>
 
         {/* Planes */}
@@ -114,15 +100,13 @@ function PricingInner() {
           <div style={cardStyle(true)}>
             {/* Badge */}
             <div style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "#C9A84C", borderRadius: 20, padding: "4px 18px", fontSize: 11, fontWeight: 800, color: "#000", whiteSpace: "nowrap" }}>
-              {days > 0 ? `⚡ OFERTA — ${days} días` : "MÁS POPULAR"}
+              MÁS POPULAR
             </div>
             <p style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C", marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Anual</p>
             <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
-              <p style={{ fontSize: 40, fontWeight: 900 }}>USD {days > 0 ? "238" : "290"}</p>
-              {days > 0 && <p style={{ fontSize: 16, color: "rgba(255,255,255,0.35)", textDecoration: "line-through" }}>290</p>}
+              <p style={{ fontSize: 40, fontWeight: 900 }}>USD 290</p>
             </div>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: days > 0 ? 4 : 28 }}>Facturado anualmente</p>
-            {days > 0 && <p style={{ fontSize: 12, color: "#22c55e", fontWeight: 700, marginBottom: 24 }}>2 meses gratis incluidos ↑</p>}
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 28 }}>Facturado anualmente</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 32 }}>
               {[
                 "Consultas ilimitadas",
@@ -140,7 +124,7 @@ function PricingInner() {
               ))}
             </div>
             <a
-              href={`mailto:analia@globaltariffhub.com?subject=Quiero%20el%20plan%20anual%20GTH%20%E2%80%94%20USD%20${days > 0 ? "238" : "290"}%2Fa%C3%B1o&body=Hola%2C%20quiero%20activar%20el%20plan%20anual%20de%20Global%20Tariff%20Hub%20(USD%20${days > 0 ? "238" : "290"}%2Fa%C3%B1o${days > 0 ? "%20%E2%80%94%20oferta%20de%20lanzamiento" : ""}).%0A%0ANombre%3A%20%0AEmail%20de%20mi%20cuenta%3A%20%0A%0AQuedar%C3%A9%20en%20espera%20de%20instrucciones%20de%20pago.%20Gracias.`}
+              href="mailto:analia@globaltariffhub.com?subject=Quiero%20el%20plan%20anual%20GTH%20%E2%80%94%20USD%20290%2Fa%C3%B1o&body=Hola%2C%20quiero%20activar%20el%20plan%20anual%20de%20Global%20Tariff%20Hub%20(USD%20290%2Fa%C3%B1o).%0A%0ANombre%3A%20%0AEmail%20de%20mi%20cuenta%3A%20%0A%0AQuedar%C3%A9%20en%20espera%20de%20instrucciones%20de%20pago.%20Gracias."
               style={{ display: "block", width: "100%", padding: "14px", borderRadius: 10, border: "none", background: "linear-gradient(135deg,#C9A84C,#A07830)", color: "#000", fontSize: 14, fontWeight: 800, cursor: "pointer", textDecoration: "none", textAlign: "center", boxSizing: "border-box" }}
             >
               Elegir anual →

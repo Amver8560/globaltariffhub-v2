@@ -5,12 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-const LAUNCH_OFFER_END = new Date("2025-07-22T23:59:59"); // 30 días desde lanzamiento
-
-function daysLeft() {
-  const diff = LAUNCH_OFFER_END.getTime() - Date.now();
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -65,8 +59,6 @@ export default function RegisterPage() {
     color: "#FFF", fontSize: 14, boxSizing: "border-box",
   };
 
-  const days = daysLeft();
-
   if (success) {
     return (
       <div style={{ minHeight: "100vh", background: "#0A0A0F", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
@@ -93,14 +85,6 @@ export default function RegisterPage() {
         <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg,#0057FF,#0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
         <span style={{ fontWeight: 700, fontSize: 16 }}>Global Tariff Hub</span>
       </Link>
-
-      {/* Banner oferta */}
-      {days > 0 && (
-        <div style={{ width: "100%", maxWidth: 400, background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid #C9A84C", borderRadius: 12, padding: "12px 20px", marginBottom: 20, textAlign: "center" }}>
-          <p style={{ fontSize: 12, fontWeight: 800, color: "#C9A84C", marginBottom: 2 }}>⚡ OFERTA DE LANZAMIENTO — {days} días restantes</p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>Plan anual <s style={{ color: "rgba(255,255,255,0.35)" }}>USD 290</s> → <strong style={{ color: "#FFF" }}>USD 238</strong> · 2 meses gratis</p>
-        </div>
-      )}
 
       <div style={{ width: "100%", maxWidth: 400, background: "#0D1B3E", borderRadius: 16, padding: 36, border: "1px solid rgba(0,87,255,0.2)" }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>Crear cuenta gratis</h1>
