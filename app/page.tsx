@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const C = {
-  bg:        "#07152F",
+  bg:        "#062863",
   bgCard:    "#0B1E3D",
   bgCardHover:"#0D2247",
   blue:      "#2563EB",
