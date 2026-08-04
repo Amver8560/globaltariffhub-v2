@@ -46,7 +46,7 @@ const T = {
     vision_p1:     "Imaginamos un mundo donde cualquier empresa pueda vender o comprar en cualquier país con la misma facilidad con la que hoy busca información en Internet.",
     vision_p2:     "Aspiramos a construir la plataforma de inteligencia comercial más completa del mundo para operaciones internacionales.",
     problem_title: "¿Cómo funciona Global Tariff Hub?",
-    problem_sub:   "Las startups, pymes y empresas medianas que quieren crecer no pueden pagar agentes de comercio exterior ni despachantes de aduana. Pero igual necesitan responder:",
+    problem_sub:   "A las startups, pymes y empresas medianas no les es eficiente pagar a un agente de comercio exterior ni a despachantes de aduana para saber si el negocio es viable. Pero igual necesitan responder:",
     problems: [
       "¿Puedo importar este producto?",
       "¿Puedo exportarlo?",
