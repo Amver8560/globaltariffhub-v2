@@ -322,9 +322,9 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
         {!isMobile && (
           <div style={{ display:"flex", alignItems:"center", gap:28 }}>
             {[["#mision","Nuestra Misión"],["#como-funciona","Cómo funciona"],["#modulos","Módulos"],["#para-quien","Para quién"],["#fuentes","Datos"],].map(([href,label])=>(
-              <a key={href} href={href} style={{ color:C.textSec, textDecoration:"none", fontSize:13, fontWeight:500 }}
-                onMouseEnter={e=>(e.currentTarget.style.color=C.white)}
-                onMouseLeave={e=>(e.currentTarget.style.color=C.textSec)}>{label}</a>
+              <a key={href} href={href} style={{ color:C.white, textDecoration:"none", fontSize:13, fontWeight:500 }}
+                onMouseEnter={e=>(e.currentTarget.style.color=C.gold)}
+                onMouseLeave={e=>(e.currentTarget.style.color=C.white)}>{label}</a>
             ))}
           </div>
         )}
