@@ -451,13 +451,16 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
             <p style={{ fontSize:16, color:C.textSec, maxWidth:580, margin:"0 auto", lineHeight:1.7 }}>{t.problem_sub}</p>
           </div>
 
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:12, marginBottom:40 }}>
-            {t.problems.map((q,i)=>(
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:14, background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"16px 20px" }}>
-                <div style={{ width:28, height:28, borderRadius:"50%", background:`rgba(37,99,235,0.15)`, border:`1px solid ${C.blue}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <span style={{ fontSize:11, color:C.blueBright, fontWeight:800 }}>?</span>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))", gap:12, marginBottom:40 }}>
+            {(t.problems as {q:string,a:string}[]).map(({q,a},i)=>(
+              <div key={i} style={{ background:C.bgCard, border:`1px solid ${C.border}`, borderRadius:12, padding:"20px" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:10 }}>
+                  <div style={{ width:24, height:24, borderRadius:"50%", background:`rgba(37,99,235,0.15)`, border:`1px solid ${C.blue}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <span style={{ fontSize:10, color:C.blueBright, fontWeight:800 }}>?</span>
+                  </div>
+                  <p style={{ fontSize:13, color:C.white, fontWeight:700 }}>{q}</p>
                 </div>
-                <p style={{ fontSize:14, color:C.white, fontWeight:500 }}>{q}</p>
+                <p style={{ fontSize:12, color:C.textSec, lineHeight:1.7, paddingLeft:34 }}>{a}</p>
               </div>
             ))}
           </div>
