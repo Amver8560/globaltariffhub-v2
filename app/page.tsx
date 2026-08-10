@@ -56,7 +56,7 @@ const T = {
       { q:"¿Cuál sería el costo total?",                a:"La Calculadora CIF estima el costo real de traer el producto: precio de compra, flete, seguro, aranceles y tributos incluidos, antes de negociar." },
       { q:"¿Hay beneficios arancelarios disponibles?",  a:"GTH identifica acuerdos comerciales vigentes (MERCOSUR, SGP, TLCs) que pueden reducir o eliminar el arancel para tu producto y país de origen." },
     ],
-    problem_answer: "Cualquier organización puede explorar las oportunidades del comercio exterior — subiendo una foto y obteniendo un arancel orientativo al instante. Esa es la magia.",
+    problem_answer: "Cualquier organización puede explorar las oportunidades del comercio exterior, subiendo una foto y obteniendo un arancel orientativo al instante.",
     modules_title: "Cuatro módulos. Una sola plataforma.",
     modules: [
       { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
