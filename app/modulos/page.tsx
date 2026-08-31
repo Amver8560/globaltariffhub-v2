@@ -37,9 +37,9 @@ const MODULES = {
     },
     {
       href: "/modulo02", badge: "Módulo 02", icon: "📄",
-      question: "¿Podés pagar menos impuestos?",
-      title: "Simulador con Certificado de Origen",
-      desc: "Simulá tu ahorro arancelario con y sin certificado de origen, verificá si hay acuerdo comercial vigente y qué documentación necesitás.",
+      question: "¿Podés pagar menos aranceles de importación?",
+      title: "Ahorro arancelario según el país de origen",
+      desc: "Comparamos cuánto pagás con y sin certificado de origen, verificamos si hay acuerdo comercial vigente y qué documentación necesitás.",
       color: "#22c55e", bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.4)",
     },
     {
@@ -67,9 +67,9 @@ const MODULES = {
     },
     {
       href: "/modulo02", badge: "Module 02", icon: "📄",
-      question: "Can you pay less in taxes?",
-      title: "Certificate of Origin Simulator",
-      desc: "Simulate your tariff savings with and without a certificate of origin, check whether a trade agreement is in force and what documents you need.",
+      question: "Can you pay lower import tariffs?",
+      title: "Tariff savings by country of origin",
+      desc: "We compare what you pay with and without a certificate of origin, check whether a trade agreement applies and what documents you need.",
       color: "#22c55e", bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.4)",
     },
     {

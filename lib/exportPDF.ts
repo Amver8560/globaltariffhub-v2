@@ -111,7 +111,7 @@ export function exportCertificatePDF(result: any, params: {
   const es = lang === "es";
   const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
 
-  header(doc, es ? "Informe de Simulación — Certificado de Origen" : "Simulation Report — Certificate of Origin", date);
+  header(doc, es ? "Informe de Análisis — Preferencia Arancelaria por Origen" : "Analysis Report — Preferential Tariff by Origin", date);
 
   let y = 38;
 
@@ -191,16 +191,16 @@ export function exportCertificatePDF(result: any, params: {
   doc.setTextColor(180, 40, 40);
   doc.setFontSize(7);
   doc.setFont("helvetica", "bold");
-  doc.text(es ? "⚠  SIMULACIÓN ÚNICAMENTE" : "⚠  SIMULATION ONLY", 18, y + 5);
+  doc.text(es ? "⚠  ANÁLISIS ORIENTATIVO" : "⚠  INDICATIVE ANALYSIS", 18, y + 5);
   doc.setFont("helvetica", "normal");
   const disc = es
-    ? "Este documento es una simulación informativa. No constituye un certificado de origen válido ni asesoramiento legal."
-    : "This document is an informational simulation. It does not constitute a valid certificate of origin or legal advice.";
+    ? "Este documento es un análisis informativo de referencia. No constituye un certificado de origen válido ni asesoramiento legal o aduanero."
+    : "This document is an informational reference analysis. It does not constitute a valid certificate of origin or legal/customs advice.";
   const discLines = doc.splitTextToSize(disc, 174);
   doc.text(discLines, 18, y + 10);
 
   footer(doc, lang);
-  doc.save(`GTH_Simulacion_Certificado_${tariffSystem}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
+  doc.save(`GTH_Analisis_Preferencia_${tariffSystem}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
 }
 
 // ── MÓDULO 03 — Calculadora CIF ──────────────────────────────────────────────

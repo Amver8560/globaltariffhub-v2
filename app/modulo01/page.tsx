@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { exportSearchPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import { buildOpQuery } from "@/lib/opContext";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -62,7 +63,7 @@ const t = {
     notes: "Notas",
     confidence: "Confianza",
     conf_alta: "Alta", conf_media: "Media", conf_baja: "Baja",
-    sim_cert: "¿Podés pagar menos? — Simulá con Certificado de Origen →",
+    sim_cert: "¿Podés pagar menos aranceles de importación? →",
     calc_cif: "¿Cuánto cuesta traerlo? — Calculadora CIF →",
     disclaimer: "⚠ Datos de referencia. Verificar con la fuente oficial antes de operar.",
     error_image: "Seleccioná una imagen primero",
@@ -100,7 +101,7 @@ const t = {
     notes: "Notes",
     confidence: "Confidence",
     conf_alta: "High", conf_media: "Medium", conf_baja: "Low",
-    sim_cert: "Could you pay less? — Simulate with Certificate of Origin →",
+    sim_cert: "Can you pay lower import tariffs? →",
     calc_cif: "What's the real cost? — CIF Calculator →",
     disclaimer: "⚠ Reference data. Verify with official source before operating.",
     error_image: "Select an image first",
@@ -635,16 +636,28 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                       </p>
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                        <Link
-                          href={`/modulo02?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
-                          style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                          📄 {c.sim_cert}
-                        </Link>
-                        <Link
-                          href={`/modulo03?tariff_code=${encodeURIComponent(system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "")}&system=${encodeURIComponent(system)}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`}
-                          style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                          📦 {c.calc_cif}
-                        </Link>
+                        {(() => {
+                          const opQ = buildOpQuery({
+                            tariff_code: system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "",
+                            system, origin, destination,
+                            base_rate: r.base_rate || "",
+                            pref_rate: r.preferential_rate && r.preferential_rate !== r.base_rate ? r.preferential_rate : "",
+                          });
+                          return (
+                            <>
+                              <Link
+                                href={`/modulo02${opQ}`}
+                                style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                                📄 {c.sim_cert}
+                              </Link>
+                              <Link
+                                href={`/modulo03${opQ}`}
+                                style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                                📦 {c.calc_cif}
+                              </Link>
+                            </>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

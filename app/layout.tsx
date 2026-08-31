@@ -152,7 +152,7 @@ const jsonLd = {
       ],
       "featureList": [
         "Búsqueda de códigos HS, NCM y TARIC",
-        "Simulador de operaciones con certificado de origen",
+        "Análisis de preferencia arancelaria por origen (con y sin certificado de origen)",
         "Calculadora CIF con Incoterms",
         "Análisis de viabilidad de importación con IA",
         "Datos reales de la OMC (WTO API)",

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { exportViabilityPDF } from "@/lib/exportPDF";
+import { buildOpQuery } from "@/lib/opContext";
 
 const ALL_COUNTRIES = [
   "China", "Estados Unidos", "Alemania", "Italia", "España", "Francia",
@@ -554,9 +555,18 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
 
               {/* Botones continuar */}
               <div style={{ display: "flex", gap: 10 }}>
-                <Link href={`/modulo02?tariff_code=${encodeURIComponent(result.product.hs_code || "")}&system=HS&destination=${encodeURIComponent(destination)}`}
+                <Link href={`/modulo02${buildOpQuery({
+                    tariff_code: result.product.hs_code || "",
+                    system: "HS",
+                    origin: supplierCountry,
+                    destination,
+                    fob_value: fobUnit,
+                    quantity,
+                    base_rate: result.product.standard_rate != null ? String(result.product.standard_rate) : "",
+                    pref_rate: result.product.effective_rate != null && result.product.effective_rate !== result.product.standard_rate ? String(result.product.effective_rate) : "",
+                  })}`}
                   style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
-                  {lang === "es" ? "📄 M02 — Simulador de Operaciones con Certificado de Origen →" : "📄 M02 — Certificate of Origin Operations Simulator →"}
+                  {lang === "es" ? "📄 M02 — ¿Podés pagar menos aranceles? →" : "📄 M02 — Can you pay lower tariffs? →"}
                 </Link>
               </div>
             </div>

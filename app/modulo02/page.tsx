@@ -6,6 +6,7 @@ import Link from "next/link";
 import { exportCertificatePDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { getTradeAgreement } from "@/lib/tradeAgreements";
+import { buildOpQuery, readOpContext } from "@/lib/opContext";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -19,9 +20,9 @@ const UNITS = ["kg", "toneladas", "litros", "unidades", "m²", "cajas", "pallets
 
 const t = {
   es: {
-    title: "Simulación de Operaciones con Certificado de Origen",
-    subtitle: "Calculá tu ahorro arancelario",
-    disclaimer_banner: "⚠ Esta herramienta es una SIMULACIÓN. No emite certificados de origen ni documentos aduaneros.",
+    title: "¿Podés pagar menos aranceles de importación?",
+    subtitle: "Análisis de preferencia arancelaria por origen · Comparamos cuánto pagás con y sin certificado de origen, según el acuerdo comercial entre los países.",
+    disclaimer_banner: "Herramienta de análisis previo. No emite certificados de origen ni documentos aduaneros; el resultado es orientativo y debe validarse con un despachante de aduana habilitado.",
     step1: "Paso 1 — Datos de la operación",
     origin: "País exportador",
     destination: "País importador",
@@ -31,11 +32,11 @@ const t = {
     fob_placeholder: "Ej: 10000",
     quantity: "Cantidad",
     unit: "Unidad",
-    agreement: "Acuerdo a simular",
-    btn_simulate: "Simular ahorro",
-    btn_simulating: "Calculando...",
+    agreement: "Acuerdo a evaluar",
+    btn_simulate: "Analizar ahorro",
+    btn_simulating: "Analizando...",
     select_country: "Seleccioná un país",
-    result_title: "Resultado de la simulación",
+    result_title: "Resultado del análisis",
     without_cert: "Sin certificado",
     with_cert: "Con certificado",
     cert_cost: "Costo del certificado",
@@ -55,11 +56,11 @@ const t = {
     calc_cif: "📦 M03 — Calculadora CIF →",
     back_search: "← Volver al buscador",
     all_modules: "◇ Todos los módulos",
-    error: "Error en la simulación. Intentá de nuevo.",
+    error: "Error en el análisis. Intentá de nuevo.",
     days_label: "días hábiles",
     // Pregunta previa
     precheck_title: "¿Tenés un certificado de origen para esta operación?",
-    precheck_sub: "Nos ayuda a mostrarte la simulación más útil para tu caso.",
+    precheck_sub: "Nos ayuda a mostrarte el análisis más útil para tu caso.",
     precheck_yes: "Sí",
     precheck_no: "No",
     precheck_unknown: "No sé qué es esto",
@@ -76,9 +77,9 @@ const t = {
     general_tariff: "Arancel general aplicable",
   },
   en: {
-    title: "Certificate of Origin Operations Simulation",
-    subtitle: "Calculate your tariff savings",
-    disclaimer_banner: "⚠ This tool is a SIMULATION only. It does not issue certificates of origin or customs documents.",
+    title: "Can you pay lower import tariffs?",
+    subtitle: "Preferential tariff analysis by origin · We compare what you pay with and without a certificate of origin, based on the trade agreement between the countries.",
+    disclaimer_banner: "Pre-operation analysis tool. It does not issue certificates of origin or customs documents; the result is indicative and must be verified with a licensed customs broker.",
     step1: "Step 1 — Operation data",
     origin: "Exporting country",
     destination: "Importing country",
@@ -88,11 +89,11 @@ const t = {
     fob_placeholder: "E.g: 10000",
     quantity: "Quantity",
     unit: "Unit",
-    agreement: "Agreement to simulate",
-    btn_simulate: "Simulate savings",
-    btn_simulating: "Calculating...",
+    agreement: "Agreement to assess",
+    btn_simulate: "Analyze savings",
+    btn_simulating: "Analyzing...",
     select_country: "Select a country",
-    result_title: "Simulation result",
+    result_title: "Analysis result",
     without_cert: "Without certificate",
     with_cert: "With certificate",
     cert_cost: "Certificate cost",
@@ -112,11 +113,11 @@ const t = {
     calc_cif: "📦 M03 — CIF Calculator →",
     back_search: "← Back to search",
     all_modules: "◇ All modules",
-    error: "Simulation error. Please try again.",
+    error: "Analysis error. Please try again.",
     days_label: "business days",
     // Pre-question
     precheck_title: "Do you have a certificate of origin for this operation?",
-    precheck_sub: "It helps us show you the most useful simulation for your case.",
+    precheck_sub: "It helps us show you the most useful analysis for your case.",
     precheck_yes: "Yes",
     precheck_no: "No",
     precheck_unknown: "I don't know what this is",
@@ -158,16 +159,23 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   // ¿Existe acuerdo comercial vigente entre origen y destino?
   const convenio = useMemo(() => getTradeAgreement(origin, destination), [origin, destination]);
 
-  // Pre-fill from Module 01 params
+  // Pre-fill desde el contexto de operación que llega de otro módulo
   useEffect(() => {
-    const code = searchParams.get("tariff_code");
-    const sys = searchParams.get("system");
-    const orig = searchParams.get("origin");
-    const dest = searchParams.get("destination");
-    if (code) setTariffCode(code);
-    if (sys) setTariffSystem(sys);
-    if (orig) setOrigin(orig);
-    if (dest) setDestination(dest);
+    const ctx = readOpContext(searchParams);
+    if (ctx.tariff_code) setTariffCode(ctx.tariff_code);
+    if (ctx.system) setTariffSystem(ctx.system);
+    if (ctx.origin) setOrigin(ctx.origin);
+    if (ctx.destination) setDestination(ctx.destination);
+    if (ctx.fob_value) setFobValue(ctx.fob_value);
+    if (ctx.quantity) setQuantity(ctx.quantity);
+    if (ctx.base_rate || ctx.pref_rate) {
+      setRateInfo({
+        base_rate: ctx.base_rate ? Number(ctx.base_rate) : undefined,
+        preferential_rate: ctx.pref_rate ? Number(ctx.pref_rate) : undefined,
+        has_preferential: !!ctx.pref_rate,
+        from_context: true,
+      });
+    }
   }, [searchParams]);
 
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
@@ -242,8 +250,8 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         {/* Header */}
         <div style={{ marginBottom: 24, textAlign: "center" }}>
           <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", color: "#22c55e", fontSize: 12, fontWeight: 600 }}>Módulo 02</span>
-          <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
-          <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
+          <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 8 }}>{c.title}</h1>
+          <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, fontWeight: 400, lineHeight: 1.6, maxWidth: 620, margin: "0 auto" }}>{c.subtitle}</p>
         </div>
 
         {/* Disclaimer banner — aviso legal en segundo plano */}
@@ -441,7 +449,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
                 style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
-                📄 {lang === "es" ? "Exportar informe de simulación PDF" : "Export simulation report PDF"}
+                📄 {lang === "es" ? "Exportar informe de análisis (PDF)" : "Export analysis report (PDF)"}
               </button>
             </div>
             )}
@@ -545,9 +553,17 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             </div>
             )}
 
-            {/* Acción CIF */}
+            {/* Acción CIF — arrastra el contexto de la operación */}
             <div style={{ textAlign: "center" }}>
-              <Link href="/modulo03" style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
+              <Link
+                href={`/modulo03${buildOpQuery({
+                  origin, destination,
+                  tariff_code: tariffCode, system: tariffSystem,
+                  fob_value: fobValue, quantity,
+                  base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate) : (result?.tariff_without?.rate || ""),
+                  pref_rate: convenio ? (rateInfo?.preferential_rate != null ? String(rateInfo.preferential_rate) : (result?.tariff_with?.rate || "")) : "",
+                })}`}
+                style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
                 {c.calc_cif}
               </Link>
             </div>
@@ -560,7 +576,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Simulación de referencia. No emite documentos oficiales.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Análisis de referencia. No emite documentos oficiales.</p>
       </footer>
     </div>
   );

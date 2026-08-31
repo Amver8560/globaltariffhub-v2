@@ -53,7 +53,7 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
     "issuing_entity": "Cámara de Comercio Argentina o Ministerio de Relaciones Exteriores",
     "where_to_get": "https://www.cancilleria.gob.ar/es/comercio-internacional/certificados-de-origen"
   },
-  "disclaimer": "Esta es una simulación de referencia. El certificado de origen real debe tramitarse ante el organismo habilitado en el país exportador. Los valores arancelarios pueden variar."
+  "disclaimer": "Este es un análisis de referencia. El certificado de origen real debe tramitarse ante el organismo habilitado en el país exportador. Los valores arancelarios pueden variar."
 }
 
 Calculá los montos en base al valor FOB y la cantidad proporcionados.
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const prompt = `Calculá la simulación de certificado de origen para esta operación:
+    const prompt = `Calculá el análisis de preferencia arancelaria por origen para esta operación:
 - Origen: ${origin}
 - Destino: ${destination}
 - Código HS: ${hs_code || "No especificado"}
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
     return aiErrorResponse(error, {
       lang,
       userId: credit.userId,
-      fallback: lang === "en" ? "Simulation error. Please try again." : "Error en la simulación. Intentá de nuevo.",
+      fallback: lang === "en" ? "Analysis error. Please try again." : "Error en el análisis. Intentá de nuevo.",
     });
   }
 }

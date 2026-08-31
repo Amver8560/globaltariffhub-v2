@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCIFPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import { buildOpQuery, readOpContext } from "@/lib/opContext";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -58,7 +59,7 @@ const t = {
     dest_total: "Costos destino",
     btn_calc: "Calcular",
     back: "← Volver",
-    sim_cert: "📄 M02 — Simulador de Operaciones con Certificado →",
+    sim_cert: "📄 M02 — ¿Podés pagar menos aranceles? →",
     disclaimer: "⚠ Cálculo de referencia. Los valores reales pueden variar según el transportista, aduana y tipo de cambio.",
   },
   en: {
@@ -100,7 +101,7 @@ const t = {
     dest_total: "Destination costs",
     btn_calc: "Calculate",
     back: "← Back",
-    sim_cert: "📄 M02 — Certificate of Origin Operations Simulator →",
+    sim_cert: "📄 M02 — Can you pay lower tariffs? →",
     disclaimer: "⚠ Reference calculation. Actual values may vary by carrier, customs and exchange rate.",
   },
 };
@@ -135,16 +136,17 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const n = (v: string) => parseFloat(v) || 0;
 
-  // Pre-fill from Module 01 params
+  // Pre-fill desde el contexto de operación que llega de otro módulo
   useEffect(() => {
-    const code = searchParams.get("tariff_code");
-    const sys = searchParams.get("system");
-    const orig = searchParams.get("origin");
-    const dest = searchParams.get("destination");
-    if (code) setTariffCode(code);
-    if (sys) setTariffSystem(sys);
-    if (orig) setOrigin(orig);
-    if (dest) setDestination(dest);
+    const ctx = readOpContext(searchParams);
+    if (ctx.tariff_code) setTariffCode(ctx.tariff_code);
+    if (ctx.system) setTariffSystem(ctx.system);
+    if (ctx.origin) setOrigin(ctx.origin);
+    if (ctx.destination) setDestination(ctx.destination);
+    if (ctx.fob_value) setFobValue(ctx.fob_value);
+    if (ctx.quantity) setQuantity(ctx.quantity);
+    if (ctx.base_rate) setTariffRate(ctx.base_rate);
+    if (ctx.pref_rate) { setPrefRate(ctx.pref_rate); setWithCert(true); }
   }, [searchParams]);
 
   // Auto-fetch tariff rate when arriving from Module 01 with full data
@@ -514,7 +516,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 </div>
 
                 {/* Acciones */}
-                <Link href="/modulo02" style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 10 }}>
+                <Link href={`/modulo02${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: tariffRate, pref_rate: withCert ? prefRate : "" })}`} style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 10 }}>
                   {c.sim_cert}
                 </Link>
 
