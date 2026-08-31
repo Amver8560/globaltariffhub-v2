@@ -232,6 +232,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/modulos" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{lang === "es" ? "◇ Todos los módulos" : "◇ All modules"}</Link>
           <Link href="/modulo01" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back}</Link>
           <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
@@ -530,7 +531,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — Cálculo de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Cálculo de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );

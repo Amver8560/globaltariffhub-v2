@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { checkAndConsumeCredit } from "@/lib/credits";
+import { aiErrorResponse } from "@/lib/aiError";
 import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
 import { getNCMCode, normalizeNCM8 } from "@/lib/ncmApi";
 import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
@@ -8,11 +9,16 @@ import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
+  let userId: string | undefined;
+  let lang = "es";
   try {
     const credit = await checkAndConsumeCredit();
     if (!credit.ok) return credit.error!;
+    userId = credit.userId;
 
-    const { tariff_code, system = "HS", origin, destination, lang = "es" } = await req.json();
+    const body = await req.json();
+    const { tariff_code, system = "HS", origin, destination } = body;
+    lang = body.lang || "es";
 
     if (!tariff_code || !destination) {
       return NextResponse.json({ error: "tariff_code and destination are required" }, { status: 400 });
@@ -116,7 +122,10 @@ Respond with this exact JSON:
 
     return NextResponse.json(data);
   } catch (err: any) {
-    console.error("tariff-rate error:", err);
-    return NextResponse.json({ error: err.message || "Error interno" }, { status: 500 });
+    return aiErrorResponse(err, {
+      lang,
+      userId,
+      fallback: lang === "en" ? "Could not fetch the tariff rate. Please try again." : "No se pudo obtener la tasa arancelaria. Intentá de nuevo.",
+    });
   }
 }

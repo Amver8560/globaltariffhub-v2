@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
-import { checkAndConsumeCredit } from "@/lib/credits";
+import { checkAndConsumeCredit, refundCredit } from "@/lib/credits";
+import { aiErrorResponse, isAIBusyError, aiBusyMessage } from "@/lib/aiError";
 import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
 import { getNCMCode, searchNCMByDescription, normalizeNCM8 } from "@/lib/ncmApi";
 import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
@@ -177,9 +178,17 @@ export async function POST(req: NextRequest) {
             controller.enqueue(enc.encode(ENRICHED_MARKER + JSON.stringify(parsed)));
           }
         } catch (err) {
-          console.error(err);
+          const busy = isAIBusyError(err);
+          if (busy) {
+            try { await refundCredit(credit.userId); } catch { /* no-op */ }
+          } else {
+            console.error(err);
+          }
           controller.enqueue(enc.encode(ENRICHED_MARKER + JSON.stringify({
-            error: lang === "en" ? "Search error. Please try again." : "Error al procesar la búsqueda. Intentá de nuevo."
+            error: busy
+              ? aiBusyMessage(lang)
+              : (lang === "en" ? "Search error. Please try again." : "Error al procesar la búsqueda. Intentá de nuevo."),
+            code: busy ? "AI_BUSY" : undefined,
           })));
         } finally {
           controller.close();
@@ -195,10 +204,10 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: lang === "en" ? "Search error. Please try again." : "Error al procesar la búsqueda. Intentá de nuevo." },
-      { status: 500 }
-    );
+    return aiErrorResponse(error, {
+      lang,
+      userId: credit.userId,
+      fallback: lang === "en" ? "Search error. Please try again." : "Error al procesar la búsqueda. Intentá de nuevo.",
+    });
   }
 }

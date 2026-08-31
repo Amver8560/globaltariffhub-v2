@@ -76,6 +76,9 @@ export default function DashboardPage() {
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{user?.user_metadata?.full_name || user?.email}</span>
+          <Link href="/actualizar-clave" style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>
+            Cambiar contraseña
+          </Link>
           <button onClick={handleLogout} style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", background: "none", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, padding: "6px 14px", cursor: "pointer" }}>
             Salir
           </button>

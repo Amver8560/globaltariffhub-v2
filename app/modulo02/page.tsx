@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { exportCertificatePDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
+import { getTradeAgreement } from "@/lib/tradeAgreements";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -53,8 +54,26 @@ const t = {
     optional: "Opcional",
     calc_cif: "📦 M03 — Calculadora CIF →",
     back_search: "← Volver al buscador",
+    all_modules: "◇ Todos los módulos",
     error: "Error en la simulación. Intentá de nuevo.",
     days_label: "días hábiles",
+    // Pregunta previa
+    precheck_title: "¿Tenés un certificado de origen para esta operación?",
+    precheck_sub: "Nos ayuda a mostrarte la simulación más útil para tu caso.",
+    precheck_yes: "Sí",
+    precheck_no: "No",
+    precheck_unknown: "No sé qué es esto",
+    precheck_change: "Cambiar respuesta",
+    precheck_answer_yes: "Ya tenés un certificado de origen",
+    precheck_answer_no: "Todavía no tenés un certificado de origen",
+    precheck_answer_unknown: "Querés entender qué es un certificado de origen",
+    explain_title: "¿Qué es un certificado de origen?",
+    explain_body: "Es un documento oficial que acredita en qué país fue fabricado un producto. Cuando existe un acuerdo comercial entre el país exportador y el importador, presentar este certificado en la aduana permite pagar un arancel reducido — muchas veces 0%. Lo emite una entidad habilitada (cámara de comercio, ministerio) en el país de origen. Esta herramienta te muestra cuánto podrías ahorrar y qué necesitás para tramitarlo — no lo emite.",
+    // Convenio
+    agreement_detected: "Acuerdo comercial detectado",
+    agreement_none_title: "Sin acuerdo comercial vigente",
+    agreement_none_msg: "No existe un acuerdo comercial vigente entre estos dos países para este producto. El arancel aplicable es el general.",
+    general_tariff: "Arancel general aplicable",
   },
   en: {
     title: "Certificate of Origin Operations Simulation",
@@ -92,8 +111,26 @@ const t = {
     optional: "Optional",
     calc_cif: "📦 M03 — CIF Calculator →",
     back_search: "← Back to search",
+    all_modules: "◇ All modules",
     error: "Simulation error. Please try again.",
     days_label: "business days",
+    // Pre-question
+    precheck_title: "Do you have a certificate of origin for this operation?",
+    precheck_sub: "It helps us show you the most useful simulation for your case.",
+    precheck_yes: "Yes",
+    precheck_no: "No",
+    precheck_unknown: "I don't know what this is",
+    precheck_change: "Change answer",
+    precheck_answer_yes: "You already have a certificate of origin",
+    precheck_answer_no: "You don't have a certificate of origin yet",
+    precheck_answer_unknown: "You want to understand what a certificate of origin is",
+    explain_title: "What is a certificate of origin?",
+    explain_body: "It's an official document certifying the country where a product was manufactured. When a trade agreement exists between the exporting and importing countries, presenting this certificate at customs allows a reduced tariff — often 0%. It is issued by an authorized entity (chamber of commerce, ministry) in the country of origin. This tool shows how much you could save and what you need to obtain it — it does not issue it.",
+    // Agreement
+    agreement_detected: "Trade agreement detected",
+    agreement_none_title: "No trade agreement in force",
+    agreement_none_msg: "There is no trade agreement in force between these two countries for this product. The applicable tariff is the general one.",
+    general_tariff: "Applicable general tariff",
   },
 };
 
@@ -115,6 +152,11 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [error, setError] = useState("");
   const [rateLoading, setRateLoading] = useState(false);
   const [rateInfo, setRateInfo] = useState<any>(null);
+  // Pregunta previa: ¿tenés certificado de origen? (si | no | nose)
+  const [hasCert, setHasCert] = useState<"si" | "no" | "nose" | null>(null);
+
+  // ¿Existe acuerdo comercial vigente entre origen y destino?
+  const convenio = useMemo(() => getTradeAgreement(origin, destination), [origin, destination]);
 
   // Pre-fill from Module 01 params
   useEffect(() => {
@@ -185,6 +227,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/modulos" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.all_modules}</Link>
           <Link href="/modulo01" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back_search}</Link>
           <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
@@ -203,10 +246,52 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
         </div>
 
-        {/* Disclaimer banner */}
-        <div style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 28, textAlign: "center" }}>
-          <p style={{ fontSize: 13, color: "#ef4444", fontWeight: 600 }}>{c.disclaimer_banner}</p>
+        {/* Disclaimer banner — aviso legal en segundo plano */}
+        <div style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 16px", marginBottom: 28, textAlign: "center" }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", fontWeight: 400, lineHeight: 1.6 }}>{c.disclaimer_banner}</p>
         </div>
+
+        {/* Pregunta previa: ¿tenés certificado de origen? */}
+        {hasCert === null ? (
+          <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{c.precheck_title}</h2>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>{c.precheck_sub}</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+              {[
+                { key: "si" as const, label: c.precheck_yes, icon: "✅" },
+                { key: "no" as const, label: c.precheck_no, icon: "🚫" },
+                { key: "nose" as const, label: c.precheck_unknown, icon: "❓" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setHasCert(opt.key)}
+                  style={{ padding: "16px 14px", borderRadius: 12, border: "1px solid rgba(0,87,255,0.35)", background: "rgba(0,87,255,0.08)", color: "#FFFFFF", fontSize: 14, fontWeight: 600, cursor: "pointer", textAlign: "center", lineHeight: 1.4 }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,87,255,0.2)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,87,255,0.08)"; }}
+                >
+                  <span style={{ fontSize: 20, display: "block", marginBottom: 6 }}>{opt.icon}</span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Resumen de la respuesta previa */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 16px", marginBottom: 20 }}>
+              <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
+                {hasCert === "si" ? `✅ ${c.precheck_answer_yes}` : hasCert === "no" ? `🚫 ${c.precheck_answer_no}` : `❓ ${c.precheck_answer_unknown}`}
+              </span>
+              <button onClick={() => setHasCert(null)} style={{ background: "none", border: "none", color: "#6B9FFF", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{c.precheck_change}</button>
+            </div>
+
+            {/* Explicación para quien no sabe qué es */}
+            {hasCert === "nose" && (
+              <div style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#C9A84C", marginBottom: 8 }}>{c.explain_title}</p>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.7 }}>{c.explain_body}</p>
+              </div>
+            )}
 
         {/* Tip standalone: mostrar solo si no hay params de M01 */}
         {!searchParams.get("tariff_code") && !searchParams.get("origin") && (
@@ -248,6 +333,21 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               </select>
             </div>
           </div>
+
+          {/* Verificación de acuerdo comercial vigente entre origen y destino */}
+          {origin && destination && origin !== destination && (
+            convenio ? (
+              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#22c55e", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{convenio.scope}</p>
+              </div>
+            ) : (
+              <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.7)", marginBottom: 3 }}>{c.agreement_none_title}</p>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{c.agreement_none_msg}</p>
+              </div>
+            )
+          )}
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
             <div>
@@ -321,7 +421,21 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         {/* Resultados */}
         {result && (
           <div>
-            {/* Botón exportar PDF */}
+            {/* Verificación de acuerdo comercial */}
+            {convenio ? (
+              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#22c55e", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{convenio.scope}</p>
+              </div>
+            ) : (
+              <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "16px 20px", marginBottom: 16 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "rgba(255,255,255,0.78)", marginBottom: 6 }}>{c.agreement_none_title}</p>
+                <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>{c.agreement_none_msg}</p>
+              </div>
+            )}
+
+            {/* Botón exportar PDF — sólo con comparativo completo */}
+            {convenio && (
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
               <button
                 onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
@@ -330,11 +444,14 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 📄 {lang === "es" ? "Exportar informe de simulación PDF" : "Export simulation report PDF"}
               </button>
             </div>
+            )}
 
             {/* Resumen ahorro */}
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{c.result_title}</h2>
 
+              {convenio ? (
+              <>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div style={{ background: "rgba(239,68,68,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(239,68,68,0.2)", textAlign: "center" }}>
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.without_cert}</p>
@@ -381,9 +498,18 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   </div>
                 ))}
               </div>
+              </>
+              ) : (
+                <div style={{ background: "rgba(239,68,68,0.1)", borderRadius: 12, padding: "22px", border: "1px solid rgba(239,68,68,0.25)", textAlign: "center" }}>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.general_tariff}</p>
+                  <p style={{ fontSize: 28, fontWeight: 800, color: "#ef4444" }}>USD {result.tariff_without?.amount?.toLocaleString()}</p>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.tariff_without?.rate}</p>
+                </div>
+              )}
             </div>
 
-            {/* Requisitos */}
+            {/* Requisitos — sólo cuando hay acuerdo comercial */}
+            {convenio && (
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{c.requirements_title}</h2>
 
@@ -417,6 +543,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 </div>
               )}
             </div>
+            )}
 
             {/* Acción CIF */}
             <div style={{ textAlign: "center" }}>
@@ -428,10 +555,12 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <LegalDisclaimer lang={lang as "es" | "en"} context="certificate" />
           </div>
         )}
+          </>
+        )}
       </main>
 
-      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — Simulación de referencia. No emite documentos oficiales.</p>
+      <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 40px", textAlign: "center" }}>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Simulación de referencia. No emite documentos oficiales.</p>
       </footer>
     </div>
   );

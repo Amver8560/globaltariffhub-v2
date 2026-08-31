@@ -65,14 +65,18 @@ export default function LegalDisclaimer({
 }: LegalDisclaimerProps) {
   const t = texts[lang];
 
+  // ── Estilo "letra chica de contrato": presente pero en segundo plano ──
+  // fuente 11px máx · opacidad ~40% · sin recuadros de color
+
   // Versión compacta para footers
   if (compact) {
     return (
       <p style={{
         fontSize: 11,
-        color: "rgba(255,255,255,0.35)",
+        color: "rgba(255,255,255,0.4)",
         fontStyle: "italic",
         textAlign: "center",
+        lineHeight: 1.6,
         marginTop: 8,
       }}>
         {t.compact}
@@ -84,63 +88,56 @@ export default function LegalDisclaimer({
 
   return (
     <div style={{
-      background: "rgba(239,68,68,0.06)",
-      border: "1px solid rgba(239,68,68,0.25)",
-      borderRadius: 12,
-      padding: "16px 20px",
+      background: "transparent",
+      border: "1px solid rgba(255,255,255,0.06)",
+      borderRadius: 10,
+      padding: "14px 18px",
       marginTop: 20,
     }}>
       {/* Título */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <span style={{ fontSize: 16 }}>⚖️</span>
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{t.title}</p>
-      </div>
+      <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.45)", letterSpacing: 0.3, textTransform: "uppercase", marginBottom: 8 }}>
+        {t.title}
+      </p>
 
       {/* Aviso general */}
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 10 }}>
+      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.65, marginBottom: 8 }}>
         {t.general}
       </p>
 
       {/* Notas según contexto */}
       {notes.map((key) => (
-        <div key={key} style={{
-          borderLeft: "2px solid rgba(239,68,68,0.3)",
-          paddingLeft: 10,
-          marginBottom: 8,
-        }}>
-          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", lineHeight: 1.6 }}>
-            {t[key]}
-          </p>
-        </div>
+        <p key={key} style={{ fontSize: 11, color: "rgba(255,255,255,0.38)", lineHeight: 1.65, marginBottom: 6 }}>
+          {t[key]}
+        </p>
       ))}
 
       {/* Fuentes de datos */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12, marginBottom: 10 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10, marginBottom: 8 }}>
         {wtoSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_wto}
           </span>
         )}
         {ncmSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_ncm}
           </span>
         )}
         {taricSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_taric}
           </span>
         )}
         {!wtoSource && (
-          <span style={{ fontSize: 10, background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#f87171", padding: "3px 10px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_ai}
           </span>
         )}
       </div>
 
       {/* No reemplaza */}
-      <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.4)", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 10, marginTop: 4 }}>
-        🔒 {t.no_replace}
+      <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.4)", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8, marginTop: 4 }}>
+        {t.no_replace}
       </p>
     </div>
   );

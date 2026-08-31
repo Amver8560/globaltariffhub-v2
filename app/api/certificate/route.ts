@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
+import { aiErrorResponse } from "@/lib/aiError";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -102,10 +103,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(parsed);
   } catch (error) {
-    console.error(error);
-    return NextResponse.json(
-      { error: lang === "en" ? "Simulation error. Please try again." : "Error en la simulación. Intentá de nuevo." },
-      { status: 500 }
-    );
+    return aiErrorResponse(error, {
+      lang,
+      userId: credit.userId,
+      fallback: lang === "en" ? "Simulation error. Please try again." : "Error en la simulación. Intentá de nuevo.",
+    });
   }
 }

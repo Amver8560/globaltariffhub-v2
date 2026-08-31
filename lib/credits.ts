@@ -80,3 +80,26 @@ export async function checkAndConsumeCredit(): Promise<CreditCheckResult> {
 
   return { ok: true, userId: user.id, isPro: false };
 }
+
+/**
+ * Devuelve un crédito ya consumido (ej: la consulta a la IA falló por saturación).
+ * No-op para usuarios Pro o si no hay userId.
+ */
+export async function refundCredit(userId?: string): Promise<void> {
+  if (!userId) return;
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("credits_used, is_pro")
+    .eq("id", userId)
+    .single();
+
+  if (!profile || profile.is_pro) return;
+
+  const next = Math.max(0, (profile.credits_used ?? 0) - 1);
+  await supabase
+    .from("profiles")
+    .update({ credits_used: next })
+    .eq("id", userId);
+}

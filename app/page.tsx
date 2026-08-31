@@ -58,23 +58,24 @@ const T = {
     ],
     problem_answer: "Cualquier organización puede explorar las oportunidades del comercio exterior, subiendo una foto y obteniendo un arancel orientativo al instante.",
     modules_title: "Cuatro módulos. Una sola plataforma.",
+    modules_cta: "Elegí un módulo y empezá →",
     modules: [
-      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { href:"/modulo01", icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Clasificación Arancelaria de Productos con IA",
         question:"¿Qué impuestos paga este producto?",
         desc:"Sacá una foto o describí el producto. La IA te dice qué impuestos aplican, qué documentos necesitás y si hay algún beneficio que te permita pagar menos — sin necesitar saber nada de aduanas.",
         tags:["HS Code","NCM Mercosur","TARIC Europa","Acuerdos Comerciales"] },
-      { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+      { href:"/modulo02", icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
         title:"Simulador con Certificado de Origen",
         question:"¿Podés pagar menos impuestos?",
         desc:"Entre muchos países existen acuerdos comerciales que reducen o eliminan los impuestos de importación. Te mostramos si tu operación califica, cuánto ahorrás en dólares y cómo tramitar el certificado que lo habilita.",
         tags:["MERCOSUR","TLC","SGP","Ahorro arancelario"] },
-      { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
+      { href:"/modulo03", icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"Calculadora CIF",
         question:"¿Cuánto cuesta realmente traerlo?",
         desc:"El precio del proveedor es solo el comienzo. Calculá el costo total de traer el producto hasta tu depósito: flete, seguro, impuestos y todos los gastos intermedios. Ingresás el precio y el destino — obtenés el número final.",
         tags:["Incoterms","CIF","FOB","Costo nacionalizado"] },
-      { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
+      { href:"/modulo04", icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Viabilidad de Importación",
         question:"¿Conviene el negocio?",
         desc:"Ingresás el precio del proveedor, la cantidad y el destino. La plataforma te dice el costo final, el precio mínimo de venta para no perder plata, y si hay restricciones o permisos especiales que necesitás gestionar.",
@@ -143,23 +144,24 @@ const T = {
     ],
     problem_answer: "Any organization can explore international trade opportunities — by uploading a photo and getting an indicative tariff rate instantly. That's the magic.",
     modules_title: "Four modules. One platform.",
+    modules_cta: "Pick a module and get started →",
     modules: [
-      { icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
+      { href:"/modulo01", icon:"📷", color:C.blueBright, colorBg:"rgba(59,130,246,0.12)", colorBorder:"rgba(59,130,246,0.3)",
         title:"Intelligent Product Classification",
         question:"What taxes does this product pay?",
         desc:"Take a photo or describe the product. AI tells you what taxes apply, what documents you need and whether any trade agreement lets you pay less — no customs knowledge required.",
         tags:["HS Code","NCM Mercosur","TARIC Europe","Trade Agreements"] },
-      { icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
+      { href:"/modulo02", icon:"📄", color:C.gold, colorBg:"rgba(244,197,66,0.10)", colorBorder:"rgba(244,197,66,0.3)",
         title:"Certificate of Origin Simulator",
         question:"Can you pay less in taxes?",
         desc:"Many countries have trade agreements that reduce or eliminate import taxes. We show you if your shipment qualifies, how much you save in dollars, and how to get the certificate that unlocks it.",
         tags:["MERCOSUR","FTA","GSP","Tariff savings"] },
-      { icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
+      { href:"/modulo03", icon:"🧮", color:"#22c55e", colorBg:"rgba(34,197,94,0.10)", colorBorder:"rgba(34,197,94,0.3)",
         title:"CIF Calculator",
         question:"What does it really cost to bring it in?",
         desc:"The supplier price is just the start. Calculate the full cost of getting the product to your warehouse: freight, insurance, taxes and all fees in between. Enter the price and destination — get the real number.",
         tags:["Incoterms","CIF","FOB","Landed cost"] },
-      { icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
+      { href:"/modulo04", icon:"🛡", color:"#a78bfa", colorBg:"rgba(167,139,250,0.10)", colorBorder:"rgba(167,139,250,0.3)",
         title:"Import Viability",
         question:"Is the business worth it?",
         desc:"Enter the supplier price, quantity and destination. The platform tells you the final cost, the minimum selling price to break even, and whether there are special permits or restrictions you need to handle.",
@@ -398,9 +400,9 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
 
           {/* CTA hero — solo ver módulos */}
           <div style={{ display:"flex", gap:12, flexWrap:"wrap", alignItems:"center" }}>
-            <a href="#modulos" style={{ padding:"15px 28px", borderRadius:10, border:`1.5px solid rgba(59,130,246,0.4)`, background:"transparent", color:C.blueBright, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
-              {lang==="es"?"Ver módulos ↓":"See modules ↓"}
-            </a>
+            <Link href="/modulos" style={{ padding:"15px 28px", borderRadius:10, border:"none", background:`linear-gradient(135deg,${C.blue},#0D2247)`, color:C.white, fontSize:14, fontWeight:700, cursor:"pointer", textDecoration:"none" }}>
+              {lang==="es"?"Elegir un módulo →":"Choose a module →"}
+            </Link>
             <a href="#para-quien" style={{ padding:"15px 28px", borderRadius:10, border:`1.5px solid rgba(244,197,66,0.3)`, background:"transparent", color:C.gold, fontSize:14, fontWeight:600, cursor:"pointer", textDecoration:"none" }}>
               {lang==="es"?"¿Para quién? ↓":"For who? ↓"}
             </a>
@@ -482,7 +484,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))", gap:16 }}>
             {t.modules.map((m,i)=>(
-              <div key={i} style={{ background:C.bgCard, border:`1px solid ${m.colorBorder}`, borderRadius:16, padding:"28px 24px", display:"flex", flexDirection:"column", gap:16, transition:"all 0.2s" }}
+              <Link key={i} href={(m as any).href || "/modulos"} style={{ textDecoration:"none", color:"inherit", background:C.bgCard, border:`1px solid ${m.colorBorder}`, borderRadius:16, padding:"28px 24px", display:"flex", flexDirection:"column", gap:16, transition:"all 0.2s" }}
                 onMouseEnter={e=>{ e.currentTarget.style.background=C.bgCardHover; e.currentTarget.style.boxShadow=`0 4px 32px ${m.color}22`; }}
                 onMouseLeave={e=>{ e.currentTarget.style.background=C.bgCard; e.currentTarget.style.boxShadow="none"; }}>
                 <div style={{ width:52, height:52, borderRadius:14, background:m.colorBg, border:`1.5px solid ${m.colorBorder}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:24 }}>{m.icon}</div>
@@ -497,9 +499,17 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
                       <span key={j} style={{ fontSize:10, color:m.color, background:m.colorBg, border:`1px solid ${m.colorBorder}`, borderRadius:20, padding:"3px 10px", fontWeight:600 }}>{tag}</span>
                     ))}
                   </div>
+                  <p style={{ fontSize:12, fontWeight:700, color:m.color, marginTop:14 }}>
+                    {lang==="es"?"Abrir módulo →":"Open module →"}
+                  </p>
                 </div>
-              </div>
+              </Link>
             ))}
+          </div>
+          <div style={{ textAlign:"center", marginTop:36 }}>
+            <Link href="/modulos" style={{ display:"inline-block", padding:"14px 32px", borderRadius:10, border:`1.5px solid ${C.borderGold}`, background:"transparent", color:C.gold, fontSize:14, fontWeight:700, textDecoration:"none" }}>
+              {(t as any).modules_cta}
+            </Link>
           </div>
         </div>
       </section>
@@ -542,7 +552,7 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
               </div>
             ))}
           </div>
-          <p style={{ marginTop:24, fontSize:11, color:"rgba(255,255,255,0.25)", lineHeight:1.7, textAlign:"center", maxWidth:720, margin:"24px auto 0" }}>
+          <p style={{ marginTop:24, fontSize:11, color:"rgba(255,255,255,0.4)", lineHeight:1.7, textAlign:"center", maxWidth:720, margin:"24px auto 0" }}>
             {lang === "es"
               ? "Global Tariff Hub combina bases de datos aduaneras oficiales con análisis asistido por inteligencia artificial. Las determinaciones arancelarias definitivas siempre deben verificarse ante la autoridad aduanera competente."
               : "Global Tariff Hub combines official customs databases with AI-assisted analysis. Final tariff determinations should always be verified against the competent customs authority."}
@@ -594,8 +604,8 @@ export default function HomePage({ defaultLang = "es" }: { defaultLang?: "es"|"e
           </div>
         </div>
         <div style={{ maxWidth:1200, margin:"20px auto 0", borderTop:`1px solid rgba(255,255,255,0.05)`, paddingTop:20 }}>
-          <p style={{ fontSize:11, color:"rgba(255,255,255,0.2)", marginBottom:6 }}>{t.footer_copy}</p>
-          <p style={{ fontSize:10, color:"rgba(255,255,255,0.12)", lineHeight:1.6, maxWidth:900 }}>{t.disclaimer}</p>
+          <p style={{ fontSize:11, color:"rgba(255,255,255,0.4)", marginBottom:6 }}>{t.footer_copy}</p>
+          <p style={{ fontSize:11, color:"rgba(255,255,255,0.4)", lineHeight:1.6, maxWidth:900 }}>{t.disclaimer}</p>
         </div>
       </footer>
       {/* ── Modal email pre-lanzamiento ─────────────── */}

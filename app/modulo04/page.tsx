@@ -195,7 +195,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
           <span style={{ fontWeight: 700, fontSize: 15 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/modulo01" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>← Módulos</Link>
+          <Link href="/modulos" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>{lang === "es" ? "◇ Todos los módulos" : "◇ All modules"}</Link>
           <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 3, border: "1px solid rgba(0,87,255,0.3)", display: "flex" }}>
             {(["ES","EN"] as const).map((l) => (
               <span key={l} onClick={() => setLang(l.toLowerCase() as Lang)} style={{ padding: "4px 12px", borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: "pointer", background: lang === l.toLowerCase() ? "#0057FF" : "transparent", color: lang === l.toLowerCase() ? "#FFF" : "rgba(255,255,255,0.4)" }}>{l}</span>
@@ -565,7 +565,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center", marginTop: 40 }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2025 Global Tariff Hub — {lang === "es" ? "Datos de referencia. No reemplaza consulta profesional." : "Reference data. Does not replace professional advice."}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — {lang === "es" ? "Datos de referencia. No reemplaza consulta profesional." : "Reference data. Does not replace professional advice."}</p>
       </footer>
     </div>
   );

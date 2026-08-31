@@ -2,14 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { calculateTaxes } from "@/lib/taxEngine";
 import { checkAndConsumeCredit } from "@/lib/credits";
+import { aiErrorResponse } from "@/lib/aiError";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
+  let userId: string | undefined;
+  let lang = "es";
   try {
     // Verificar créditos antes de procesar
     const credit = await checkAndConsumeCredit();
     if (!credit.ok) return credit.error!;
+    userId = credit.userId;
 
     const formData = await req.formData();
     const image = formData.get("image") as File | null;
@@ -21,7 +25,7 @@ export async function POST(req: NextRequest) {
     const fob_unit = parseFloat(formData.get("fob_unit") as string || "0");
     const quantity = parseInt(formData.get("quantity") as string || "1");
     const freight_total = parseFloat(formData.get("freight_total") as string || "0");
-    const lang = (formData.get("lang") as string || "es").toLowerCase();
+    lang = (formData.get("lang") as string || "es").toLowerCase();
     const es = lang === "es";
 
     if (!destination || fob_unit <= 0) {
@@ -188,9 +192,12 @@ Identify the product and return ONLY valid JSON without extra text:
     });
 
   } catch (err: any) {
-    console.error("viability error:", err?.message || err);
-    return NextResponse.json({
-      error: `Error: ${err?.message || "Error interno del servidor"}`
-    }, { status: 500 });
+    return aiErrorResponse(err, {
+      lang,
+      userId,
+      fallback: lang === "en"
+        ? "Could not complete the viability analysis. Please try again."
+        : "No se pudo completar el análisis de viabilidad. Intentá de nuevo.",
+    });
   }
 }

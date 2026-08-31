@@ -14,6 +14,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [resendMsg, setResendMsg] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptLegal, setAcceptLegal] = useState(false);
@@ -32,25 +33,62 @@ export default function RegisterPage() {
     setLoading(true);
     const supabase = createClient();
 
+    // Atribución de campaña (LinkedIn, etc.) — desde los UTM de la URL
+    const sp = new URLSearchParams(window.location.search);
+    const utm = {
+      utm_source: sp.get("utm_source") || "",
+      utm_medium: sp.get("utm_medium") || "",
+      utm_campaign: sp.get("utm_campaign") || "",
+    };
+    const signup_source =
+      utm.utm_source ||
+      (document.referrer && !document.referrer.includes(window.location.host)
+        ? new URL(document.referrer).hostname
+        : "direct");
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: name },
+        data: { full_name: name, signup_source, ...utm },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
 
     if (error) {
-      setError(error.message === "User already registered"
-        ? "Ya existe una cuenta con ese email. ¿Querés iniciar sesión?"
-        : error.message);
+      const m = error.message.toLowerCase();
+      if (m.includes("already registered") || m.includes("already exists") || error.status === 422) {
+        setError("Ya existe una cuenta con ese email. Probá iniciar sesión o recuperar tu contraseña.");
+      } else if (m.includes("rate limit") || m.includes("too many") || m.includes("email send")) {
+        setError("Estamos recibiendo muchos registros en este momento. Esperá unos minutos y volvé a intentar.");
+      } else if (m.includes("signups not allowed") || m.includes("disabled")) {
+        setError("El registro está temporalmente deshabilitado. Escribinos a analia@globaltariffhub.com.");
+      } else if (m.includes("database error")) {
+        setError("Hubo un problema al crear tu cuenta. Escribinos a analia@globaltariffhub.com y lo resolvemos.");
+      } else if (m.includes("invalid") && m.includes("email")) {
+        setError("El email no parece válido. Revisalo e intentá de nuevo.");
+      } else {
+        setError("No pudimos crear la cuenta. Intentá de nuevo en un momento.");
+      }
       setLoading(false);
       return;
     }
 
     setSuccess(true);
     setLoading(false);
+  };
+
+  const handleResend = async () => {
+    setResendMsg("");
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+    });
+    setResendMsg(error
+      ? "No se pudo reenviar ahora. Esperá unos minutos e intentá otra vez."
+      : "Te reenviamos el email de confirmación.");
   };
 
   const inputStyle: React.CSSProperties = {
@@ -65,11 +103,18 @@ export default function RegisterPage() {
         <div style={{ width: "100%", maxWidth: 420, background: "#0D1B3E", borderRadius: 16, padding: 40, border: "1px solid rgba(34,197,94,0.3)", textAlign: "center" }}>
           <p style={{ fontSize: 48, marginBottom: 16 }}>✅</p>
           <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 10 }}>¡Cuenta creada!</h2>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 24 }}>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 20 }}>
             Te enviamos un email de confirmación a <strong style={{ color: "#C9A84C" }}>{email}</strong>.<br />
             Confirmá tu cuenta para acceder a tus 3 consultas gratis.
           </p>
-          <Link href="/login" style={{ display: "block", padding: "14px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 16 }}>
+            Si no llega en unos minutos, revisá la carpeta de spam.
+          </p>
+          <button type="button" onClick={handleResend} style={{ fontSize: 12, color: "#6B9FFF", background: "none", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 8, padding: "8px 14px", cursor: "pointer", marginBottom: 8 }}>
+            Reenviar email de confirmación
+          </button>
+          {resendMsg && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", marginBottom: 12 }}>{resendMsg}</p>}
+          <Link href="/login" style={{ display: "block", padding: "14px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 15, fontWeight: 700, textDecoration: "none", marginTop: 12 }}>
             Ir al login
           </Link>
         </div>
@@ -136,7 +181,15 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <p style={{ fontSize: 13, color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>{error}</p>
+            <div style={{ fontSize: 13, color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>
+              <p style={{ margin: 0 }}>{error}</p>
+              {error.includes("Ya existe") && (
+                <p style={{ margin: "8px 0 0", display: "flex", gap: 14 }}>
+                  <Link href="/login" style={{ color: "#6B9FFF", fontWeight: 700 }}>Iniciar sesión</Link>
+                  <Link href="/recuperar" style={{ color: "#6B9FFF", fontWeight: 700 }}>Recuperar contraseña</Link>
+                </p>
+              )}
+            </div>
           )}
 
           {/* Checkboxes legales obligatorios */}

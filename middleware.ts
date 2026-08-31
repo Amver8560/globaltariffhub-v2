@@ -24,6 +24,8 @@ const PUBLIC_PATHS = [
   "/legales",
   "/login",
   "/register",
+  "/recuperar",
+  "/actualizar-clave",
   "/acceso",
 ];
 

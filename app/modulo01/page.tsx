@@ -259,10 +259,13 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
-        <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
-          {(["es", "en"] as Lang[]).map((l) => (
-            <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
-          ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/modulos" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{lang === "es" ? "◇ Todos los módulos" : "◇ All modules"}</Link>
+          <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
+            {(["es", "en"] as Lang[]).map((l) => (
+              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
+            ))}
+          </div>
         </div>
       </nav>
 
@@ -668,7 +671,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 12, color: "rgba(255,255,255,0.3)" }}>© 2026 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );
