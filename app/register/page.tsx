@@ -46,7 +46,7 @@ export default function RegisterPage() {
         ? new URL(document.referrer).hostname
         : "direct");
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -71,6 +71,13 @@ export default function RegisterPage() {
         setError("No pudimos crear la cuenta. Intentá de nuevo en un momento.");
       }
       setLoading(false);
+      return;
+    }
+
+    // Si Supabase no exige confirmar el email, ya viene con sesión → adentro directo.
+    if (data.session) {
+      router.push("/dashboard");
+      router.refresh();
       return;
     }
 
