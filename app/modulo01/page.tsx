@@ -672,13 +672,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 : "Sources: WTO API · TARIC-EU · Siscomex/NCM · Indicative data generated with AI"}
             </p>
 
-            <LegalDisclaimer
-              lang={lang as "es" | "en"}
-              context="search"
-              wtoSource={response.results?.some((r: any) => r.wto_source)}
-              ncmSource={response.results?.some((r: any) => r.ncm_description_official)}
-              taricSource={response.results?.some((r: any) => r.taric_duty)}
-            />
+            <LegalDisclaimer lang={lang as "es" | "en"} compact />
           </div>
         )}
       </main>

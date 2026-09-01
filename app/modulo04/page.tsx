@@ -550,7 +550,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
                   {c.updated} {result.taxes.last_updated}
                 </p>
 
-                <LegalDisclaimer lang={lang as "es" | "en"} context="viability" />
+                <LegalDisclaimer lang={lang as "es" | "en"} compact />
               </div>
 
               {/* Botones continuar */}

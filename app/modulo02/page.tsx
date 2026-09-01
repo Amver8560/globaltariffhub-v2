@@ -568,7 +568,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               </Link>
             </div>
 
-            <LegalDisclaimer lang={lang as "es" | "en"} context="certificate" />
+            <LegalDisclaimer lang={lang as "es" | "en"} compact />
           </div>
         )}
           </>

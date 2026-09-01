@@ -520,7 +520,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {c.sim_cert}
                 </Link>
 
-                <LegalDisclaimer lang={lang as "es" | "en"} context="cif" />
+                <LegalDisclaimer lang={lang as "es" | "en"} compact />
               </div>
             ) : (
               <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 40, border: "1px solid rgba(0,87,255,0.1)", textAlign: "center" }}>
