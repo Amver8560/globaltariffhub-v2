@@ -21,8 +21,8 @@ const CURRENCIES = ["USD", "EUR", "ARS", "BRL", "CLP"];
 
 const t = {
   es: {
-    title: "Calculadora CIF e Incoterms",
-    subtitle: "Calculá el costo total de tu operación",
+    title: "Calculadora CIF",
+    subtitle: "¿Cuánto podría costar traerlo? Estimá el costo de la operación: precio, flete, seguro, aranceles, tributos y tipo de cambio utilizado en el cálculo.",
     incoterm_title: "Seleccioná el Incoterm",
     seller_covers: "El vendedor cubre",
     buyer_covers: "El comprador cubre",
@@ -63,8 +63,8 @@ const t = {
     disclaimer: "⚠ Cálculo de referencia. Los valores reales pueden variar según el transportista, aduana y tipo de cambio.",
   },
   en: {
-    title: "CIF & Incoterms Calculator",
-    subtitle: "Calculate the total cost of your operation",
+    title: "CIF Calculator",
+    subtitle: "What could it cost to bring it in? Estimate the operation cost: price, freight, insurance, tariffs, taxes and the exchange rate used in the calculation.",
     incoterm_title: "Select Incoterm",
     seller_covers: "Seller covers",
     buyer_covers: "Buyer covers",
@@ -500,9 +500,11 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {cur}</p>
                   {currency !== "USD" && (
                     fxRate ? (
-                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8, lineHeight: 1.6 }}>
+                        {lang === "es" ? "Cotización utilizada en el cálculo: " : "Rate used in the calculation: "}
                         1 USD = {fxRate.toLocaleString("es-AR", { maximumFractionDigits: 4 })} {currency}
-                        {fxMeta?.date ? ` · ${fxMeta.date}` : ""} · tipo de cambio de referencia
+                        {" · "}{lang === "es" ? "Fuente" : "Source"}: ExchangeRate-API
+                        {fxMeta?.date ? ` · ${lang === "es" ? "Actualizado" : "Updated"}: ${fxMeta.date}` : ""}
                       </p>
                     ) : (
                       <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
@@ -569,7 +571,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Cálculo de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — Cálculo de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );

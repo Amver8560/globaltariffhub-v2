@@ -16,8 +16,8 @@ const ALL_COUNTRIES = [
 
 const t = {
   es: {
-    title: "Análisis de Viabilidad de Importación",
-    subtitle: "Calculá el costo nacionalizado real y si el negocio es viable",
+    title: "Viabilidad de Importación",
+    subtitle: "¿Cómo se ven los números de la operación? Estimá costos, explorá márgenes y conocé restricciones o requisitos que pueden influir en la viabilidad. La decisión es tuya.",
     step1: "1. Producto",
     step2: "2. Datos comerciales",
     step3: "3. Resultado",
@@ -64,8 +64,8 @@ const t = {
     no_permits: "Sin restricciones especiales identificadas",
   },
   en: {
-    title: "Import Viability Analysis",
-    subtitle: "Calculate the real landed cost and whether the business is viable",
+    title: "Import Viability",
+    subtitle: "How do the operation's numbers look? Estimate costs, explore margins and learn about restrictions or requirements that may affect viability. The decision is yours.",
     step1: "1. Product",
     step2: "2. Commercial data",
     step3: "3. Results",
@@ -575,7 +575,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center", marginTop: 40 }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — {lang === "es" ? "Datos de referencia. No reemplaza consulta profesional." : "Reference data. Does not replace professional advice."}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — {lang === "es" ? "Datos de referencia. No reemplaza consulta profesional." : "Reference data. Does not replace professional advice."}</p>
       </footer>
     </div>
   );

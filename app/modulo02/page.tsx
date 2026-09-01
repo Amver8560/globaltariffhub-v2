@@ -587,7 +587,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.06)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Análisis de referencia. No emite documentos oficiales.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — Análisis de referencia. No emite documentos oficiales.</p>
       </footer>
     </div>
   );

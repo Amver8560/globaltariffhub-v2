@@ -2,17 +2,16 @@ import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://globaltariffhub.com";
+  const now = new Date();
   return [
-    { url: base, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    { url: `${base}/en`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
-    { url: `${base}/modulo01`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/modulo02`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/modulo03`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/modulo04`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
-    { url: `${base}/register`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${base}/privacidad`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/privacy`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/terminos`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
-    { url: `${base}/legales`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
+    { url: `${base}/en`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${base}/biblioteca`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/biblioteca/como-empezar-a-importar-un-producto`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/legales`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/privacidad`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/terminos`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${base}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
+    { url: `${base}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

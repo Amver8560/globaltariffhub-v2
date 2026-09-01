@@ -64,7 +64,7 @@ const t = {
     confidence: "Confianza",
     conf_alta: "Alta", conf_media: "Media", conf_baja: "Baja",
     sim_cert: "¿Podés pagar menos aranceles de importación? →",
-    calc_cif: "¿Cuánto cuesta traerlo? — Calculadora CIF →",
+    calc_cif: "¿Cuánto podría costar traerlo? →",
     disclaimer: "⚠ Datos de referencia. Verificar con la fuente oficial antes de operar.",
     error_image: "Seleccioná una imagen primero",
     error_text: "Escribí una descripción primero",
@@ -102,7 +102,7 @@ const t = {
     confidence: "Confidence",
     conf_alta: "High", conf_media: "Medium", conf_baja: "Low",
     sim_cert: "Can you pay lower import tariffs? →",
-    calc_cif: "What's the real cost? — CIF Calculator →",
+    calc_cif: "What could it cost to bring it in? →",
     disclaimer: "⚠ Reference data. Verify with official source before operating.",
     error_image: "Select an image first",
     error_text: "Enter a description first",
@@ -678,7 +678,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2026 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );
