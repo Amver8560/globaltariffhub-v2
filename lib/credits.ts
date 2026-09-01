@@ -31,9 +31,9 @@ function creditCheckFailed(): NextResponse {
 function noCredits(): NextResponse {
   return NextResponse.json(
     {
-      error: "Agotaste tus 3 consultas gratuitas. Activá un plan para continuar.",
+      error:
+        "Usaste tus 3 consultas gratuitas de la apertura anticipada. Escribinos a analia@globaltariffhub.com y te habilitamos el acceso.",
       code: "NO_CREDITS",
-      redirect: "/pricing",
     },
     { status: 402 }
   );

@@ -192,8 +192,10 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       if (!data.error) {
         setRateInfo(data);
         if (data.agreement && data.agreement !== "null") setAgreement(data.agreement);
+      } else {
+        setError(data.error);
       }
-    } catch { /* silent */ } finally {
+    } catch { /* error de red — sin bloquear */ } finally {
       setRateLoading(false);
     }
   };

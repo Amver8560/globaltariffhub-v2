@@ -173,7 +173,6 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
       const data = await res.json();
       if (data.error) {
         if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
-        if (data.code === "NO_CREDITS") { window.location.href = "/pricing"; return; }
         setError(data.error); return;
       }
       setResult(data);
