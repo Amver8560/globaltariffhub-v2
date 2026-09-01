@@ -93,8 +93,9 @@ export default function ArticlePage() {
             El mismo producto puede tener condiciones muy distintas según los países involucrados.
             Entre países con un <strong>acuerdo comercial</strong> vigente (por ejemplo, Mercosur, o
             un TLC bilateral) puede existir una tasa preferencial, muchas veces menor a la general,
-            si la operación cumple las reglas de origen. Entre países sin acuerdo, se aplica la tasa
-            general (MFN).
+            si la operación cumple las reglas de origen. Entre países sin un tratamiento preferencial
+            aplicable, puede corresponder la tasa general o NMF (Nación Más Favorecida, MFN por sus
+            siglas en inglés).
           </p>
           <p>
             El país de destino también define qué impuestos internos se suman al arancel (IVA,
@@ -106,8 +107,8 @@ export default function ArticlePage() {
             El precio de compra es apenas una parte. El <strong>costo CIF</strong> incorpora el flete
             internacional y el seguro; sobre esa base se calculan el arancel y los tributos del
             destino. A eso se agregan gastos de despacho, transporte interno y el tipo de cambio
-            utilizado en la valoración. Recién con todo eso sumado tenés el costo nacionalizado real,
-            que es el número que sirve para decidir si el negocio cierra.
+            utilizado en la valoración. Con esas variables podés construir una primera estimación
+            del costo nacionalizado y evaluar mejor la viabilidad económica de la operación.
           </p>
 
           <h2>4. Revisá requisitos y restricciones</h2>
@@ -129,10 +130,10 @@ export default function ArticlePage() {
           <h2>Cuándo consultar a un profesional</h2>
           <p>
             La exploración previa te permite llegar preparado, con las preguntas ordenadas y una
-            primera dimensión de la operación. La <strong>clasificación definitiva</strong>, la
-            liquidación aduanera exacta y la validación de requisitos regulatorios corresponden a un
-            despachante de aduana y, según el caso, a un asesor legal o tributario. La herramienta
-            no reemplaza esa validación: la vuelve más eficiente.
+            primera dimensión de la operación. Antes de ejecutar una operación, la clasificación
+            arancelaria, la liquidación aduanera y los requisitos regulatorios deben validarse con
+            las autoridades y los profesionales competentes según el país y el tipo de operación.
+            La herramienta no reemplaza esa validación: la vuelve más eficiente.
           </p>
 
           <div className="art-cta">

@@ -850,4 +850,7 @@ const CSS = `
   .gth-hero-ctas{flex-direction:column}
   .gth-hero-ctas .gth-btn{text-align:center}
 }
+@media (max-width:400px){
+  .gth-eyebrow{letter-spacing:1px;line-height:1.4}
+}
 `;
