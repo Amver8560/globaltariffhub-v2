@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import PasswordInput from "@/components/PasswordInput";
 
 export default function ActualizarClavePage() {
   const router = useRouter();
@@ -93,11 +94,11 @@ export default function ActualizarClavePage() {
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div>
                 <label style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 6 }}>Nueva contraseña <span style={{ color: "rgba(255,255,255,0.3)" }}>(mín. 8)</span></label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={8} autoFocus style={inputStyle} />
+                <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required minLength={8} autoFocus style={inputStyle} />
               </div>
               <div>
                 <label style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 6 }}>Repetir contraseña</label>
-                <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required minLength={8} style={inputStyle} />
+                <PasswordInput value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required minLength={8} style={inputStyle} />
               </div>
 
               {error && (
