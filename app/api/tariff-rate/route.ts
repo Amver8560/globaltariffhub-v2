@@ -5,6 +5,7 @@ import { aiErrorResponse } from "@/lib/aiError";
 import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
 import { getNCMCode, normalizeNCM8 } from "@/lib/ncmApi";
 import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
+import { getWitsRates } from "@/lib/witsApi";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -79,7 +80,7 @@ Respond with this exact JSON:
     const ncm8      = normalizeNCM8(tariff_code);
     const taricCode = hs6ToTaric(hs6);
 
-    const [message, wtoResult, ncmResult, taricResult] = await Promise.all([
+    const [message, wtoResult, ncmResult, taricResult, witsResult] = await Promise.all([
       client.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 512,
@@ -89,6 +90,7 @@ Respond with this exact JSON:
       getWTOMFNRate(hs6, destination),
       ncm8.length >= 6 ? getNCMCode(ncm8) : Promise.resolve(null),
       getTARICRate(taricCode, origin || ""),
+      getWitsRates(destination, origin || "", tariff_code),
     ]);
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";
@@ -105,6 +107,18 @@ Respond with this exact JSON:
       data.confidence = "high";
     } else {
       data.wto_source = false;
+    }
+
+    // WITS/TRAINS → tasa MFN y sobre todo la PREFERENCIAL oficial por par de países
+    if (witsResult.source === "WITS") {
+      if (witsResult.mfn_rate != null && !data.wto_source) data.base_rate = witsResult.mfn_rate;
+      if (witsResult.pref_rate != null) {
+        data.preferential_rate = witsResult.pref_rate;
+        data.has_preferential = witsResult.pref_rate < (Number(data.base_rate) || Infinity);
+      }
+      data.wits_source = true;
+      data.wits_year = witsResult.year;
+      data.confidence = "high";
     }
 
     // NCM → descripción oficial Siscomex

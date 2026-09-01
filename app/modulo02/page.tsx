@@ -456,7 +456,18 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
             {/* Resumen ahorro */}
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>{c.result_title}</h2>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 700 }}>{c.result_title}</h2>
+                {result.wits_source ? (
+                  <span style={{ fontSize: 11, color: "rgba(34,197,94,0.75)", fontWeight: 600 }}>
+                    ✓ {lang === "es" ? "Tasas: WITS / UNCTAD TRAINS" : "Rates: WITS / UNCTAD TRAINS"}{result.wits_year ? ` (${result.wits_year})` : ""}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
+                    ⚡ {lang === "es" ? "Tasas estimadas por IA — verificar con fuente oficial" : "AI-estimated rates — verify with official source"}
+                  </span>
+                )}
+              </div>
 
               {convenio ? (
               <>

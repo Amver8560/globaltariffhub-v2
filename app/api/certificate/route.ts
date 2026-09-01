@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse } from "@/lib/aiError";
+import { getWitsRates } from "@/lib/witsApi";
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -89,17 +90,53 @@ export async function POST(req: NextRequest) {
 - Acuerdo a simular: ${agreement || "el más conveniente disponible"}
 - Idioma de respuesta: ${lang === "en" ? "inglés" : "español"}`;
 
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
-      max_tokens: 2048,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: prompt }],
-    });
+    // WITS corre en paralelo con Claude para no sumar latencia.
+    const [response, wits] = await Promise.all([
+      client.messages.create({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2048,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      getWitsRates(destination, origin, hs_code || "").catch(() => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" as const })),
+    ]);
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON in response");
     const parsed = JSON.parse(jsonMatch[0]);
+
+    // Fundamento oficial: pisar las tasas con WITS/UNCTAD TRAINS cuando hay dato.
+    {
+      const r2 = (n: number) => Math.round(n * 100) / 100;
+      if (wits.source === "WITS") {
+        const fob = Number(fob_value) || 0;
+        if (wits.mfn_rate != null) {
+          parsed.tariff_without = parsed.tariff_without || {};
+          parsed.tariff_without.rate = `${wits.mfn_rate}%`;
+          parsed.tariff_without.amount = r2((fob * wits.mfn_rate) / 100);
+        }
+        if (wits.pref_rate != null) {
+          parsed.tariff_with = parsed.tariff_with || {};
+          parsed.tariff_with.rate = `${wits.pref_rate}%`;
+          parsed.tariff_with.amount = r2((fob * wits.pref_rate) / 100);
+        }
+        const w0 = parsed.tariff_without?.amount;
+        const w1 = parsed.tariff_with?.amount;
+        const cc = parsed.certificate_cost?.amount;
+        if (typeof w0 === "number" && typeof w1 === "number") {
+          const gross = r2(w0 - w1);
+          parsed.savings = parsed.savings || {};
+          parsed.savings.gross = gross;
+          if (typeof cc === "number") {
+            parsed.savings.net = r2(gross - cc);
+            parsed.savings.roi_percent = cc > 0 ? Math.round((parsed.savings.net / cc) * 100) : null;
+          }
+        }
+        parsed.wits_source = true;
+        parsed.wits_year = wits.year;
+      }
+    }
 
     return NextResponse.json(parsed);
   } catch (error) {
