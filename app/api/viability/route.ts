@@ -73,13 +73,7 @@ export async function POST(req: NextRequest) {
         ? `Analizá este producto${description ? ` (descripción: "${description}")` : ""} para importación desde ${supplier_country} hacia ${destination}.
 El usuario trabaja con el sistema ${systemLabel}.
 
-IMPORTANTE: Determiná la tasa arancelaria EFECTIVA real, aplicando cualquier excepción que corresponda al producto específico:
-- Para Argentina: BIT (bienes informática/telecomunicaciones como celulares, tablets, laptops) → DI 0%; BK (bienes de capital) → 0%; alimentos básicos → tasas reducidas
-- Para Brasil: TEC con excepciones por ex-tarifário, drawback, ZFM
-- Para Chile: verificar TLC aplicable según origen (China, EEUU, UE → frecuentemente 0%)
-- Para México: T-MEC si origen es EE.UU./Canadá; PROSEC para industrias específicas
-- Para Perú: TLC con China (muchos productos 0% desde 2019)
-- Para UE/España: SGP, acuerdos preferenciales según país de origen
+IMPORTANTE: Determiná la tasa arancelaria EFECTIVA real, aplicando las excepciones de régimen que correspondan al país de destino: bienes de capital (BK), bienes de tecnología/informática (BIT), zonas francas, regímenes de perfeccionamiento o drawback, tasa preferencial por TLC según el país de origen, y SGP.
 
 Identificá el producto y devolvé SOLO JSON válido sin texto adicional:
 {
@@ -101,13 +95,7 @@ Identificá el producto y devolvé SOLO JSON válido sin texto adicional:
         : `Analyze this product${description ? ` (description: "${description}")` : ""} for import from ${supplier_country} to ${destination}.
 The user works with the ${systemLabel} system.
 
-IMPORTANT: Determine the ACTUAL effective tariff rate, applying any exception that applies to this specific product:
-- Argentina: BIT (IT/telecom goods like phones, tablets, laptops) → 0% DI; BK (capital goods) → 0%
-- Brazil: TEC with ex-tarifário exceptions, drawback, ZFM
-- Chile: check applicable FTA by origin (China, USA, EU → often 0%)
-- Mexico: T-MEC if origin is USA/Canada; PROSEC for specific industries
-- Peru: FTA with China (many products 0% since 2019)
-- EU/Spain: GSP, preferential agreements by country of origin
+IMPORTANT: Determine the ACTUAL effective tariff rate, applying the regime exceptions that apply to the destination country: capital goods, IT/technology goods, free zones, inward-processing or drawback regimes, preferential FTA rate by country of origin, and GSP.
 
 Identify the product and return ONLY valid JSON without extra text:
 {

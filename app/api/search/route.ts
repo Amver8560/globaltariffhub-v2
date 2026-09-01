@@ -63,8 +63,10 @@ Reglas:
   2. Arancel preferencial: solo si hay acuerdo comercial activo entre origen y destino (ej: MERCOSUR 0%, KCFTA 0%)
   3. Antidumping o cuota arancelaria: solo si aplica específicamente a ese producto y ruta
   Ejemplo: [{ "code": "Arancel MFN", "rate": "8%", "label": "Arancel general de importación", "note": "" }, { "code": "Arancel KCFTA", "rate": "0%", "label": "Tasa preferencial con certificado de origen KCFTA", "note": "" }]
-- Argentina — documentos vigentes: usá SEDI, DUA, y certificados de organismos vigentes (SENASA, ANMAT, ENACOM según el producto). Nunca menciones SIRA, SIMI, DJAI ni DJCP (eliminados). Trámites a través de VUCE (vuce.gob.ar). Usá ARCA (no AFIP).
 - Solo respondés con el JSON, sin texto adicional, sin markdown`;
+
+// Nota específica de Argentina — se agrega solo cuando la operación es hacia/desde Argentina.
+const ARG_NOTE = `Nota Argentina (destino u origen Argentina): usá SEDI y DUA, y certificados de los organismos vigentes (SENASA, ANMAT, ENACOM según el producto). Nunca menciones SIRA, SIMI, DJAI ni DJCP (fueron eliminados). Trámites a través de VUCE (vuce.gob.ar). Usá ARCA, no AFIP.`;
 
 export async function POST(req: NextRequest) {
   const credit = await checkAndConsumeCredit();
@@ -127,10 +129,14 @@ export async function POST(req: NextRequest) {
 
         try {
           // Stream Claude response
+          const isArgentina = /argentina/i.test(origin) || /argentina/i.test(destination);
           const stream = client.messages.stream({
             model: "claude-sonnet-4-6",
             max_tokens: 2048,
-            system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+            system: [
+              { type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
+              ...(isArgentina ? [{ type: "text" as const, text: ARG_NOTE }] : []),
+            ],
             messages,
           });
 
