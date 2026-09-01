@@ -132,9 +132,30 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [portDest, setPortDest] = useState("");
   const [localTransport, setLocalTransport] = useState("");
   const [result, setResult] = useState<any>(null);
+  const [fxRate, setFxRate] = useState<number | null>(1);
+  const [fxMeta, setFxMeta] = useState<{ date: string; source: string } | null>(null);
   const c = t[lang];
 
   const n = (v: string) => parseFloat(v) || 0;
+
+  // Tipo de cambio en vivo cuando la moneda no es USD
+  useEffect(() => {
+    if (currency === "USD") { setFxRate(1); setFxMeta(null); return; }
+    let cancelled = false;
+    setFxRate(null);
+    fetch(`/api/fx?to=${encodeURIComponent(currency)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (typeof d.rate === "number") { setFxRate(d.rate); setFxMeta({ date: d.date, source: d.source }); }
+        else { setFxRate(null); setFxMeta(null); }
+      })
+      .catch(() => { if (!cancelled) { setFxRate(null); setFxMeta(null); } });
+    return () => { cancelled = true; };
+  }, [currency]);
+
+  // Moneda efectiva de visualización: si no hay tipo de cambio, cae a USD
+  const cur = currency !== "USD" && !fxRate ? "USD" : currency;
 
   // Pre-fill desde el contexto de operación que llega de otro módulo
   useEffect(() => {
@@ -218,7 +239,10 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const selectedIncoterm = INCOTERMS.find(i => i.code === incoterm)!;
 
-  const fmt = (v: number) => v.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (v: number) => {
+    const val = currency !== "USD" && fxRate ? v * fxRate : v;
+    return val.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
 
   const inputStyle = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
   const labelStyle = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 5, display: "block" as const };
@@ -464,7 +488,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 {/* Botón exportar PDF */}
                 <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
                   <button
-                    onClick={() => exportCIFPDF(result, { tariffCode, tariffSystem, origin, destination, incoterm, currency, fobValue, tariffRate, prefRate, withCert, lang, rateInfo })}
+                    onClick={() => exportCIFPDF(result, { tariffCode, tariffSystem, origin, destination, incoterm, currency: "USD", fobValue, tariffRate, prefRate, withCert, lang, rateInfo })}
                     style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                   >
                     📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
@@ -473,24 +497,36 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
                 {/* Total principal */}
                 <div style={{ background: "linear-gradient(135deg, #0D1B3E, #0A0A0F)", borderRadius: 16, padding: 24, border: "1px solid rgba(201,168,76,0.3)", marginBottom: 16 }}>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {currency}</p>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {cur}</p>
+                  {currency !== "USD" && (
+                    fxRate ? (
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+                        1 USD = {fxRate.toLocaleString("es-AR", { maximumFractionDigits: 4 })} {currency}
+                        {fxMeta?.date ? ` · ${fxMeta.date}` : ""} · tipo de cambio de referencia
+                      </p>
+                    ) : (
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+                        {lang === "es" ? "No se pudo obtener el tipo de cambio — montos en USD." : "Exchange rate unavailable — amounts in USD."}
+                      </p>
+                    )
+                  )}
 
                   <div style={{ marginBottom: 16 }}>
                     <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{c.total_without}</p>
-                    <p style={{ fontSize: 36, fontWeight: 800, color: n(tariffRate) > 0 ? "#ef4444" : "#FFFFFF" }}>{currency} {fmt(result.totalWithout)}</p>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {currency} {fmt(result.unitWithout)}</p>
+                    <p style={{ fontSize: 36, fontWeight: 800, color: n(tariffRate) > 0 ? "#ef4444" : "#FFFFFF" }}>{cur} {fmt(result.totalWithout)}</p>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {cur} {fmt(result.unitWithout)}</p>
                   </div>
 
                   {withCert && n(prefRate) < n(tariffRate) && (
                     <>
                       <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 16, marginBottom: 16 }}>
                         <p style={{ fontSize: 12, color: "#22c55e", marginBottom: 4 }}>{c.total_with}</p>
-                        <p style={{ fontSize: 36, fontWeight: 800, color: "#22c55e" }}>{currency} {fmt(result.totalWith)}</p>
-                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {currency} {fmt(result.unitWith)}</p>
+                        <p style={{ fontSize: 36, fontWeight: 800, color: "#22c55e" }}>{cur} {fmt(result.totalWith)}</p>
+                        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {cur} {fmt(result.unitWith)}</p>
                       </div>
                       <div style={{ background: "rgba(34,197,94,0.1)", borderRadius: 10, padding: "14px", border: "1px solid rgba(34,197,94,0.3)", textAlign: "center" }}>
                         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{c.saving}</p>
-                        <p style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>{currency} {fmt(result.saving)}</p>
+                        <p style={{ fontSize: 28, fontWeight: 800, color: "#22c55e" }}>{cur} {fmt(result.saving)}</p>
                       </div>
                     </>
                   )}
@@ -510,7 +546,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   ].map(([label, value, color], i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                       <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{label as string}</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: color as string }}>{currency} {fmt(value as number)}</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: color as string }}>{cur} {fmt(value as number)}</span>
                     </div>
                   ))}
                 </div>
