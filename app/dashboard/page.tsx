@@ -87,12 +87,10 @@ export default function DashboardPage() {
 
       <main style={{ maxWidth: 960, margin: "0 auto", padding: "40px 24px" }}>
 
-        {/* Bienvenida */}
+        {/* Encabezado */}
         <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 6 }}>
-            Hola, {user?.user_metadata?.full_name?.split(" ")[0] || "bienvenido"} 👋
-          </h1>
-          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)" }}>Tu centro de inteligencia arancelaria</p>
+          <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 6 }}>Centro de inteligencia arancelaria</h1>
+          <p style={{ fontSize: 14, color: "rgba(255,255,255,0.45)" }}>Elegí un módulo para empezar tu análisis.</p>
         </div>
 
         {/* Banner oferta lanzamiento */}
