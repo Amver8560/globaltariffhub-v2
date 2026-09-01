@@ -89,3 +89,10 @@ RETURNS SETOF taric_codes AS $$
     LENGTH(commodity_code)
   LIMIT 20;
 $$ LANGUAGE sql STABLE;
+
+-- ═══════════════════════════════════════════════════════════
+-- MIGRACIÓN: consentimientos + interesados (2026-09-01)
+-- Bloque completo en: docs/migration-consentimientos.sql
+-- Crea: consent_events, user_consents, subscribers, admin_consent_overview.
+-- Ejecutar ese archivo una vez en el SQL Editor.
+-- ═══════════════════════════════════════════════════════════

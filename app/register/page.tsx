@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import PasswordInput from "@/components/PasswordInput";
+import { MARKETING_CONSENT_TEXT } from "@/lib/legalVersions";
 
 
 export default function RegisterPage() {
@@ -19,6 +20,7 @@ export default function RegisterPage() {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [acceptLegal, setAcceptLegal] = useState(false);
+  const [acceptMarketing, setAcceptMarketing] = useState(false); // opcional, nunca obligatorio
 
   const allAccepted = acceptTerms && acceptPrivacy && acceptLegal;
 
@@ -32,51 +34,50 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
-    const supabase = createClient();
 
     // Atribución de campaña (LinkedIn, etc.) — desde los UTM de la URL
     const sp = new URLSearchParams(window.location.search);
-    const utm = {
-      utm_source: sp.get("utm_source") || "",
-      utm_medium: sp.get("utm_medium") || "",
-      utm_campaign: sp.get("utm_campaign") || "",
-    };
+    const utm_source = sp.get("utm_source") || "";
+    const utm_medium = sp.get("utm_medium") || "";
+    const utm_campaign = sp.get("utm_campaign") || "";
     const signup_source =
-      utm.utm_source ||
+      utm_source ||
       (document.referrer && !document.referrer.includes(window.location.host)
         ? new URL(document.referrer).hostname
         : "direct");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: name, signup_source, ...utm },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-
-    if (error) {
-      const m = error.message.toLowerCase();
-      if (m.includes("already registered") || m.includes("already exists") || error.status === 422) {
-        setError("Ya existe una cuenta con ese email. Probá iniciar sesión o recuperar tu contraseña.");
-      } else if (m.includes("rate limit") || m.includes("too many") || m.includes("email send")) {
-        setError("Estamos recibiendo muchos registros en este momento. Esperá unos minutos y volvé a intentar.");
-      } else if (m.includes("signups not allowed") || m.includes("disabled")) {
-        setError("El registro está temporalmente deshabilitado. Escribinos a analia@globaltariffhub.com.");
-      } else if (m.includes("database error")) {
-        setError("Hubo un problema al crear tu cuenta. Escribinos a analia@globaltariffhub.com y lo resolvemos.");
-      } else if (m.includes("invalid") && m.includes("email")) {
-        setError("El email no parece válido. Revisalo e intentá de nuevo.");
-      } else {
-        setError("No pudimos crear la cuenta. Intentá de nuevo en un momento.");
+    // El alta + el registro de consentimiento se hacen server-side en /api/register.
+    let json: { ok?: boolean; session?: boolean; error?: string } | null = null;
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          name,
+          consents: { terms: acceptTerms, privacy: acceptPrivacy, legal: acceptLegal },
+          marketing: acceptMarketing,
+          signup_source,
+          utm_source,
+          utm_medium,
+          utm_campaign,
+        }),
+      });
+      json = await res.json().catch(() => null);
+      if (!res.ok || !json?.ok) {
+        setError(json?.error || "No pudimos crear la cuenta. Intentá de nuevo en un momento.");
+        setLoading(false);
+        return;
       }
+    } catch {
+      setError("No pudimos conectar con el servidor. Revisá tu conexión e intentá de nuevo.");
       setLoading(false);
       return;
     }
 
     // Si Supabase no exige confirmar el email, ya viene con sesión → adentro directo.
-    if (data.session) {
+    if (json.session) {
       router.push("/dashboard");
       router.refresh();
       return;
@@ -231,6 +232,19 @@ export default function RegisterPage() {
               </label>
             ))}
           </div>
+
+          {/* Consentimiento de comunicaciones — OPCIONAL, desmarcado por defecto */}
+          <label style={{ display: "flex", alignItems: "flex-start", gap: 10, cursor: "pointer", padding: "0 4px" }}>
+            <input
+              type="checkbox"
+              checked={acceptMarketing}
+              onChange={(e) => setAcceptMarketing(e.target.checked)}
+              style={{ marginTop: 2, width: 16, height: 16, accentColor: "#0057FF", flexShrink: 0, cursor: "pointer" }}
+            />
+            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.5 }}>
+              {MARKETING_CONSENT_TEXT}
+            </span>
+          </label>
 
           <button
             type="submit"
