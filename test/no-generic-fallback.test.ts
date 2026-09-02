@@ -42,4 +42,18 @@ describe("guardarraíl Bloque 2", () => {
     expect(src).toMatch(/"Estados Unidos":\s*"840"/);
     expect(src).not.toMatch(/"Estados Unidos":\s*"842"/);
   });
+
+  it("contención R3 — viability NO llama a calculateTaxes ni lo importa", () => {
+    const src = read("app/api/viability/route.ts");
+    expect(src, "viability importa calculateTaxes").not.toMatch(/import\s*\{[^}]*calculateTaxes/);
+    expect(src, "viability llama calculateTaxes()").not.toMatch(/calculateTaxes\s*\(/);
+    expect(src).toMatch(/not_included_notice/);
+    expect(src).toMatch(/estimated_import_base_plus_duty/);
+  });
+
+  it("contención R3 — viability no arma precios sugeridos por multiplicador", () => {
+    const src = read("app/api/viability/route.ts");
+    expect(src).not.toMatch(/suggested_price_(min|unit|max)/);
+    expect(src).not.toMatch(/landed_unit\s*\*/);
+  });
 });

@@ -554,74 +554,38 @@ export function exportViabilityPDF(result: any, params: {
   y = row(doc, es ? "Valor CIF" : "CIF value", fmt(result.commercial?.cif), y, BLUE);
   y += 4;
 
-  // D4 — sin arancel determinable no se imprime un total nacionalizado.
-  if (result.tariff_not_determined || !result.taxes) {
+  // Bloque 2 — sin fiscalidad interna. Sólo base CIF + arancel (referencial) o nada.
+  if (result.tariff_not_determined || !result.estimated_import_base_plus_duty) {
     y = row(doc, es ? "Estado" : "Status",
       es ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
          : "We couldn't determine the tariff precisely enough to complete this estimate.", y, GOLD);
-    doc.save(`GTH_Viabilidad_${tariffSystem}_${Date.now()}.pdf`);
-    return;
+  } else {
+    if (result.result_basis === "referential") {
+      y = row(doc, es ? "Nota" : "Note",
+        es ? "Estimación referencial: la tasa arancelaria es un promedio a 6 dígitos (HS6), no la línea nacional definitiva."
+           : "Referential estimate: the tariff rate is a 6-digit (HS6) average, not the definitive national line.", y, GOLD);
+    }
+    y = row(doc, `${es ? "Arancel de importación" : "Import duty"} (${result.duty?.rate ?? "—"}%)`,
+      fmt(result.duty?.amount ?? 0), y, RED);
+    y += 2;
+    setFill(doc, DARK);
+    doc.roundedRect(14, y, 182, 16, 3, 3, "F");
+    setColor(doc, WHITE);
+    doc.setFontSize(9);
+    doc.text((result.estimated_import_base_plus_duty.label || (es ? "Estimación parcial de la operación" : "Partial operation estimate")).toUpperCase(), 18, y + 6);
+    doc.setFontSize(13);
+    doc.text(fmt(result.estimated_import_base_plus_duty.value), 190, y + 11, { align: "right" });
+    y += 20;
   }
 
-  // Tributos
-  if (y > 220) { doc.addPage(); y = 20; }
-  y = sectionTitle(doc, `${es ? "TRIBUTOS EN DESTINO" : "DESTINATION TAXES"} — ${result.taxes?.country || destination}`, y);
-  result.taxes?.lines?.forEach((line: any) => {
-    if (y > 265) { doc.addPage(); y = 20; }
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    setColor(doc, GRAY);
-    doc.text(`${line.name}  (${line.rate})`, 18, y);
-    setColor(doc, [255, 255, 255]);
-    doc.setFont("helvetica", "bold");
-    doc.text(fmt(line.amount), 190, y, { align: "right" });
-    doc.setDrawColor(220, 225, 235);
-    doc.line(14, y + 2, 196, y + 2);
-    y += 9;
-  });
-
-  // Total tributos + costo nacionalizado
-  y += 2;
-  setFill(doc, RED);
-  doc.roundedRect(14, y, 182, 10, 2, 2, "F");
-  setColor(doc, WHITE);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "bold");
-  doc.text(es ? `Total tributos (${result.taxes?.tax_burden_pct ?? "—"}% carga)` : `Total taxes (${result.taxes?.tax_burden_pct ?? "—"}% burden)`, 18, y + 6.5);
-  doc.text(fmt(result.taxes?.total_taxes), 190, y + 6.5, { align: "right" });
-  y += 14;
-
-  setFill(doc, DARK);
-  doc.roundedRect(14, y, 182, 14, 3, 3, "F");
-  setColor(doc, WHITE);
-  doc.setFontSize(9);
-  doc.text(es ? "COSTO NACIONALIZADO TOTAL" : "TOTAL LANDED COST", 18, y + 6);
-  doc.setFontSize(13);
-  doc.text(fmt(result.taxes?.landed_cost), 190, y + 10, { align: "right" });
-  y += 18;
-
-  // Precio de venta sugerido
-  if (y > 230) { doc.addPage(); y = 20; }
-  y = sectionTitle(doc, es ? "PRECIO DE VENTA SUGERIDO (por unidad)" : "SUGGESTED SELLING PRICE (per unit)", y);
-  y = row(doc, es ? "Mínimo" : "Minimum", fmt(result.analysis?.suggested_price_min), y, GREEN);
-  y = row(doc, es ? "Referencia" : "Reference", fmt(result.analysis?.suggested_price_unit), y, GOLD);
-  y = row(doc, es ? "Máximo" : "Maximum", fmt(result.analysis?.suggested_price_max), y, BLUE);
-  y = row(doc, es ? "Costo nacionalizado x unidad" : "Landed cost per unit", fmt(result.analysis?.landed_unit), y);
-  y += 4;
-
-  // Nota importación
-  if (result.taxes?.import_method_note) {
-    doc.setFillColor(201, 168, 76, 15 as any);
-    doc.roundedRect(14, y, 182, 18, 2, 2, "F");
+  // Nota de alcance — siempre visible.
+  if (result.not_included_notice) {
+    if (y > 255) { doc.addPage(); y = 20; }
     setColor(doc, GOLD);
     doc.setFontSize(8);
-    doc.setFont("helvetica", "bold");
-    doc.text(es ? "💡 Recomendación" : "💡 Recommendation", 18, y + 5);
     doc.setFont("helvetica", "normal");
-    setColor(doc, GRAY);
-    const noteLines = doc.splitTextToSize(result.taxes.import_method_note, 174);
-    doc.text(noteLines, 18, y + 11);
-    y += 22;
+    const nl = doc.splitTextToSize(result.not_included_notice, 178);
+    doc.text(nl, 14, y); y += nl.length * 4 + 4;
   }
 
   // Permisos requeridos

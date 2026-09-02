@@ -140,7 +140,6 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
   const [apiError, setApiError] = useState<AIErrorView | null>(null);
-  const [expandedTax, setExpandedTax] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -421,7 +420,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
                 ))}
               </div>
 
-              {/* D4 — arancel no determinado: no se calcula un total dependiente del arancel */}
+              {/* D4 — arancel no determinado: no se estima nada que dependa del arancel */}
               {result.tariff_not_determined && (
                 <div style={{ ...cardStyle, borderColor: "rgba(148,163,184,0.4)" }}>
                   <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6, marginBottom: 12 }}>
@@ -433,131 +432,48 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
                   </div>
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>
                     {lang === "es"
-                      ? "El costo nacionalizado, los tributos y los precios sugeridos requieren una tasa arancelaria. Verificá la posición y el arancel en el sistema oficial del país importador o con un despachante."
-                      : "Landed cost, taxes and suggested prices require a tariff rate. Verify the position and duty in the importing country's official system or with a customs broker."}
+                      ? "Verificá la posición y el arancel en el sistema oficial del país importador o con un despachante."
+                      : "Verify the position and duty in the importing country's official system or with a customs broker."}
                   </p>
+                  {result.not_included_notice && (
+                    <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 10, lineHeight: 1.55 }}>{result.not_included_notice}</p>
+                  )}
                   <LegalDisclaimer lang={lang as "es" | "en"} compact />
                 </div>
               )}
 
-              {/* Tributos — sólo cuando hay tasa (referencial o determinada) */}
-              {result.taxes && (<>
-              <div style={cardStyle}>
-                {result.result_basis === "referential" && (
-                  <div style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 12 }}>
-                    <p style={{ fontSize: 11, color: "#C9A84C", lineHeight: 1.5, margin: 0 }}>
-                      {lang === "es"
-                        ? "Estimación referencial: la tasa arancelaria es un promedio a 6 dígitos, no la línea nacional definitiva. Requiere validación."
-                        : "Referential estimate: the tariff rate is a 6-digit average, not the definitive national line. Requires validation."}
-                    </p>
-                  </div>
-                )}
-                <p style={sectionTitle}>🏛 {c.tax_breakdown} — {result.taxes.country}</p>
-                {result.taxes.lines.map((line: any, i: number) => {
-                  const isOpen = expandedTax === i;
-                  return (
-                    <div key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
-                      {/* Fila principal — clickeable */}
-                      <div
-                        onClick={() => setExpandedTax(isOpen ? null : i)}
-                        style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", cursor: "pointer" }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 2 }}>
-                            {line.code && line.code !== "—" && (
-                              <span style={{ fontSize: 10, fontWeight: 800, background: "rgba(0,87,255,0.2)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 4, padding: "1px 6px", color: "#6B9FFF", fontFamily: "monospace" }}>{line.code}</span>
-                            )}
-                            <p style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>{line.name}</p>
-                          </div>
-                          <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{lang === "es" ? "Base" : "Base"}: {line.base} · {line.rate}</p>
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 12 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{fmt(line.amount)}</span>
-                          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", transition: "transform 0.2s", display: "inline-block", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
-                        </div>
-                      </div>
-                      {/* Panel expandible */}
-                      {isOpen && (
-                        <div style={{ background: "rgba(0,87,255,0.06)", borderRadius: 8, padding: "12px 14px", marginBottom: 10, borderLeft: "3px solid rgba(0,87,255,0.4)" }}>
-                          {line.description && (
-                            <div style={{ marginBottom: 10 }}>
-                              <p style={{ fontSize: 10, fontWeight: 700, color: "#6B9FFF", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                                {lang === "es" ? "¿Qué es y cuándo aplica?" : "What is it and when does it apply?"}
-                              </p>
-                              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", lineHeight: 1.6 }}>{line.description}</p>
-                            </div>
-                          )}
-                          {line.legal_basis && (
-                            <div style={{ marginBottom: 10 }}>
-                              <p style={{ fontSize: 10, fontWeight: 700, color: "#C9A84C", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                                {lang === "es" ? "Base legal" : "Legal basis"}
-                              </p>
-                              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontFamily: "monospace", lineHeight: 1.5 }}>{line.legal_basis}</p>
-                            </div>
-                          )}
-                          {line.exceptions && (
-                            <div>
-                              <p style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
-                                {lang === "es" ? "Excepciones y casos especiales" : "Exceptions & special cases"}
-                              </p>
-                              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.6 }}>{line.exceptions}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
+              {/* Estimación parcial — base CIF + arancel. SIN fiscalidad interna (contención Bloque 2). */}
+              {result.estimated_import_base_plus_duty && (
+                <div style={cardStyle}>
+                  {result.result_basis === "referential" && (
+                    <div style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 12 }}>
+                      <p style={{ fontSize: 11, color: "#C9A84C", lineHeight: 1.5, margin: 0 }}>
+                        {lang === "es"
+                          ? "Estimación referencial: la tasa arancelaria es un promedio a 6 dígitos (HS6), no la línea nacional definitiva. Requiere validación."
+                          : "Referential estimate: the tariff rate is a 6-digit (HS6) average, not the definitive national line. Requires validation."}
+                      </p>
                     </div>
-                  );
-                })}
-
-                <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.2)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{c.total_taxes}</span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: "#ef4444" }}>{fmt(result.taxes.total_taxes)}</span>
+                  )}
+                  <p style={sectionTitle}>📦 {lang === "es" ? "Estimación dentro del alcance de GTH" : "Estimate within GTH's scope"}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>{c.cif_value}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700 }}>{fmt(result.commercial.cif)}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{c.tax_burden}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#ef4444" }}>{result.taxes.tax_burden_pct}%</span>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                    <span style={{ fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
+                      {lang === "es" ? "Arancel de importación" : "Import duty"} ({result.duty?.rate}% · {lang === "es" ? "referencial" : "referential"})
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{fmt(result.duty?.amount ?? 0)}</span>
                   </div>
+                  <div style={{ marginTop: 12, padding: "14px 16px", background: "linear-gradient(135deg, rgba(0,87,255,0.2), rgba(0,87,255,0.08))", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)" }}>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{result.estimated_import_base_plus_duty.label}</p>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 6 }}>{result.estimated_import_base_plus_duty.sublabel}</p>
+                    <p style={{ fontSize: 28, fontWeight: 800, color: "#FFF" }}>{fmt(result.estimated_import_base_plus_duty.value)}</p>
+                  </div>
+                  <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 12, lineHeight: 1.55 }}>{result.not_included_notice}</p>
+                  <LegalDisclaimer lang={lang as "es" | "en"} compact />
                 </div>
-
-                {/* Costo nacionalizado */}
-                <div style={{ marginTop: 10, padding: "14px 16px", background: "linear-gradient(135deg, rgba(0,87,255,0.2), rgba(0,87,255,0.08))", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)" }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{c.landed_cost}</p>
-                  <p style={{ fontSize: 28, fontWeight: 800, color: "#FFF" }}>{fmt(result.taxes.landed_cost)}</p>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 4 }}>{c.landed_unit}: <strong style={{ color: "#0057FF" }}>{fmt(result.analysis.landed_unit)}</strong></p>
-                </div>
-              </div>
-
-              {/* Análisis precio de venta */}
-              <div style={cardStyle}>
-                <p style={sectionTitle}>📈 {c.price_analysis}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
-                  {[
-                    { label: c.suggested_min, val: result.analysis.suggested_price_min, color: "#22c55e" },
-                    { label: c.suggested_ref, val: result.analysis.suggested_price_unit, color: "#C9A84C" },
-                    { label: c.suggested_max, val: result.analysis.suggested_price_max, color: "#0057FF" },
-                  ].map((item, i) => (
-                    <div key={i} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 10, padding: 14, textAlign: "center", border: `1px solid ${item.color}30` }}>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 6, lineHeight: 1.3 }}>{item.label}</p>
-                      <p style={{ fontSize: 16, fontWeight: 800, color: item.color }}>{fmt(item.val)}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Recomendación modalidad */}
-                <div style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 8, padding: "12px 14px" }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C", marginBottom: 6 }}>💡 {c.import_note}</p>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", lineHeight: 1.5 }}>{result.taxes.import_method_note}</p>
-                </div>
-
-                {/* Fecha del motor de tributos internos (no del arancel — ese va en el bloque de tasa) */}
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginTop: 12 }}>
-                  {c.updated} {result.taxes.last_updated}
-                </p>
-
-                <LegalDisclaimer lang={lang as "es" | "en"} compact />
-              </div>
-              </>)}
+              )}
 
               {/* Botones continuar */}
               <div style={{ display: "flex", gap: 10 }}>

@@ -561,7 +561,11 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         : "⚠ Referential estimate: the tariff rate is a 6-digit average, not the definitive national line. Requires validation."}
                     </p>
                   )}
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {cur}</p>
+                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>
+                    {result.referential
+                      ? `${lang === "es" ? "Estimación referencial de la operación" : "Referential operation estimate"} (${incoterm}) — ${cur}`
+                      : `${c.total_cost} (${incoterm}) — ${cur}`}
+                  </p>
                   {currency !== "USD" && (
                     fxRate ? (
                       <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8, lineHeight: 1.6 }}>

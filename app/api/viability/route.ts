@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { calculateTaxes } from "@/lib/taxEngine";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
 import { resolveTariff } from "@/lib/tariffResolver";
 import { notDetermined } from "@/lib/tariffDatum";
+
+// Bloque 2 — contención de alcance: M4 NO incorpora fiscalidad interna
+// (IVA/VAT/GST, percepciones, anticipos, impuestos internos). No se invoca el
+// motor de tributos internos. GTH es una capa de exploración, no un motor fiscal.
+const NOT_INCLUDED_NOTICE_ES =
+  "Esta estimación no incluye impuestos internos ni otras cargas que puedan corresponder según la jurisdicción y las características de la operación.";
+const NOT_INCLUDED_NOTICE_EN =
+  "This estimate does not include internal taxes or other charges that may apply depending on the jurisdiction and the characteristics of the operation.";
 
 export const maxDuration = 60;
 
@@ -174,7 +181,9 @@ Identify the product and return ONLY valid JSON without extra text:
     };
     const commercial = { fob_unit, fob_total, freight_total, insurance, cif, quantity, supplier_country, destination };
 
-    // D4 — sin tasa determinable, NO se calcula un total dependiente del arancel.
+    const not_included_notice = es ? NOT_INCLUDED_NOTICE_ES : NOT_INCLUDED_NOTICE_EN;
+
+    // D4 — sin tasa determinable, NO se calcula nada que dependa del arancel.
     if (general.status === "not_determined") {
       return NextResponse.json({
         product: productOut,
@@ -187,27 +196,31 @@ Identify the product and return ONLY valid JSON without extra text:
         message: es
           ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
           : "We couldn't determine the tariff precisely enough to complete this estimate.",
+        not_included_notice,
         taxes: null,
         analysis: null,
       });
     }
 
-    // Tasa referencial → se calcula, marcado como referencial.
-    const taxes = calculateTaxes({ cif, tariff_rate: general.value as number, destination });
-    const landed_unit = taxes.landed_cost / quantity;
+    // Tasa referencial → estimación PARCIAL, dentro del alcance de GTH:
+    // base CIF + arancel. Sin fiscalidad interna, sin precios sugeridos.
+    const r2 = (x: number) => Math.round(x * 100) / 100;
+    const duty_amount = r2((cif * (general.value as number)) / 100);
+    const estimated_import_base_plus_duty = r2(cif + duty_amount);
 
     return NextResponse.json({
       product: productOut,
       commercial,
       result_basis: general.status, // "referential" (o "determined" a futuro)
-      taxes,
-      analysis: {
-        landed_unit,
-        suggested_price_min: landed_unit * 1.8,
-        suggested_price_unit: landed_unit * 2.5,
-        suggested_price_max: landed_unit * 3.5,
-        margin_pct: 150,
+      duty: { rate: general.value, amount: duty_amount, basis: general.status },
+      estimated_import_base_plus_duty: {
+        label: es ? "Estimación parcial de la operación" : "Partial operation estimate",
+        sublabel: es ? "Valor CIF + arancel — dentro del alcance de GTH" : "CIF value + duty — within GTH's scope",
+        value: estimated_import_base_plus_duty,
       },
+      not_included_notice,
+      taxes: null,
+      analysis: null,
     });
 
   } catch (err: any) {
