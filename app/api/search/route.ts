@@ -52,6 +52,7 @@ Devolvés ÚNICAMENTE un JSON con este formato exacto, sin texto adicional:
 
 Reglas:
 - Si no hay acuerdo preferencial entre los países, "preferential_rate" debe ser igual a "base_rate" y "trade_agreement" debe ser "Ninguno"
+- Si "trade_agreement" es "Ninguno", NO incluyas "Certificado de origen" ni ninguna de sus variantes ("Certificado de origen MERCOSUR", "Certificado de origen preferencial", "EUR.1", "Form A", etc.) en "origin_documents" ni en "destination_documents": un certificado de origen preferencial solo tiene sentido cuando existe un acuerdo que otorga tasa preferencial. Si el país de destino exige un certificado de origen NO preferencial por un régimen puntual (antidumping, cupo, licencia), escribilo exactamente como "Certificado de origen no preferencial (si lo exige el régimen del destino)"
 - "origin_documents" son los documentos que el exportador necesita en el país de origen
 - "destination_documents" son los que pide el país importador para el ingreso
 - Devolvé entre 1 y 3 resultados ordenados por relevancia. El primer resultado SIEMPRE debe ser el más probable y tener "recommended": true. Los siguientes deben tener "recommended": false.

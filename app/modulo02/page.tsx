@@ -159,6 +159,11 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   // ¿Existe acuerdo comercial vigente entre origen y destino?
   const convenio = useMemo(() => getTradeAgreement(origin, destination), [origin, destination]);
 
+  // Países elegidos pero SIN acuerdo aplicable → no hay ahorro que analizar
+  // (no se muestra el análisis ni se consume crédito). Depende del acuerdo,
+  // no de si el usuario tiene certificado de origen.
+  const noDeal = !!origin && !!destination && origin !== destination && !convenio;
+
   // Pre-fill desde el contexto de operación que llega de otro módulo
   useEffect(() => {
     const ctx = readOpContext(searchParams);
@@ -204,6 +209,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const handleSimulate = async () => {
     if (!origin || !destination || !fobValue) return;
+    if (!convenio) return; // sin acuerdo no hay análisis de ahorro (defensa; el botón no se renderiza)
     setError("");
     setResult(null);
     setLoading(true);
@@ -359,6 +365,24 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             )
           )}
 
+          {noDeal ? (
+            <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, padding: "20px 22px" }}>
+              <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>
+                {lang === "es"
+                  ? "Sin un acuerdo aplicable no hay ahorro arancelario para analizar. Para estimar el costo total de la operación, usá el Módulo 03."
+                  : "Without an applicable agreement there is no tariff saving to analyze. To estimate the full cost of the operation, use Module 03."}
+              </p>
+              {rateInfo?.base_rate != null && rateInfo.base_rate !== "" && (
+                <p style={{ fontSize: 14, fontWeight: 800, color: "#ef4444", marginTop: 12 }}>{c.general_tariff}: {rateInfo.base_rate}%</p>
+              )}
+              <Link
+                href={`/modulo03${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate) : "" })}`}
+                style={{ display: "inline-block", marginTop: 16, padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                📦 {lang === "es" ? "Ir al Módulo 03 →" : "Go to Module 03 →"}
+              </Link>
+            </div>
+          ) : (
+          <>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
             <div>
               <label style={labelStyle}>{c.fob_value}</label>
@@ -426,6 +450,8 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_simulating : c.btn_simulate}
           </button>
+          </>
+          )}
         </div>
 
         {/* Resultados */}

@@ -644,11 +644,13 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                           });
                           return (
                             <>
-                              <Link
-                                href={`/modulo02${opQ}`}
-                                style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
-                                📄 {c.sim_cert}
-                              </Link>
+                              {r.trade_agreement && r.trade_agreement !== "Ninguno" && (
+                                <Link
+                                  href={`/modulo02${opQ}`}
+                                  style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                                  📄 {c.sim_cert}
+                                </Link>
+                              )}
                               <Link
                                 href={`/modulo03${opQ}`}
                                 style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
