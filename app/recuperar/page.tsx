@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 
 export default function RecuperarPage() {
   const [email, setEmail] = useState("");
@@ -15,9 +15,18 @@ export default function RecuperarPage() {
     setError("");
     setLoading(true);
 
-    const supabase = createClient();
+    // Cliente de flujo IMPLÍCITO sólo para este pedido: el enlace del email
+    // vuelve con la sesión en el fragmento (#access_token…) o con
+    // ?token_hash=… — ambos funcionan al abrirlos en otro navegador/dispositivo
+    // (no dependen de la cookie code-verifier de PKCE).
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { flowType: "implicit" } }
+    );
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/actualizar-clave`,
+      redirectTo: `${window.location.origin}/actualizar-clave`,
     });
 
     setLoading(false);
@@ -53,10 +62,10 @@ export default function RecuperarPage() {
             <p style={{ fontSize: 44, marginBottom: 14 }}>📩</p>
             <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 10 }}>Revisá tu correo</h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 24 }}>
-              Si existe una cuenta con <strong style={{ color: "#C9A84C" }}>{email}</strong>, te enviamos un enlace para crear una nueva contraseña. El enlace vence en 1 hora.
+              Si existe una cuenta con <strong style={{ color: "#C9A84C" }}>{email}</strong>, te enviamos un enlace para crear una nueva contraseña. El enlace vence en 1 hora y se usa una sola vez.
             </p>
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginBottom: 20 }}>
-              ¿No llega? Revisá spam o esperá unos minutos antes de pedir otro.
+              Abrilo apenas te llegue. ¿No aparece? Revisá spam o esperá unos minutos antes de pedir otro.
             </p>
             <Link href="/login" style={{ display: "block", padding: "13px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
               Volver al login

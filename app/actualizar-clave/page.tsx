@@ -9,18 +9,72 @@ import PasswordInput from "@/components/PasswordInput";
 export default function ActualizarClavePage() {
   const router = useRouter();
   const [ready, setReady] = useState<"checking" | "ok" | "invalid">("checking");
+  const [invalidReason, setInvalidReason] = useState<"expired" | "generic">("generic");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
 
-  // Al llegar desde el enlace del email, /auth/callback ya dejó la sesión activa.
+  // Establece la sesión de recuperación a partir del enlace del email.
+  // Soporta las tres formas en que puede llegar:
+  //   a) ?token_hash=…&type=recovery   → verifyOtp  (plantilla {{ .TokenHash }})
+  //   b) #access_token=…&refresh_token=… → setSession (flujo implícito / plantilla por defecto)
+  //   c) sesión ya activa               → getSession (enlace vía /auth/callback)
+  // (a) y (b) NO dependen de cookies → funcionan al abrir el email en otro dispositivo.
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => {
-      setReady(data.session ? "ok" : "invalid");
-    });
+
+    const cleanUrl = () => {
+      try {
+        window.history.replaceState({}, "", "/actualizar-clave");
+      } catch {}
+    };
+
+    const finish = (ok: boolean, reason: "expired" | "generic" = "generic") => {
+      setInvalidReason(reason);
+      setReady(ok ? "ok" : "invalid");
+    };
+
+    const run = async () => {
+      const hp = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const qp = new URLSearchParams(window.location.search);
+
+      // Error explícito de Supabase en el fragmento (token vencido o ya usado)
+      const fragErr = hp.get("error_code") || hp.get("error");
+      if (fragErr) {
+        cleanUrl();
+        finish(false, /expired|otp/i.test(fragErr) ? "expired" : "generic");
+        return;
+      }
+
+      // a) token_hash en la query
+      const tokenHash = qp.get("token_hash");
+      const type = qp.get("type");
+      if (tokenHash && type === "recovery") {
+        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+        cleanUrl();
+        finish(!error, "expired");
+        return;
+      }
+
+      // b) tokens en el fragmento
+      const at = hp.get("access_token");
+      const rt = hp.get("refresh_token");
+      if (at && rt) {
+        const { error } = await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+        cleanUrl();
+        finish(!error, "expired");
+        return;
+      }
+
+      // c) sesión ya activa
+      const { data } = await supabase.auth.getSession();
+      finish(!!data.session, "generic");
+    };
+
+    run();
+
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session) setReady("ok");
     });
@@ -43,16 +97,25 @@ export default function ActualizarClavePage() {
     setLoading(true);
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ password });
-    setLoading(false);
 
     if (error) {
-      setError(error.message.toLowerCase().includes("different from the old")
-        ? "La nueva contraseña tiene que ser distinta de la anterior."
-        : "No pudimos actualizar la contraseña. Pedí un nuevo enlace e intentá otra vez.");
+      setLoading(false);
+      const m = error.message.toLowerCase();
+      if (m.includes("different from the old")) {
+        setError("La nueva contraseña tiene que ser distinta de la anterior.");
+      } else if (m.includes("session") || m.includes("jwt") || m.includes("token")) {
+        setError("El enlace expiró mientras completabas el formulario. Pedí uno nuevo e intentá otra vez.");
+      } else {
+        setError("No pudimos actualizar la contraseña. Pedí un nuevo enlace e intentá otra vez.");
+      }
       return;
     }
+
+    // Cerramos la sesión de recuperación para que el usuario entre limpio con la contraseña nueva.
+    try { await supabase.auth.signOut(); } catch {}
+    setLoading(false);
     setDone(true);
-    setTimeout(() => router.push("/dashboard"), 1800);
+    setTimeout(() => router.push("/login"), 1800);
   };
 
   const inputStyle: React.CSSProperties = {
@@ -76,9 +139,13 @@ export default function ActualizarClavePage() {
         {ready === "invalid" && (
           <div style={{ textAlign: "center" }}>
             <p style={{ fontSize: 40, marginBottom: 14 }}>⏳</p>
-            <h1 style={{ fontSize: 19, fontWeight: 800, marginBottom: 10 }}>Enlace inválido o vencido</h1>
+            <h1 style={{ fontSize: 19, fontWeight: 800, marginBottom: 10 }}>
+              {invalidReason === "expired" ? "Enlace vencido o ya utilizado" : "Enlace inválido"}
+            </h1>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 24 }}>
-              El enlace para restablecer la contraseña dura 1 hora y se usa una sola vez. Pedí uno nuevo.
+              {invalidReason === "expired"
+                ? "El enlace para restablecer la contraseña dura 1 hora y se usa una sola vez. Pedí uno nuevo y abrilo apenas te llegue."
+                : "No pudimos validar este enlace. Pedí uno nuevo desde “Recuperar contraseña”."}
             </p>
             <Link href="/recuperar" style={{ display: "block", padding: "13px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
               Pedir un nuevo enlace
@@ -116,7 +183,7 @@ export default function ActualizarClavePage() {
           <div style={{ textAlign: "center" }}>
             <p style={{ fontSize: 44, marginBottom: 14 }}>✅</p>
             <h1 style={{ fontSize: 20, fontWeight: 800, marginBottom: 10 }}>Contraseña actualizada</h1>
-            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>Te llevamos a tu panel…</p>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>Iniciá sesión con tu nueva contraseña. Te llevamos al login…</p>
           </div>
         )}
       </div>
