@@ -157,6 +157,30 @@ export async function POST(req: NextRequest) {
         parsed.savings = null;
       }
       parsed.tariff_basis = general.status; // "referential"
+
+      // Corrección B — con base referencial no se propagan afirmaciones categóricas
+      // de la IA (aplicabilidad del AEC, necesidad del certificado, beneficio
+      // definitivo). El comparativo se entrega como estimación referencial,
+      // sujeta al régimen de origen del acuerdo y a validación oficial.
+      if (general.status === "referential") {
+        const es = lang !== "en";
+        if (parsed.tariff_without) {
+          parsed.tariff_without.description = es
+            ? "Arancel general de referencia (promedio a nivel HS6). No es la línea nacional definitiva."
+            : "Referential general tariff (HS6-level average). Not the definitive national line.";
+        }
+        if (parsed.tariff_with) {
+          parsed.tariff_with.description = es
+            ? "Arancel preferencial de referencia (nivel HS6). Su aplicación depende de que la mercadería califique según el régimen de origen del acuerdo."
+            : "Referential preferential tariff (HS6 level). Its application depends on the goods qualifying under the agreement's rules of origin.";
+        }
+        if (parsed.savings) {
+          parsed.savings.basis = "referential";
+          parsed.savings.recommendation = es
+            ? "Estimación referencial del ahorro. No es un resultado definitivo: las tasas son a nivel HS6 y el beneficio preferencial está sujeto a las reglas de origen del acuerdo y a validación en la fuente oficial."
+            : "Referential savings estimate. Not a definitive result: rates are at HS6 level and the preferential benefit is subject to the agreement's rules of origin and to validation with the official source.";
+        }
+      }
     }
 
     return NextResponse.json(parsed);

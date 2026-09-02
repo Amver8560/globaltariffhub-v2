@@ -47,30 +47,28 @@ export default function TariffValue({
         <span style={{ fontSize: 22, fontWeight: 800, color: d?.value != null ? "#FFFFFF" : "rgba(255,255,255,0.55)" }}>
           {d?.value != null ? `${d.value}%` : (en ? "Not determined" : "No determinado")}
         </span>
-        <span style={{
-          fontSize: 11, fontWeight: 700, color: l.color, background: l.bg,
-          border: `1px solid ${l.color}55`, borderRadius: 999, padding: "2px 10px",
-        }}>
-          {en ? l.en : l.es}
-        </span>
+        {/* El estado "No determinado" ya lo dice el valor: no se repite en un chip. */}
+        {status !== "not_determined" && (
+          <span style={{
+            fontSize: 11, fontWeight: 700, color: l.color, background: l.bg,
+            border: `1px solid ${l.color}55`, borderRadius: 999, padding: "2px 10px",
+          }}>
+            {en ? l.en : l.es}
+          </span>
+        )}
       </div>
 
-      {d && (
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", lineHeight: 1.55 }}>
-          {d.source?.name && d.source.name !== "—" && (
-            <span>{en ? "Source" : "Fuente"}: {d.source.name}</span>
-          )}
-          {lvl && (en ? lvl.en : lvl.es) && (
-            <span> · {en ? "Level" : "Nivel"}: {en ? lvl.en : lvl.es}</span>
-          )}
-          {d.as_of?.value && (
-            <span> · {en ? "As of" : "Dato de"} {d.as_of.value}</span>
-          )}
-          {d.jurisdiction?.country && (
-            <span> · {en ? "Jurisdiction" : "Jurisdicción"}: {d.jurisdiction.country}</span>
-          )}
-        </div>
-      )}
+      {d && (() => {
+        // Sólo se listan los campos con contenido: sin fuente/nivel no hay separador vacío.
+        const parts: string[] = [];
+        if (d.source?.name && d.source.name !== "—") parts.push(`${en ? "Source" : "Fuente"}: ${d.source.name}`);
+        if (lvl && (en ? lvl.en : lvl.es)) parts.push(`${en ? "Level" : "Nivel"}: ${en ? lvl.en : lvl.es}`);
+        if (d.as_of?.value) parts.push(`${en ? "As of" : "Dato de"} ${d.as_of.value}`);
+        if (d.jurisdiction?.country) parts.push(`${en ? "Jurisdiction" : "Jurisdicción"}: ${d.jurisdiction.country}`);
+        return parts.length ? (
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", lineHeight: 1.55 }}>{parts.join(" · ")}</div>
+        ) : null;
+      })()}
 
       {d?.requires_validation && status !== "not_determined" && (
         <p style={{ fontSize: 11, color: "#C9A84C", margin: 0 }}>

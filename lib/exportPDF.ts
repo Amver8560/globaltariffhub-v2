@@ -165,6 +165,11 @@ export function exportCertificatePDF(result: any, params: {
   }
   y = row(doc, es ? "Tasa sin certificado" : "Rate without certificate", String(result.tariff_without?.rate ?? "—"), y, RED);
   y = row(doc, es ? "Tasa con certificado" : "Rate with certificate", String(result.tariff_with?.rate ?? "—"), y, GREEN);
+  if (result.tariff_basis === "referential") {
+    y = row(doc, es ? "Base del comparativo" : "Comparison basis",
+      es ? "Estimación referencial — tasas a nivel HS6, no definitivas. Preferencia sujeta a reglas de origen y validación."
+         : "Referential estimate — HS6-level rates, not definitive. Preference subject to rules of origin and validation.", y, GOLD as any);
+  }
   y += 4;
 
   // Comparativa
@@ -181,7 +186,11 @@ export function exportCertificatePDF(result: any, params: {
   setColor(doc, WHITE);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text(es ? "Ahorro neto estimado" : "Estimated net savings", 20, y + 6);
+  doc.text(
+    (es ? "Ahorro neto estimado" : "Estimated net savings") +
+      (result.tariff_basis === "referential" ? (es ? " (referencial)" : " (referential)") : ""),
+    20, y + 6,
+  );
   doc.setFontSize(13);
   doc.text(`USD ${netSaving.toLocaleString()}`, 190, y + 9, { align: "right" });
   if (result.savings?.roi_percent) {

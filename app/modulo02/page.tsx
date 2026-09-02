@@ -78,6 +78,8 @@ const t = {
     agreement_none_title: "Sin acuerdo comercial vigente",
     agreement_none_msg: "No existe un acuerdo comercial vigente entre estos dos países para este producto. El arancel aplicable es el general.",
     general_tariff: "Arancel general aplicable",
+    referential_badge: "Estimación referencial",
+    referential_result_note: "El ahorro, el beneficio y el ROI son estimaciones referenciales, no resultados definitivos. Las tasas son promedios a nivel HS6 y la preferencia está sujeta a las reglas de origen del acuerdo y a validación en la fuente oficial.",
   },
   en: {
     title: "Can you pay lower import tariffs?",
@@ -135,6 +137,8 @@ const t = {
     agreement_none_title: "No trade agreement in force",
     agreement_none_msg: "There is no trade agreement in force between these two countries for this product. The applicable tariff is the general one.",
     general_tariff: "Applicable general tariff",
+    referential_badge: "Referential estimate",
+    referential_result_note: "The saving, benefit and ROI are referential estimates, not definitive results. Rates are HS6-level averages and the preference is subject to the agreement's rules of origin and to validation with the official source.",
   },
 };
 
@@ -515,11 +519,22 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700 }}>{c.result_title}</h2>
+                {result.tariff_basis === "referential" && !result.tariff_not_determined && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#C9A84C", background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 999, padding: "2px 10px" }}>
+                    {c.referential_badge}
+                  </span>
+                )}
               </div>
 
               {result.tariff?.general && (
                 <div style={{ marginBottom: 18, padding: "12px 14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10 }}>
                   <TariffValue datum={result.tariff.general} lang={lang} label={c.general_tariff} />
+                </div>
+              )}
+
+              {result.tariff_basis === "referential" && !result.tariff_not_determined && (
+                <div style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 16 }}>
+                  <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.62)", lineHeight: 1.5, margin: 0 }}>{c.referential_result_note}</p>
                 </div>
               )}
 
@@ -556,15 +571,17 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <div style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(0,87,255,0.15))", borderRadius: 12, padding: "20px 24px", border: "1px solid rgba(34,197,94,0.3)", marginBottom: 16 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
-                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.net_saving}</p>
-                    <p style={{ fontSize: 32, fontWeight: 800, color: "#22c55e" }}>USD {result.savings?.net?.toLocaleString()}</p>
+                    <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.net_saving}{result.tariff_basis === "referential" ? ` · ${c.referential_badge.toLowerCase()}` : ""}</p>
+                    <p style={{ fontSize: 32, fontWeight: 800, color: result.tariff_basis === "referential" ? "#C9A84C" : "#22c55e" }}>USD {result.savings?.net?.toLocaleString()}</p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.roi}</p>
                     <p style={{ fontSize: 32, fontWeight: 800, color: "#C9A84C" }}>{result.savings?.roi_percent}%</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 14, color: "#22c55e", marginTop: 12, fontWeight: 600 }}>✓ {result.savings?.recommendation}</p>
+                <p style={{ fontSize: 13, color: result.tariff_basis === "referential" ? "#C9A84C" : "#22c55e", marginTop: 12, fontWeight: 600, lineHeight: 1.5 }}>
+                  {result.tariff_basis === "referential" ? "≈ " : "✓ "}{result.savings?.recommendation}
+                </p>
               </div>
 
               {/* Info del certificado */}
