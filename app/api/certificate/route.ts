@@ -1,8 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
-import { aiErrorResponse } from "@/lib/aiError";
+import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
 import { getWitsRates } from "@/lib/witsApi";
+
+export const maxDuration = 60;
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -92,12 +94,15 @@ export async function POST(req: NextRequest) {
 
     // WITS corre en paralelo con Claude para no sumar latencia.
     const [response, wits] = await Promise.all([
-      client.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 2048,
-        system: SYSTEM_PROMPT,
-        messages: [{ role: "user", content: prompt }],
-      }),
+      client.messages.create(
+        {
+          model: "claude-sonnet-4-6",
+          max_tokens: 2048,
+          system: SYSTEM_PROMPT,
+          messages: [{ role: "user", content: prompt }],
+        },
+        { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
+      ),
       getWitsRates(destination, origin, hs_code || "").catch(() => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" as const })),
     ]);
 

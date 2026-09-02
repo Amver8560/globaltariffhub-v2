@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { calculateTaxes } from "@/lib/taxEngine";
 import { checkAndConsumeCredit } from "@/lib/credits";
-import { aiErrorResponse } from "@/lib/aiError";
+import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
+
+export const maxDuration = 60;
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -118,11 +120,14 @@ Identify the product and return ONLY valid JSON without extra text:
       content.push({ type: "text", text: promptText });
       messages.push({ role: "user", content });
 
-      const msg = await client.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        messages,
-      });
+      const msg = await client.messages.create(
+        {
+          model: "claude-sonnet-4-6",
+          max_tokens: 800,
+          messages,
+        },
+        { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
+      );
 
       const text = msg.content[0].type === "text" ? msg.content[0].text : "";
       const jsonMatch = text.match(/\{[\s\S]*\}/);

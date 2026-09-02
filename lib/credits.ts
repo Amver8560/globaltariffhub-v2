@@ -113,12 +113,16 @@ export async function checkAndConsumeCredit(): Promise<CreditCheckResult> {
 }
 
 /**
- * Devuelve un crédito ya consumido (la consulta a la IA falló por saturación).
+ * Devuelve un crédito ya consumido cuando la consulta no entregó un resultado
+ * útil (saturación, timeout o cualquier otro fallo previo a la respuesta).
  * Best-effort: no lanza; los errores se registran pero no rompen la respuesta.
- * No-op para usuarios Pro o si no hay userId.
+ *
+ * Devuelve `true` cuando el crédito NO queda consumido: se reintegró, el
+ * usuario es Pro (no gasta créditos) o no había userId. Devuelve `false`
+ * solo si una operación de base de datos impidió confirmar el reintegro.
  */
-export async function refundCredit(userId?: string): Promise<void> {
-  if (!userId) return;
+export async function refundCredit(userId?: string): Promise<boolean> {
+  if (!userId) return true;
   const admin = createAdminClient();
 
   const { data: profile, error: selErr } = await admin
@@ -128,9 +132,9 @@ export async function refundCredit(userId?: string): Promise<void> {
     .maybeSingle();
   if (selErr) {
     console.error("[credits] refund: fallo al leer profiles", { userId, err: selErr.message });
-    return;
+    return false;
   }
-  if (!profile || profile.is_pro) return;
+  if (!profile || profile.is_pro) return true;
 
   const next = Math.max(0, (profile.credits_used ?? 0) - 1);
   const { error: updErr } = await admin
@@ -139,5 +143,7 @@ export async function refundCredit(userId?: string): Promise<void> {
     .eq("id", userId);
   if (updErr) {
     console.error("[credits] refund: fallo al devolver crédito", { userId, err: updErr.message });
+    return false;
   }
+  return true;
 }

@@ -6,6 +6,8 @@ import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { exportViabilityPDF } from "@/lib/exportPDF";
 import { buildOpQuery } from "@/lib/opContext";
+import { fetchWithDeadline, describeAIError, type AIErrorView } from "@/lib/aiClient";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 const ALL_COUNTRIES = [
   "China", "Estados Unidos", "Alemania", "Italia", "España", "Francia",
@@ -136,6 +138,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
+  const [apiError, setApiError] = useState<AIErrorView | null>(null);
   const [expandedTax, setExpandedTax] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -150,6 +153,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
 
   const handleAnalyze = async () => {
     setError("");
+    setApiError(null);
     setResult(null);
     if (!destination) { setError(c.error_dest); return; }
     if (!fobUnit || parseFloat(fobUnit) <= 0) { setError(c.error_fob); return; }
@@ -169,15 +173,20 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
       fd.append("freight_total", freightTotal || "0");
       fd.append("lang", lang);
 
-      const res = await fetch("/api/viability", { method: "POST", body: fd });
-      const data = await res.json();
-      if (data.error) {
-        if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
-        setError(data.error); return;
+      const res = await fetchWithDeadline("/api/viability", { method: "POST", body: fd });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.error) {
+        const view = describeAIError({ lang, status: res.status, payload: data });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setApiError(view);
+        return;
       }
       setResult(data);
-    } catch { setError(lang === "es" ? "Error al procesar. Intentá de nuevo." : "Processing error. Please try again."); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setApiError(describeAIError({ lang, thrown: err }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0D1B3E", color: "#FFF", fontSize: 13 };
@@ -319,6 +328,7 @@ export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang })
             </div>
 
             {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)" }}>{error}</p>}
+            {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleAnalyze} retrying={loading} />}
 
             <button
               onClick={handleAnalyze}

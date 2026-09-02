@@ -7,6 +7,8 @@ import { exportCertificatePDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { getTradeAgreement } from "@/lib/tradeAgreements";
 import { buildOpQuery, readOpContext } from "@/lib/opContext";
+import { fetchWithDeadline, describeAIError, type AIErrorView } from "@/lib/aiClient";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -151,8 +153,10 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState("");
+  const [apiError, setApiError] = useState<AIErrorView | null>(null);
   const [rateLoading, setRateLoading] = useState(false);
   const [rateInfo, setRateInfo] = useState<any>(null);
+  const [rateApiError, setRateApiError] = useState<AIErrorView | null>(null);
   // Pregunta previa: ¿tenés certificado de origen? (si | no | nose)
   const [hasCert, setHasCert] = useState<"si" | "no" | "nose" | null>(null);
 
@@ -187,20 +191,25 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (!code || !dest) return;
     setRateLoading(true);
     setRateInfo(null);
+    setRateApiError(null);
     try {
-      const res = await fetch("/api/tariff-rate", {
+      const res = await fetchWithDeadline("/api/tariff-rate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tariff_code: code, system: sys, origin: orig, destination: dest, lang }),
       });
-      const data = await res.json();
-      if (!data.error) {
-        setRateInfo(data);
-        if (data.agreement && data.agreement !== "null") setAgreement(data.agreement);
-      } else {
-        setError(data.error);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.error) {
+        const view = describeAIError({ lang, status: res.status, payload: data });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setRateApiError(view);
+        return;
       }
-    } catch { /* error de red — sin bloquear */ } finally {
+      setRateInfo(data);
+      if (data.agreement && data.agreement !== "null") setAgreement(data.agreement);
+    } catch (err) {
+      setRateApiError(describeAIError({ lang, thrown: err }));
+    } finally {
       setRateLoading(false);
     }
   };
@@ -211,19 +220,25 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (!origin || !destination || !fobValue) return;
     if (!convenio) return; // sin acuerdo no hay análisis de ahorro (defensa; el botón no se renderiza)
     setError("");
+    setApiError(null);
     setResult(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/certificate", {
+      const res = await fetchWithDeadline("/api/certificate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ origin, destination, hs_code: tariffCode, fob_value: parseFloat(fobValue), quantity: quantity || "1", unit, agreement, lang }),
       });
-      const data = await res.json();
-      if (data.error) { setError(data.error); return; }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.error) {
+        const view = describeAIError({ lang, status: res.status, payload: data });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setApiError(view);
+        return;
+      }
       setResult(data);
-    } catch {
-      setError(c.error);
+    } catch (err) {
+      setApiError(describeAIError({ lang, thrown: err }));
     } finally {
       setLoading(false);
     }
@@ -436,6 +451,14 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 )}
               </div>
             )}
+            {rateApiError && (
+              <ApiErrorBox
+                view={rateApiError}
+                lang={lang}
+                onRetry={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                retrying={rateLoading}
+              />
+            )}
           </div>
 
           <div style={{ marginBottom: 20 }}>
@@ -446,6 +469,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           </div>
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+          {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSimulate} retrying={loading} />}
 
           <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_simulating : c.btn_simulate}

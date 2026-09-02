@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { checkAndConsumeCredit } from "@/lib/credits";
-import { aiErrorResponse } from "@/lib/aiError";
+import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
 import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
 import { getNCMCode, normalizeNCM8 } from "@/lib/ncmApi";
 import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
 import { getWitsRates } from "@/lib/witsApi";
+
+export const maxDuration = 60;
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -80,17 +82,22 @@ Respond with this exact JSON:
     const ncm8      = normalizeNCM8(tariff_code);
     const taricCode = hs6ToTaric(hs6);
 
+    // El modelo tiene deadline del servidor; las fuentes de enriquecimiento
+    // degradan a fallback si fallan y nunca hacen fallar la consulta.
     const [message, wtoResult, ncmResult, taricResult, witsResult] = await Promise.all([
-      client.messages.create({
-        model: "claude-sonnet-4-6",
-        max_tokens: 512,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      }),
-      getWTOMFNRate(hs6, destination),
-      ncm8.length >= 6 ? getNCMCode(ncm8) : Promise.resolve(null),
-      getTARICRate(taricCode, origin || ""),
-      getWitsRates(destination, origin || "", tariff_code),
+      client.messages.create(
+        {
+          model: "claude-sonnet-4-6",
+          max_tokens: 512,
+          system: systemPrompt,
+          messages: [{ role: "user", content: userPrompt }],
+        },
+        { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
+      ),
+      getWTOMFNRate(hs6, destination).catch(() => ({ mfn_rate: null, year: null, source: "fallback" as const })),
+      ncm8.length >= 6 ? getNCMCode(ncm8).catch(() => null) : Promise.resolve(null),
+      getTARICRate(taricCode, origin || "").catch(() => null),
+      getWitsRates(destination, origin || "", tariff_code).catch(() => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" as const })),
     ]);
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";

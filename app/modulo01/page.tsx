@@ -5,6 +5,8 @@ import Link from "next/link";
 import { exportSearchPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { buildOpQuery } from "@/lib/opContext";
+import { describeAIError, CLIENT_DEADLINE_MS, type AIErrorView } from "@/lib/aiClient";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -160,6 +162,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
   const [streamStep, setStreamStep] = useState(0);
   const [response, setResponse] = useState<SearchResponse | null>(null);
   const [error, setError] = useState("");
+  const [apiError, setApiError] = useState<AIErrorView | null>(null);
   const [expanded, setExpanded] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const c = t[lang];
@@ -182,6 +185,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
   const handleSearch = async () => {
     setError("");
+    setApiError(null);
     setResponse(null);
     setExpanded(null);
     if (!operation) { setError(lang === "es" ? "Seleccioná la operación (Importación o Exportación) antes de buscar." : "Select the trade operation (Import or Export) before searching."); return; }
@@ -190,6 +194,12 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
     if ((tab === "text" || tab === "code") && !query.trim()) { setError(c.error_text); return; }
     setLoading(true);
     setStreamStep(1);
+
+    // Backstop del cliente: si el servidor no responde (ni con su propio
+    // error) en el plazo, abortamos para no quedar en "Buscando…".
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), CLIENT_DEADLINE_MS);
+
     try {
       const fd = new FormData();
       if (tab === "image" && image) fd.append("image", image);
@@ -199,8 +209,17 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       fd.append("destination", destination);
       fd.append("system", system);
 
-      const res = await fetch("/api/search", { method: "POST", body: fd });
-      if (!res.ok || !res.body) throw new Error("stream error");
+      const res = await fetch("/api/search", { method: "POST", body: fd, signal: ctrl.signal });
+
+      // Errores previos al stream (créditos, sesión, o el catch de la ruta).
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        const view = describeAIError({ lang, status: res.status, payload });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setApiError(view);
+        return;
+      }
+      if (!res.body) throw new Error("stream sin cuerpo");
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -213,30 +232,31 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         const { done, value } = await reader.read();
         if (done) break;
         accumulated += decoder.decode(value, { stream: true });
-        // Avanzar el paso visual cada ~30 chars nuevos
         stepTimer += value?.length || 0;
-        if (stepTimer > 200 && streamStep < 3) { setStreamStep(2); }
-        if (stepTimer > 600) { setStreamStep(3); }
+        if (stepTimer > 200) setStreamStep((s) => Math.max(s, 2));
+        if (stepTimer > 600) setStreamStep((s) => Math.max(s, 3));
       }
 
       setStreamStep(4);
 
-      // Extraer datos enriquecidos del final del stream
+      // Extraer el payload final del stream (resultado o error uniforme).
       const markerIdx = accumulated.indexOf(ENRICHED_MARKER);
-      if (markerIdx < 0) throw new Error("no enriched data");
-      const enrichedJson = accumulated.slice(markerIdx + ENRICHED_MARKER.length);
-      const data = JSON.parse(enrichedJson);
+      if (markerIdx < 0) throw new Error("el stream terminó sin datos");
+      const data = JSON.parse(accumulated.slice(markerIdx + ENRICHED_MARKER.length));
 
       if (data.error) {
-        if (data.code === "UNAUTHENTICATED") { window.location.href = "/login"; return; }
-        setError(data.error); return;
+        const view = describeAIError({ lang, payload: data });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setApiError(view);
+        return;
       }
       setResponse(data);
       const recIdx = data.results?.findIndex((r: SearchResult) => r.recommended);
       setExpanded(recIdx >= 0 ? recIdx : 0);
-    } catch {
-      setError(c.error_general);
+    } catch (err) {
+      setApiError(describeAIError({ lang, thrown: err }));
     } finally {
+      clearTimeout(timer);
       setLoading(false);
       setStreamStep(0);
     }
@@ -300,7 +320,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               { key: "importacion" as Operation, icon: "📥", es: "Importación", en: "Import", desc_es: "Traer un producto al país", desc_en: "Bring a product into the country" },
               { key: "exportacion" as Operation, icon: "📤", es: "Exportación", en: "Export", desc_es: "Enviar un producto al exterior", desc_en: "Send a product abroad" },
             ]).map((op) => (
-              <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); }}
+              <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); setApiError(null); }}
                 style={{
                   padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#C9A84C" : "rgba(255,255,255,0.1)"}`,
                   background: operation === op.key ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)",
@@ -349,7 +369,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         {/* Tabs búsqueda */}
         <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "#0D1B3E", borderRadius: 12, padding: 6, border: "1px solid rgba(0,87,255,0.2)" }}>
           {([["image", c.tab_image], ["text", c.tab_text], ["code", c.tab_code]] as [Tab, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => { setTab(key); setResponse(null); setError(""); }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === key ? "#0057FF" : "transparent", color: tab === key ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{label}</button>
+            <button key={key} onClick={() => { setTab(key); setResponse(null); setError(""); setApiError(null); }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === key ? "#0057FF" : "transparent", color: tab === key ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{label}</button>
           ))}
         </div>
 
@@ -386,6 +406,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           )}
 
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{error}</p>}
+          {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSearch} retrying={loading} />}
 
           <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_searching : c.btn_search}

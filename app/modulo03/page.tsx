@@ -6,6 +6,8 @@ import Link from "next/link";
 import { exportCIFPDF } from "@/lib/exportPDF";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { buildOpQuery, readOpContext } from "@/lib/opContext";
+import { fetchWithDeadline, describeAIError, type AIErrorView } from "@/lib/aiClient";
+import ApiErrorBox from "@/components/ApiErrorBox";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -180,30 +182,37 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [rateError, setRateError] = useState("");
+  const [rateApiError, setRateApiError] = useState<AIErrorView | null>(null);
 
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
     if (!code) return;
     if (!dest) { setRateError(lang === "es" ? "Seleccioná el país de destino." : "Select destination country."); return; }
     setRateError("");
+    setRateApiError(null);
     setRateLoading(true);
     setRateInfo(null);
     try {
-      const res = await fetch("/api/tariff-rate", {
+      const res = await fetchWithDeadline("/api/tariff-rate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tariff_code: code, system: sys, origin: orig, destination: dest, lang }),
       });
-      const data = await res.json();
-      if (data.error) {
-        setRateError(data.error);
-      } else {
-        setRateInfo(data);
-        if (data.base_rate !== undefined) setTariffRate(String(data.base_rate));
-        if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
-        if (data.has_preferential) setWithCert(true);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.error) {
+        const view = describeAIError({ lang, status: res.status, payload: data });
+        if (view.needsLogin) { window.location.href = "/login"; return; }
+        setRateApiError(view);
+        return;
       }
-    } catch { setRateError(lang === "es" ? "Error al consultar. Intentá de nuevo." : "Lookup error. Please try again."); }
-    finally { setRateLoading(false); }
+      setRateInfo(data);
+      if (data.base_rate !== undefined) setTariffRate(String(data.base_rate));
+      if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
+      if (data.has_preferential) setWithCert(true);
+    } catch (err) {
+      setRateApiError(describeAIError({ lang, thrown: err }));
+    } finally {
+      setRateLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -348,6 +357,14 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               </div>
 
               {rateError && <p style={{ fontSize: 12, color: "#ef4444", marginTop: 6 }}>⚠ {rateError}</p>}
+              {rateApiError && (
+                <ApiErrorBox
+                  view={rateApiError}
+                  lang={lang}
+                  onRetry={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
+                  retrying={rateLoading}
+                />
+              )}
 
               {rateLoading && (
                 <div style={{ padding: "10px 14px", background: "rgba(0,87,255,0.06)", borderRadius: 8, marginTop: 8 }}>
