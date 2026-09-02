@@ -101,6 +101,35 @@ function fmtRate(val: any): string {
   return s.endsWith("%") ? s : `${s}%`;
 }
 
+const TARIFF_STATUS_ES: Record<string, string> = {
+  determined: "Determinado", referential: "Referencial", not_determined: "No determinado",
+};
+const TARIFF_STATUS_EN: Record<string, string> = {
+  determined: "Determined", referential: "Referential", not_determined: "Not determined",
+};
+
+/** Filas de un TariffDatum en el PDF: valor + estado + fuente + aviso de validación. */
+function tariffDatumRows(
+  doc: jsPDF,
+  d: import("@/lib/tariffDatum").TariffDatum | null | undefined,
+  y: number,
+  es: boolean,
+): number {
+  const status = d?.status ?? "not_determined";
+  const stLabel = (es ? TARIFF_STATUS_ES : TARIFF_STATUS_EN)[status] ?? status;
+  y = row(doc, es ? "Tasa arancelaria" : "Tariff rate",
+    d?.value != null ? `${fmtRate(d.value)} (${stLabel})` : (es ? `No determinado` : `Not determined`), y, RED);
+  if (d?.source?.name && d.source.name !== "—") {
+    y = row(doc, es ? "Fuente" : "Source", String(d.source.name) + (d.as_of?.value ? ` · ${d.as_of.value}` : ""), y);
+  }
+  if (d?.requires_validation) {
+    y = row(doc, es ? "Validación" : "Validation",
+      es ? "Requiere validación en el sistema oficial del país importador o con un despachante."
+         : "Requires validation in the importing country's official system or with a customs broker.", y, GOLD);
+  }
+  return y;
+}
+
 // ── MÓDULO 02 — Simulación Certificado ───────────────────────────────────────
 export function exportCertificatePDF(result: any, params: {
   origin: string; destination: string; tariffCode: string;
@@ -126,6 +155,14 @@ export function exportCertificatePDF(result: any, params: {
   // Acuerdo
   y = sectionTitle(doc, es ? "ACUERDO COMERCIAL" : "TRADE AGREEMENT", y);
   y = row(doc, es ? "Acuerdo vigente" : "Applicable agreement", result.agreement?.name || "—", y);
+  y = tariffDatumRows(doc, result.tariff?.general, y, es);
+  if (result.tariff_not_determined) {
+    y = row(doc, es ? "Comparativo" : "Comparison",
+      es ? "No disponible: sin una tasa arancelaria no se puede comparar el escenario con/sin certificado."
+         : "Unavailable: without a tariff rate the with/without-certificate scenario cannot be compared.", y, GOLD);
+    doc.save(`GTH_Analisis_Preferencia_${tariffSystem}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
+    return;
+  }
   y = row(doc, es ? "Tasa sin certificado" : "Rate without certificate", String(result.tariff_without?.rate ?? "—"), y, RED);
   y = row(doc, es ? "Tasa con certificado" : "Rate with certificate", String(result.tariff_with?.rate ?? "—"), y, GREEN);
   y += 4;
@@ -333,10 +370,12 @@ export function exportSearchPDF(response: any, params: {
     if (r.taric_code) y = row(doc, "Código TARIC", r.taric_code, y, BLUE);
     if (r.chapter)   y = row(doc, es ? "Capítulo" : "Chapter", r.chapter, y);
 
-    // Tasas — usa fmtRate para evitar %%
-    if (r.base_rate !== undefined)        y = row(doc, es ? "Tasa base" : "Base rate",               fmtRate(r.base_rate),        y, RED);
-    if (r.preferential_rate !== undefined) y = row(doc, es ? "Tasa preferencial" : "Preferential rate", fmtRate(r.preferential_rate), y, GREEN);
-    if (r.trade_agreement) y = row(doc, es ? "Acuerdo" : "Agreement", r.trade_agreement, y, GOLD);
+    // Tasa arancelaria (Bloque 2) — estado + fuente + validación.
+    y = tariffDatumRows(doc, r.tariff?.general, y, es);
+    if (r.tariff?.preferential?.value != null) {
+      y = row(doc, es ? "Tasa preferencial (referencial)" : "Preferential rate (referential)", fmtRate(r.tariff.preferential.value), y, GREEN);
+    }
+    if (r.trade_agreement && r.trade_agreement !== "Ninguno") y = row(doc, es ? "Acuerdo" : "Agreement", r.trade_agreement, y, GOLD);
 
     if (r.agreement_note) {
       if (y > 265) { doc.addPage(); y = 20; }
@@ -503,18 +542,8 @@ export function exportViabilityPDF(result: any, params: {
   if (result.product?.taric_code && result.product.taric_code !== "null") y = row(doc, "Código TARIC", result.product.taric_code, y, BLUE);
   if (result.product?.chapter) y = row(doc, es ? "Capítulo" : "Chapter", result.product.chapter, y);
 
-  // Arancel efectivo
-  if (result.product?.exception_applied) {
-    y = row(doc, es ? "Tasa general" : "Standard rate", fmtRate(result.product.standard_rate), y, RED);
-    y = row(doc, es ? "Tasa efectiva (excepción)" : "Effective rate (exception)", fmtRate(result.product.effective_rate), y, GREEN);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "italic");
-    setColor(doc, GRAY);
-    const excLines = doc.splitTextToSize(result.product.exception_applied, 178);
-    doc.text(excLines, 18, y); y += excLines.length * 4 + 4;
-  } else {
-    y = row(doc, es ? "Tasa arancelaria" : "Tariff rate", fmtRate(result.product?.tariff_rate), y, RED);
-  }
+  // Arancel — resuelto por jurisdicción/nomenclatura/fuente (Bloque 2)
+  y = tariffDatumRows(doc, result.product?.tariff, y, es);
   y += 4;
 
   // Estructura de costos
@@ -524,6 +553,15 @@ export function exportViabilityPDF(result: any, params: {
   y = row(doc, es ? "Seguro" : "Insurance", fmt(result.commercial?.insurance), y);
   y = row(doc, es ? "Valor CIF" : "CIF value", fmt(result.commercial?.cif), y, BLUE);
   y += 4;
+
+  // D4 — sin arancel determinable no se imprime un total nacionalizado.
+  if (result.tariff_not_determined || !result.taxes) {
+    y = row(doc, es ? "Estado" : "Status",
+      es ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
+         : "We couldn't determine the tariff precisely enough to complete this estimate.", y, GOLD);
+    doc.save(`GTH_Viabilidad_${tariffSystem}_${Date.now()}.pdf`);
+    return;
+  }
 
   // Tributos
   if (y > 220) { doc.addPage(); y = 20; }

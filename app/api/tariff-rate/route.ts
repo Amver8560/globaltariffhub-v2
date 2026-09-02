@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
-import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
-import { getNCMCode, normalizeNCM8 } from "@/lib/ncmApi";
-import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
-import { getWitsRates } from "@/lib/witsApi";
+import { resolveTariff, toLegacyView } from "@/lib/tariffResolver";
 
 export const maxDuration = 60;
 
@@ -31,6 +28,8 @@ export async function POST(req: NextRequest) {
       : system === "TARIC" ? "TARIC (código arancelario de la Unión Europea)"
       : "HS (Sistema Armonizado)";
 
+    // La IA sólo aporta CONTEXTO (descripción, notas del acuerdo). No aporta la tasa:
+    // la tasa la resuelve `resolveTariff()` por jurisdicción, nomenclatura y fuente (Bloque 2).
     const systemPrompt = lang === "es"
       ? `Eres un experto en comercio internacional y aranceles aduaneros.
 Dado un código arancelario en formato ${systemLabel} y países de origen y destino, devuelve las tasas arancelarias aplicables.
@@ -77,14 +76,8 @@ Respond with this exact JSON:
   "confidence": "high/medium/low"
 }`;
 
-    // Consultas en paralelo: Claude + WTO (tasa MFN) + NCM (descripción oficial) + TARIC (EU)
-    const hs6       = normalizeHS6(tariff_code);
-    const ncm8      = normalizeNCM8(tariff_code);
-    const taricCode = hs6ToTaric(hs6);
-
-    // El modelo tiene deadline del servidor; las fuentes de enriquecimiento
-    // degradan a fallback si fallan y nunca hacen fallar la consulta.
-    const [message, wtoResult, ncmResult, taricResult, witsResult] = await Promise.all([
+    // Modelo (contexto) + resolvedor de tasa (fuentes), en paralelo.
+    const [message, resolved] = await Promise.all([
       client.messages.create(
         {
           model: "claude-sonnet-4-6",
@@ -94,59 +87,53 @@ Respond with this exact JSON:
         },
         { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
       ),
-      getWTOMFNRate(hs6, destination).catch(() => ({ mfn_rate: null, year: null, source: "fallback" as const })),
-      ncm8.length >= 6 ? getNCMCode(ncm8).catch(() => null) : Promise.resolve(null),
-      getTARICRate(taricCode, origin || "").catch(() => null),
-      getWitsRates(destination, origin || "", tariff_code).catch(() => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" as const })),
+      resolveTariff({ importCountry: destination, originCountry: origin || "", code: tariff_code, system }),
     ]);
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";
     const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON in response");
+    const ai = jsonMatch ? safeParse(jsonMatch[0]) : null;
 
-    const data = JSON.parse(jsonMatch[0]);
+    const legacy = toLegacyView(resolved);
 
-    // WTO → tasa MFN real reemplaza estimación de Claude
-    if (wtoResult.source === "WTO" && wtoResult.mfn_rate !== null) {
-      data.base_rate  = wtoResult.mfn_rate;
-      data.wto_source = true;
-      data.wto_year   = wtoResult.year;
-      data.confidence = "high";
-    } else {
-      data.wto_source = false;
-    }
+    // Se conserva SÓLO el contexto textual de la IA. Sus cifras (base_rate,
+    // preferential_rate, confidence) se descartan: la tasa la fija el resolvedor.
+    const data = {
+      tariff_code,
+      system,
+      origin: origin || "",
+      destination,
+      description: ai?.description ?? null,
+      notes: ai?.notes && ai.notes !== "null" ? ai.notes : null,
+      agreement: ai?.agreement && ai.agreement !== "null" ? ai.agreement : null,
+      agreement_note: ai?.agreement_note && ai.agreement_note !== "null" ? ai.agreement_note : null,
 
-    // WITS/TRAINS → tasa MFN y sobre todo la PREFERENCIAL oficial por par de países
-    if (witsResult.source === "WITS") {
-      if (witsResult.mfn_rate != null && !data.wto_source) data.base_rate = witsResult.mfn_rate;
-      if (witsResult.pref_rate != null) {
-        data.preferential_rate = witsResult.pref_rate;
-        data.has_preferential = witsResult.pref_rate < (Number(data.base_rate) || Infinity);
-      }
-      data.wits_source = true;
-      data.wits_year = witsResult.year;
-      data.confidence = "high";
-    }
+      // Estructura canónica (Bloque 2).
+      tariff: {
+        general: resolved.general,
+        preferential: resolved.preferential ?? null,
+      },
+      jurisdiction: resolved.jurisdiction,
 
-    // NCM → descripción oficial Siscomex
-    if (ncmResult?.source === "NCM") {
-      data.ncm_description_official = ncmResult.descricao;
-      data.ncm_vigente = true;
-    }
-
-    // TARIC → datos EU (tasa, notas, medidas)
-    if (taricResult?.source === "TARIC") {
-      data.taric_duty      = taricResult.third_country_duty;
-      data.taric_footnotes = taricResult.footnotes;
-      data.taric_measures  = taricResult.measures;
-    }
+      // Campos legacy — derivados EXCLUSIVAMENTE del TariffDatum. null si no hay tasa.
+      base_rate: legacy.base_rate,
+      base_rate_status: legacy.base_rate_status,
+      base_rate_source: legacy.base_rate_source,
+      base_rate_asof: legacy.base_rate_asof,
+      preferential_rate: legacy.preferential_rate,
+      has_preferential: legacy.has_preferential,
+    };
 
     return NextResponse.json(data);
-  } catch (err: any) {
+  } catch (err: unknown) {
     return aiErrorResponse(err, {
       lang,
       userId,
       fallback: lang === "en" ? "Could not fetch the tariff rate. Please try again." : "No se pudo obtener la tasa arancelaria. Intentá de nuevo.",
     });
   }
+}
+
+function safeParse(s: string): Record<string, unknown> | null {
+  try { return JSON.parse(s); } catch { return null; }
 }

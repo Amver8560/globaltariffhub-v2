@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
-import { getWitsRates } from "@/lib/witsApi";
+import { resolveTariff } from "@/lib/tariffResolver";
 
 export const maxDuration = 60;
 
@@ -92,8 +92,8 @@ export async function POST(req: NextRequest) {
 - Acuerdo a simular: ${agreement || "el más conveniente disponible"}
 - Idioma de respuesta: ${lang === "en" ? "inglés" : "español"}`;
 
-    // WITS corre en paralelo con Claude para no sumar latencia.
-    const [response, wits] = await Promise.all([
+    // Modelo (contexto del certificado) + resolvedor de tasa (Bloque 2), en paralelo.
+    const [response, resolved] = await Promise.all([
       client.messages.create(
         {
           model: "claude-sonnet-4-6",
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         },
         { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
       ),
-      getWitsRates(destination, origin, hs_code || "").catch(() => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" as const })),
+      resolveTariff({ importCountry: destination, originCountry: origin, code: hs_code || "", system: "HS" }).catch(() => null),
     ]);
 
     const text = response.content[0].type === "text" ? response.content[0].text : "";
@@ -111,36 +111,52 @@ export async function POST(req: NextRequest) {
     if (!jsonMatch) throw new Error("No JSON in response");
     const parsed = JSON.parse(jsonMatch[0]);
 
-    // Fundamento oficial: pisar las tasas con WITS/UNCTAD TRAINS cuando hay dato.
-    {
-      const r2 = (n: number) => Math.round(n * 100) / 100;
-      if (wits.source === "WITS") {
-        const fob = Number(fob_value) || 0;
-        if (wits.mfn_rate != null) {
-          parsed.tariff_without = parsed.tariff_without || {};
-          parsed.tariff_without.rate = `${wits.mfn_rate}%`;
-          parsed.tariff_without.amount = r2((fob * wits.mfn_rate) / 100);
-        }
-        if (wits.pref_rate != null) {
-          parsed.tariff_with = parsed.tariff_with || {};
-          parsed.tariff_with.rate = `${wits.pref_rate}%`;
-          parsed.tariff_with.amount = r2((fob * wits.pref_rate) / 100);
-        }
-        const w0 = parsed.tariff_without?.amount;
-        const w1 = parsed.tariff_with?.amount;
+    const general = resolved?.general ?? null;
+    const preferential = resolved?.preferential ?? null;
+    parsed.tariff = { general, preferential };
+    parsed.jurisdiction = resolved?.jurisdiction ?? null;
+
+    // Regla 11 — no propagar una tasa inventada. Las cifras del modelo se descartan;
+    // el comparativo sólo se muestra si el resolvedor entregó una tasa.
+    const r2 = (n: number) => Math.round(n * 100) / 100;
+    const fob = Number(fob_value) || 0;
+
+    if (!general || general.status === "not_determined" || general.value === null) {
+      parsed.tariff_not_determined = true;
+      parsed.tariff_without = null;
+      parsed.tariff_with = null;
+      parsed.savings = null;
+      parsed.message = lang === "en"
+        ? "We couldn't determine the tariff precisely enough to compare the certificate scenario."
+        : "No pudimos determinar el arancel con suficiente precisión para comparar el escenario con certificado.";
+    } else {
+      const genRate = general.value;
+      parsed.tariff_without = {
+        rate: `${genRate}%`,
+        amount: r2((fob * genRate) / 100),
+        description: parsed.tariff_without?.description ?? "Arancel general",
+      };
+      if (preferential && preferential.value !== null) {
+        const prefRate = preferential.value;
+        parsed.tariff_with = {
+          rate: `${prefRate}%`,
+          amount: r2((fob * prefRate) / 100),
+          description: parsed.tariff_with?.description ?? "Arancel preferencial",
+        };
         const cc = parsed.certificate_cost?.amount;
-        if (typeof w0 === "number" && typeof w1 === "number") {
-          const gross = r2(w0 - w1);
-          parsed.savings = parsed.savings || {};
-          parsed.savings.gross = gross;
-          if (typeof cc === "number") {
-            parsed.savings.net = r2(gross - cc);
-            parsed.savings.roi_percent = cc > 0 ? Math.round((parsed.savings.net / cc) * 100) : null;
-          }
+        const gross = r2(parsed.tariff_without.amount - parsed.tariff_with.amount);
+        parsed.savings = parsed.savings || {};
+        parsed.savings.gross = gross;
+        if (typeof cc === "number") {
+          parsed.savings.net = r2(gross - cc);
+          parsed.savings.roi_percent = cc > 0 ? Math.round((parsed.savings.net / cc) * 100) : null;
         }
-        parsed.wits_source = true;
-        parsed.wits_year = wits.year;
+      } else {
+        // Sin tasa preferencial de fuente: no se arma un comparativo con número inventado.
+        parsed.tariff_with = null;
+        parsed.savings = null;
       }
+      parsed.tariff_basis = general.status; // "referential"
     }
 
     return NextResponse.json(parsed);

@@ -9,6 +9,7 @@ import { getTradeAgreement } from "@/lib/tradeAgreements";
 import { buildOpQuery, readOpContext } from "@/lib/opContext";
 import { fetchWithDeadline, describeAIError, type AIErrorView } from "@/lib/aiClient";
 import ApiErrorBox from "@/components/ApiErrorBox";
+import TariffValue from "@/components/TariffValue";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -387,11 +388,13 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   ? "Sin un acuerdo aplicable no hay ahorro arancelario para analizar. Para estimar el costo total de la operación, usá el Módulo 03."
                   : "Without an applicable agreement there is no tariff saving to analyze. To estimate the full cost of the operation, use Module 03."}
               </p>
-              {rateInfo?.base_rate != null && rateInfo.base_rate !== "" && (
-                <p style={{ fontSize: 14, fontWeight: 800, color: "#ef4444", marginTop: 12 }}>{c.general_tariff}: {rateInfo.base_rate}%</p>
+              {rateInfo?.tariff?.general && (
+                <div style={{ marginTop: 14, padding: "12px 14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10 }}>
+                  <TariffValue datum={rateInfo.tariff.general} lang={lang} label={c.general_tariff} />
+                </div>
               )}
               <Link
-                href={`/modulo03${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate) : "" })}`}
+                href={`/modulo03${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate).replace("%", "") : "", base_rate_status: rateInfo?.base_rate_status ?? "" })}`}
                 style={{ display: "inline-block", marginTop: 16, padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                 📦 {lang === "es" ? "Ir al Módulo 03 →" : "Go to Module 03 →"}
               </Link>
@@ -440,14 +443,16 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             </div>
             {rateInfo && (
               <div style={{ marginTop: 10, padding: "12px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{rateInfo.description}</p>
-                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{lang === "es" ? "Tasa base:" : "Base rate:"} {rateInfo.base_rate}%</span>
-                  {rateInfo.has_preferential && <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{lang === "es" ? "Preferencial:" : "Preferential:"} {rateInfo.preferential_rate}%</span>}
-                  {rateInfo.agreement && rateInfo.agreement !== "null" && <span style={{ fontSize: 12, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>}
-                </div>
+                {rateInfo.description && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{rateInfo.description}</p>}
+                {rateInfo.tariff?.general && <TariffValue datum={rateInfo.tariff.general} lang={lang} label={lang === "es" ? "Tasa arancelaria" : "Tariff rate"} />}
+                {rateInfo.tariff?.preferential && rateInfo.tariff.preferential.value != null && (
+                  <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                    <TariffValue datum={rateInfo.tariff.preferential} lang={lang} label={lang === "es" ? "Tasa preferencial" : "Preferential rate"} />
+                  </div>
+                )}
+                {rateInfo.agreement && rateInfo.agreement !== "null" && <p style={{ fontSize: 12, color: "#C9A84C", marginTop: 8, marginBottom: 0 }}>📋 {rateInfo.agreement}</p>}
                 {rateInfo.agreement_note && rateInfo.agreement_note !== "null" && (
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>{rateInfo.agreement_note}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6, marginBottom: 0 }}>{rateInfo.agreement_note}</p>
                 )}
               </div>
             )}
@@ -510,18 +515,24 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700 }}>{c.result_title}</h2>
-                {result.wits_source ? (
-                  <span style={{ fontSize: 11, color: "rgba(34,197,94,0.75)", fontWeight: 600 }}>
-                    ✓ {lang === "es" ? "Tasas: WITS / UNCTAD TRAINS" : "Rates: WITS / UNCTAD TRAINS"}{result.wits_year ? ` (${result.wits_year})` : ""}
-                  </span>
-                ) : (
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>
-                    ⚡ {lang === "es" ? "Tasas estimadas por IA — verificar con fuente oficial" : "AI-estimated rates — verify with official source"}
-                  </span>
-                )}
               </div>
 
-              {convenio ? (
+              {result.tariff?.general && (
+                <div style={{ marginBottom: 18, padding: "12px 14px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10 }}>
+                  <TariffValue datum={result.tariff.general} lang={lang} label={c.general_tariff} />
+                </div>
+              )}
+
+              {result.tariff_not_determined ? (
+                <div style={{ background: "#0D1B3E", borderRadius: 12, padding: "20px", border: "1px solid rgba(148,163,184,0.4)" }}>
+                  <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6 }}>{result.message}</p>
+                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>
+                    {lang === "es"
+                      ? "Sin una tasa arancelaria no se puede comparar el escenario con y sin certificado. Verificá la posición en el sistema oficial del país importador o con un despachante."
+                      : "Without a tariff rate the with/without-certificate scenario can't be compared. Verify the position in the importing country's official system or with a customs broker."}
+                  </p>
+                </div>
+              ) : (result.tariff_with && result.savings) ? (
               <>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 20 }}>
                 <div style={{ background: "rgba(239,68,68,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(239,68,68,0.2)", textAlign: "center" }}>
@@ -619,13 +630,19 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             {/* Acción CIF — arrastra el contexto de la operación */}
             <div style={{ textAlign: "center" }}>
               <Link
-                href={`/modulo03${buildOpQuery({
-                  origin, destination,
-                  tariff_code: tariffCode, system: tariffSystem,
-                  fob_value: fobValue, quantity,
-                  base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate) : (result?.tariff_without?.rate || ""),
-                  pref_rate: convenio ? (rateInfo?.preferential_rate != null ? String(rateInfo.preferential_rate) : (result?.tariff_with?.rate || "")) : "",
-                })}`}
+                href={`/modulo03${(() => {
+                  const g = result?.tariff?.general ?? rateInfo?.tariff?.general;
+                  const p = result?.tariff?.preferential ?? rateInfo?.tariff?.preferential;
+                  return buildOpQuery({
+                    origin, destination,
+                    tariff_code: tariffCode, system: tariffSystem,
+                    fob_value: fobValue, quantity,
+                    base_rate: g && g.status === "referential" && g.value != null ? String(g.value) : "",
+                    base_rate_status: g?.status ?? "not_determined",
+                    pref_rate: p && p.value != null ? String(p.value) : "",
+                    pref_rate_status: p ? p.status : "",
+                  });
+                })()}`}
                 style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
                 {c.calc_cif}
               </Link>

@@ -234,22 +234,13 @@ function extractRateFromTARICHtml(html: string, code: string, originCountry: str
 }
 
 /**
- * Normaliza código TARIC: "1302.11.10.00" → "1302111000"
- * TARIC tiene 10 dígitos (HS 6 + CN 2 + TARIC 2)
+ * @deprecated Bloque 2 — se conserva sólo para el orquestador legacy `getTARICRate`.
+ * NO usar para armar un código de consulta: rellena a 10 dígitos con ceros, lo que
+ * fabrica una posición que puede no corresponder a la mercadería.
  */
 export function normalizeTARIC(code: string): string {
   const digits = code.replace(/\D/g, "");
-  // Completar a 10 dígitos con ceros si es necesario
   return digits.slice(0, 10).padEnd(10, "0");
-}
-
-/**
- * Convierte código HS 6 dígitos a TARIC 10 (agrega ceros)
- * "130211" → "1302110000"
- */
-export function hs6ToTaric(hs6: string): string {
-  const digits = hs6.replace(/\D/g, "").slice(0, 6);
-  return digits.padEnd(10, "0");
 }
 
 /**
@@ -257,4 +248,94 @@ export function hs6ToTaric(hs6: string): string {
  */
 export function getTARICChapter(code: string): string {
   return code.replace(/\D/g, "").slice(0, 2);
+}
+
+// ─────────────────────────────────────────────────────────────
+// Bloque 2 — consulta de la tabla sincronizada por HS6 / código real,
+// SIN fabricar la posición de 10 dígitos con padding.
+// ─────────────────────────────────────────────────────────────
+export interface TaricTableHit {
+  via: "table";
+  commodity_code: string;   // el código real de la fila
+  duty_rate: string | null; // p. ej. "3.7 %", "Free", "12.8 % + ..." — tal cual la tabla
+  description: string;
+  unit: string;
+  /** true si el código dado por el usuario coincide exactamente con una fila. */
+  exact: boolean;
+  /** cantidad de filas bajo el HS6 (para decidir si hay una línea inequívoca). */
+  matches: number;
+}
+
+const hs6Cache = new Map<string, { data: TaricTableHit | null; ts: number }>();
+
+/**
+ * Busca en la tabla `taric_codes` a partir del HS6 y, si el usuario dio un código
+ * más largo y real, por coincidencia exacta. Nunca rellena con ceros.
+ * Devuelve null si la tabla no tiene nada bajo ese HS6.
+ */
+export async function getTARICByHs6(hs6: string, fullCode?: string): Promise<TaricTableHit | null> {
+  const hs6d = (hs6 || "").replace(/\D/g, "").slice(0, 6);
+  if (hs6d.length < 6) return null;
+  const userDigits = (fullCode || "").replace(/\D/g, "");
+  const cacheKey = `hs6:${hs6d}:${userDigits}`;
+  const cached = hs6Cache.get(cacheKey);
+  if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data;
+
+  try {
+    const supabase = await createClient();
+
+    // 1. Coincidencia exacta si el usuario dio un código de 8+ dígitos reales.
+    if (userDigits.length >= 8 && userDigits.startsWith(hs6d)) {
+      const { data: exactRow } = await supabase
+        .from("taric_codes")
+        .select("commodity_code, description, duty_rate, unit")
+        .eq("commodity_code", userDigits)
+        .maybeSingle();
+      if (exactRow) {
+        const hit: TaricTableHit = {
+          via: "table",
+          commodity_code: exactRow.commodity_code,
+          duty_rate: exactRow.duty_rate ?? null,
+          description: exactRow.description || "",
+          unit: exactRow.unit || "",
+          exact: true,
+          matches: 1,
+        };
+        hs6Cache.set(cacheKey, { data: hit, ts: Date.now() });
+        return hit;
+      }
+    }
+
+    // 2. Prefijo por HS6.
+    const { data: rows } = await supabase
+      .from("taric_codes")
+      .select("commodity_code, description, duty_rate, unit")
+      .like("commodity_code", `${hs6d}%`)
+      .limit(60);
+
+    if (!rows || rows.length === 0) {
+      hs6Cache.set(cacheKey, { data: null, ts: Date.now() });
+      return null;
+    }
+
+    // Filas con una tasa ad valorem legible.
+    const rated = rows.filter((r) => typeof r.duty_rate === "string" && /\d/.test(r.duty_rate));
+    // ¿Todas las filas con tasa coinciden en el mismo valor? → línea inequívoca a nivel HS6.
+    const distinctRates = new Set(rated.map((r) => (r.duty_rate as string).trim()));
+    const pick = rated[0] ?? rows[0];
+
+    const hit: TaricTableHit = {
+      via: "table",
+      commodity_code: pick.commodity_code,
+      duty_rate: distinctRates.size === 1 ? (pick.duty_rate as string) : null,
+      description: pick.description || "",
+      unit: pick.unit || "",
+      exact: false,
+      matches: rows.length,
+    };
+    hs6Cache.set(cacheKey, { data: hit, ts: Date.now() });
+    return hit;
+  } catch {
+    return null;
+  }
 }

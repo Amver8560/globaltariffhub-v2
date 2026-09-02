@@ -13,6 +13,10 @@ export interface OpContext {
   pref_rate?: string;   // tasa preferencial con acuerdo/certificado
   fob_value?: string;
   quantity?: string;
+  // Bloque 2 — procedencia mínima. El receptor NUNCA reconstruye una tasa
+  // como "determinada" desde la URL: a lo sumo es "referencial".
+  base_rate_status?: string;  // "referential" | "not_determined"
+  pref_rate_status?: string;  // "referential" | "not_determined"
 }
 
 /** Construye "?a=1&b=2" a partir del contexto, omitiendo vacíos. */
@@ -40,5 +44,7 @@ export function readOpContext(sp: URLSearchParams | { get(k: string): string | n
     pref_rate: g("pref_rate"),
     fob_value: g("fob_value"),
     quantity: g("quantity"),
+    base_rate_status: g("base_rate_status"),
+    pref_rate_status: g("pref_rate_status"),
   };
 }

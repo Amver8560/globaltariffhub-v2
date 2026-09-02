@@ -7,6 +7,8 @@ import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { buildOpQuery } from "@/lib/opContext";
 import { describeAIError, CLIENT_DEADLINE_MS, type AIErrorView } from "@/lib/aiClient";
 import ApiErrorBox from "@/components/ApiErrorBox";
+import TariffValue from "@/components/TariffValue";
+import type { TariffDatum } from "@/lib/tariffDatum";
 
 const COUNTRIES = [
   "Argentina", "Brasil", "Uruguay", "Paraguay", "Chile", "Bolivia", "Perú",
@@ -140,6 +142,9 @@ interface SearchResult {
   recommended?: boolean;
   applies_when?: string;
   taxes?: TaxLine[];
+  // Bloque 2 — tasa resuelta por jurisdicción/nomenclatura/fuente.
+  tariff?: { general: TariffDatum | null; preferential: TariffDatum | null } | null;
+  base_rate_status?: string;
 }
 
 interface SearchResponse {
@@ -167,7 +172,6 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
   const fileRef = useRef<HTMLInputElement>(null);
   const c = t[lang];
 
-  const confColor = { alta: "#22c55e", media: "#f59e0b", baja: "#ef4444" };
 
   const handleImage = (file: File) => {
     setImage(file);
@@ -524,23 +528,20 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                       })()}
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 12, color: confColor[r.confidence] || "#22c55e", fontWeight: 600 }}>● {c.confidence}: {r.confidence === "alta" ? c.conf_alta : r.confidence === "media" ? c.conf_media : c.conf_baja}</span>
                       <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 18 }}>{expanded === i ? "▲" : "▼"}</span>
                     </div>
                   </div>
                   <p style={{ fontSize: 16, fontWeight: 600, marginTop: 10, marginBottom: 6 }}>{r.description}</p>
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{c.chapter}: {r.chapter}</p>
 
-                  {/* Aranceles */}
+                  {/* Arancel — resuelto por jurisdicción/nomenclatura/fuente (Bloque 2) */}
                   <div style={{ display: "flex", gap: 20, marginTop: 14, flexWrap: "wrap" }}>
-                    <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "10px 16px" }}>
-                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{c.base_rate}</p>
-                      <p style={{ fontSize: 20, fontWeight: 800, color: "#ef4444" }}>{r.base_rate}</p>
+                    <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "12px 16px", flex: "1 1 260px", minWidth: 240 }}>
+                      <TariffValue datum={r.tariff?.general} lang={lang} label={c.base_rate} />
                     </div>
-                    {r.preferential_rate && r.preferential_rate !== r.base_rate && (
-                      <div style={{ background: "rgba(34,197,94,0.1)", borderRadius: 8, padding: "10px 16px", border: "1px solid rgba(34,197,94,0.2)" }}>
-                        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{c.pref_rate} — {r.trade_agreement}</p>
-                        <p style={{ fontSize: 20, fontWeight: 800, color: "#22c55e" }}>{r.preferential_rate}</p>
+                    {r.tariff?.preferential && r.tariff.preferential.value != null && (
+                      <div style={{ background: "rgba(34,197,94,0.08)", borderRadius: 8, padding: "12px 16px", border: "1px solid rgba(34,197,94,0.2)", flex: "1 1 260px", minWidth: 240 }}>
+                        <TariffValue datum={r.tariff.preferential} lang={lang} label={`${c.pref_rate}${r.trade_agreement && r.trade_agreement !== "Ninguno" ? ` — ${r.trade_agreement}` : ""}`} />
                       </div>
                     )}
                   </div>
@@ -657,11 +658,15 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                     ) : (
                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                         {(() => {
+                          const g = r.tariff?.general;
+                          const p = r.tariff?.preferential;
                           const opQ = buildOpQuery({
                             tariff_code: system === "NCM" ? r.ncm_code || r.hs_code || "" : system === "TARIC" ? r.taric_code || r.hs_code || "" : r.hs_code || "",
                             system, origin, destination,
-                            base_rate: r.base_rate || "",
-                            pref_rate: r.preferential_rate && r.preferential_rate !== r.base_rate ? r.preferential_rate : "",
+                            base_rate: g && g.status === "referential" && g.value != null ? String(g.value) : "",
+                            base_rate_status: g?.status ?? "not_determined",
+                            pref_rate: p && p.value != null ? String(p.value) : "",
+                            pref_rate_status: p ? p.status : "",
                           });
                           return (
                             <>

@@ -21,7 +21,7 @@ const COUNTRY_TO_WTO: Record<string, string> = {
   "Costa Rica":     "188",
   "Guatemala":      "320",
   "Panamá":         "591",
-  "Estados Unidos": "842",
+  "Estados Unidos": "840",
   "China":          "156",
   "Alemania":       "276",
   "Francia":        "250",

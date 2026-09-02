@@ -2,9 +2,14 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, buildAIErrorPayload, MODEL_DEADLINE_MS, ENRICH_DEADLINE_MS } from "@/lib/aiError";
-import { getWTOMFNRate, normalizeHS6 } from "@/lib/wtoApi";
-import { getNCMCode, normalizeNCM8 } from "@/lib/ncmApi";
-import { getTARICRate, hs6ToTaric } from "@/lib/taricApi";
+import { resolveTariff, toLegacyView } from "@/lib/tariffResolver";
+import type { TariffStatus } from "@/lib/tariffDatum";
+
+const STATUS_TO_LEGACY_CONF: Record<TariffStatus, "alta" | "media" | "baja"> = {
+  determined: "alta",
+  referential: "media",
+  not_determined: "baja",
+};
 
 // El servidor aborta la llamada al modelo antes que el backstop del cliente (45s).
 export const maxDuration = 60;
@@ -185,36 +190,44 @@ export async function POST(req: NextRequest) {
             return;
           }
 
-          // ── 3. Enriquecimiento con fuentes — best-effort, nunca hace fallar el resultado ──
+          // ── 3. Resolución de tasa por jurisdicción/nomenclatura/fuente (Bloque 2) ──
+          // Se DESCARTAN las cifras del modelo (base_rate, preferential_rate,
+          // confidence). La tasa la fija resolveTariff() y termina en
+          // determined / referential / not_determined.
           try {
             const results = parsed.results as Array<Record<string, unknown>> | undefined;
             if (Array.isArray(results) && destination) {
               const enrichAll = Promise.all(
                 results.map(async (r) => {
-                  const hs6 = normalizeHS6(String(r.hs_code || r.ncm_code || ""));
-                  const ncm8 = normalizeNCM8(String(r.ncm_code || r.hs_code || ""));
-                  const taricCode = hs6ToTaric(hs6);
-                  const [wto, ncm, taric] = await Promise.all([
-                    hs6 ? getWTOMFNRate(hs6, destination).catch(() => null) : Promise.resolve(null),
-                    ncm8.length >= 6 ? getNCMCode(ncm8).catch(() => null) : Promise.resolve(null),
-                    hs6 ? getTARICRate(taricCode, String(r.origin || origin || "")).catch(() => null) : Promise.resolve(null),
-                  ]);
+                  const code = String(r.hs_code || r.ncm_code || r.taric_code || "");
+                  const resolved = await resolveTariff({
+                    importCountry: destination,
+                    originCountry: String(r.origin || origin || ""),
+                    code,
+                    system,
+                  }).catch(() => null);
+
                   const enriched: Record<string, unknown> = { ...r };
-                  if (wto?.source === "WTO" && wto.mfn_rate !== null) {
-                    enriched.base_rate = `${wto.mfn_rate}%`;
-                    enriched.wto_source = true;
-                    enriched.wto_year = wto.year;
-                    enriched.confidence = "alta";
+                  // La cifra de tasa de la IA no se usa para determinación.
+                  delete enriched.base_rate;
+                  delete enriched.preferential_rate;
+
+                  if (resolved) {
+                    const legacy = toLegacyView(resolved);
+                    enriched.tariff = { general: resolved.general, preferential: resolved.preferential ?? null };
+                    enriched.jurisdiction = resolved.jurisdiction;
+                    enriched.base_rate = legacy.base_rate;                 // "14%" | null — nunca fallback
+                    enriched.base_rate_status = legacy.base_rate_status;
+                    enriched.base_rate_source = legacy.base_rate_source;
+                    enriched.base_rate_asof = legacy.base_rate_asof;
+                    enriched.preferential_rate = legacy.preferential_rate; // "0%" | null
+                    enriched.confidence = STATUS_TO_LEGACY_CONF[resolved.general.status];
                   } else {
-                    enriched.wto_source = false;
-                  }
-                  if (ncm?.source === "NCM") {
-                    enriched.ncm_description_official = ncm.descricao;
-                    enriched.ncm_vigente = true;
-                  }
-                  if (taric?.source === "TARIC") {
-                    enriched.taric_duty = taric.third_country_duty;
-                    enriched.taric_measures = taric.measures;
+                    enriched.tariff = { general: null, preferential: null };
+                    enriched.base_rate = null;
+                    enriched.base_rate_status = "not_determined";
+                    enriched.preferential_rate = null;
+                    enriched.confidence = "baja";
                   }
                   return enriched;
                 }),
@@ -226,7 +239,7 @@ export async function POST(req: NextRequest) {
               if (timed) parsed.results = timed;
             }
           } catch (enrichErr) {
-            console.error("[search] enriquecimiento falló, se entrega el resultado del modelo:", enrichErr);
+            console.error("[search] resolución de tasa falló, se entrega el resultado del modelo:", enrichErr);
           }
 
           controller.enqueue(enc.encode(ENRICHED_MARKER + JSON.stringify(parsed)));

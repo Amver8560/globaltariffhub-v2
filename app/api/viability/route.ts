@@ -3,6 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { calculateTaxes } from "@/lib/taxEngine";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
+import { resolveTariff } from "@/lib/tariffResolver";
+import { notDetermined } from "@/lib/tariffDatum";
 
 export const maxDuration = 60;
 
@@ -37,15 +39,16 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Paso 1: Identificación del producto con IA ──
+    // La IA identifica el producto. Sus cifras arancelarias (tariff_rate,
+    // effective_rate) y "excepciones de régimen" inferidas NO se usan ni se
+    // muestran (Bloque 2 · D6/D9): la tasa la resuelve resolveTariff().
     let productInfo: any = {
       hs_code: hs_code || "",
       description: description || "",
       product_name: description || "Producto sin identificar",
-      tariff_rate: 14,
       ncm_code: "",
       taric_code: "",
       requires_permits: [],
-      confidence: "low",
     };
 
     const needsAI = !hs_code && (image || description);
@@ -141,39 +144,62 @@ Identify the product and return ONLY valid JSON without extra text:
       }
     }
 
-    // ── Paso 2: Cálculo de tributos (motor propio) ──
+    // ── Paso 2: Valor CIF ──
     const fob_total = fob_unit * quantity;
     const insurance = fob_total * 0.005;
     const cif = fob_total + freight_total + insurance;
 
-    // Usar tasa efectiva si hay excepción aplicable, si no la tasa estándar
-    const standard_rate = typeof productInfo.tariff_rate === "number"
-      ? productInfo.tariff_rate
-      : parseFloat(productInfo.tariff_rate) || 14;
+    // ── Paso 3: Resolución de la tasa arancelaria (Bloque 2) ──
+    const code = hs_code || productInfo.ncm_code || productInfo.hs_code || productInfo.taric_code || "";
+    const resolved = await resolveTariff({
+      importCountry: destination,
+      originCountry: supplier_country,
+      code,
+      system: tariff_system,
+    }).catch(() => null);
+    const general = resolved?.general
+      ?? notDetermined(destination, "No se pudo resolver la tasa arancelaria para esta operación.");
 
-    const effective_rate = productInfo.effective_rate !== undefined && productInfo.effective_rate !== null
-      ? (typeof productInfo.effective_rate === "number" ? productInfo.effective_rate : parseFloat(productInfo.effective_rate))
-      : standard_rate;
+    const productOut = {
+      product_name: productInfo.product_name,
+      description: productInfo.description,
+      hs_code: productInfo.hs_code || "",
+      ncm_code: productInfo.ncm_code || "",
+      taric_code: productInfo.taric_code || "",
+      chapter: productInfo.chapter ?? null,
+      requires_permits: productInfo.requires_permits || [],
+      import_restrictions: productInfo.import_restrictions ?? null,
+      tariff_system,
+      tariff: general,
+    };
+    const commercial = { fob_unit, fob_total, freight_total, insurance, cif, quantity, supplier_country, destination };
 
-    const tariff_rate = effective_rate;
+    // D4 — sin tasa determinable, NO se calcula un total dependiente del arancel.
+    if (general.status === "not_determined") {
+      return NextResponse.json({
+        product: productOut,
+        commercial,
+        tariff_not_determined: true,
+        subtotal_known: {
+          label: es ? "Valor CIF conocido (sin arancel ni tributos)" : "Known CIF value (excl. duty and taxes)",
+          value: cif,
+        },
+        message: es
+          ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
+          : "We couldn't determine the tariff precisely enough to complete this estimate.",
+        taxes: null,
+        analysis: null,
+      });
+    }
 
-    const taxes = calculateTaxes({ cif, tariff_rate, destination });
-
-    // ── Paso 3: Análisis comercial ──
+    // Tasa referencial → se calcula, marcado como referencial.
+    const taxes = calculateTaxes({ cif, tariff_rate: general.value as number, destination });
     const landed_unit = taxes.landed_cost / quantity;
 
     return NextResponse.json({
-      product: { ...productInfo, tariff_system, standard_rate, effective_rate },
-      commercial: {
-        fob_unit,
-        fob_total,
-        freight_total,
-        insurance,
-        cif,
-        quantity,
-        supplier_country,
-        destination,
-      },
+      product: productOut,
+      commercial,
+      result_basis: general.status, // "referential" (o "determined" a futuro)
       taxes,
       analysis: {
         landed_unit,

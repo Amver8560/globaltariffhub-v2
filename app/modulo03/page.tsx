@@ -8,6 +8,7 @@ import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { buildOpQuery, readOpContext } from "@/lib/opContext";
 import { fetchWithDeadline, describeAIError, type AIErrorView } from "@/lib/aiClient";
 import ApiErrorBox from "@/components/ApiErrorBox";
+import TariffValue from "@/components/TariffValue";
 
 const INCOTERMS = [
   { code: "EXW", name: "Ex Works", seller: "Solo pone la mercadería disponible en su local", buyer: "Todos los costos y riesgos desde el local del vendedor" },
@@ -168,8 +169,12 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (ctx.destination) setDestination(ctx.destination);
     if (ctx.fob_value) setFobValue(ctx.fob_value);
     if (ctx.quantity) setQuantity(ctx.quantity);
-    if (ctx.base_rate) setTariffRate(ctx.base_rate);
-    if (ctx.pref_rate) { setPrefRate(ctx.pref_rate); setWithCert(true); }
+    // Bloque 2 — una tasa traída por URL es, a lo sumo, referencial; nunca "determinada".
+    if (ctx.base_rate && ctx.base_rate_status !== "not_determined") {
+      setTariffRate(ctx.base_rate);
+      setRateReferential(ctx.base_rate_status === "referential");
+    }
+    if (ctx.pref_rate && ctx.pref_rate_status !== "not_determined") { setPrefRate(ctx.pref_rate); setWithCert(true); }
   }, [searchParams]);
 
   // Auto-fetch tariff rate when arriving from Module 01 with full data
@@ -183,6 +188,9 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const [rateError, setRateError] = useState("");
   const [rateApiError, setRateApiError] = useState<AIErrorView | null>(null);
+  // Bloque 2 — estado de la tasa arancelaria auto-completada.
+  const [tariffNotDetermined, setTariffNotDetermined] = useState(false);
+  const [rateReferential, setRateReferential] = useState(false);
 
   const fetchTariffRate = async (code: string, sys: string, orig: string, dest: string) => {
     if (!code) return;
@@ -205,9 +213,20 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         return;
       }
       setRateInfo(data);
-      if (data.base_rate !== undefined) setTariffRate(String(data.base_rate));
-      if (data.preferential_rate !== undefined) setPrefRate(String(data.preferential_rate));
-      if (data.has_preferential) setWithCert(true);
+      if (typeof data.base_rate === "string" && data.base_rate) {
+        setTariffRate(data.base_rate.replace("%", "").trim());
+        setTariffNotDetermined(false);
+        setRateReferential(data.base_rate_status === "referential");
+      } else {
+        // Sin tasa determinable: no se auto-completa el campo de cálculo.
+        setTariffRate("");
+        setTariffNotDetermined(true);
+        setRateReferential(false);
+      }
+      if (typeof data.preferential_rate === "string" && data.preferential_rate) {
+        setPrefRate(data.preferential_rate.replace("%", "").trim());
+        setWithCert(true);
+      }
     } catch (err) {
       setRateApiError(describeAIError({ lang, thrown: err }));
     } finally {
@@ -243,8 +262,12 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       destCosts, totalWithout, totalWith, saving,
       unitWithout: totalWithout / qty, unitWith: totalWith / qty,
       cifBase,
+      // Bloque 2 — sin arancel determinable el "total" no está completo (D4).
+      tariffUnknown: tariffNotDetermined && n(tariffRate) <= 0,
+      referential: rateReferential,
+      knownSubtotal: fob + frt + ins + origCosts + destCosts,
     });
-  }, [fobValue, quantity, freight, insurancePct, exportCustoms, portOrigin, tariffRate, prefRate, withCert, importCustoms, portDest, localTransport]);
+  }, [fobValue, quantity, freight, insurancePct, exportCustoms, portOrigin, tariffRate, prefRate, withCert, importCustoms, portDest, localTransport, tariffNotDetermined, rateReferential]);
 
   const selectedIncoterm = INCOTERMS.find(i => i.code === incoterm)!;
 
@@ -374,26 +397,22 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
               {rateInfo && (
                 <div style={{ marginTop: 10, padding: "14px 16px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 10 }}>
-                  <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{rateInfo.description}</p>
-                  <div style={{ display: "flex", gap: 16, flexWrap: "wrap", marginBottom: 6 }}>
-                    <div>
-                      <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa base → campo auto-completado ↓" : "Base rate → field auto-filled ↓"}</p>
-                      <span style={{ fontSize: 18, fontWeight: 800, color: "#ef4444" }}>{rateInfo.base_rate}%</span>
+                  {rateInfo.description && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 10 }}>{rateInfo.description}</p>}
+                  <TariffValue datum={rateInfo.tariff?.general} lang={lang} label={lang === "es" ? "Tasa arancelaria" : "Tariff rate"} />
+                  {rateInfo.tariff?.preferential && rateInfo.tariff.preferential.value != null && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                      <TariffValue datum={rateInfo.tariff.preferential} lang={lang} label={lang === "es" ? "Tasa preferencial" : "Preferential rate"} />
                     </div>
-                    {rateInfo.has_preferential && (
-                      <div>
-                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>{lang === "es" ? "Tasa preferencial → campo auto-completado ↓" : "Preferential rate → auto-filled ↓"}</p>
-                        <span style={{ fontSize: 18, fontWeight: 800, color: "#22c55e" }}>{rateInfo.preferential_rate}%</span>
-                      </div>
-                    )}
-                    {rateInfo.agreement && rateInfo.agreement !== "null" && (
-                      <div>
-                        <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>Acuerdo</p>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#C9A84C" }}>📋 {rateInfo.agreement}</span>
-                      </div>
-                    )}
-                  </div>
-                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{rateInfo.notes}</p>}
+                  )}
+                  {rateInfo.agreement && rateInfo.agreement !== "null" && (
+                    <p style={{ fontSize: 12, color: "#C9A84C", marginTop: 10, marginBottom: 0 }}>📋 {rateInfo.agreement}</p>
+                  )}
+                  {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 8, marginBottom: 0 }}>{rateInfo.notes}</p>}
+                  {!tariffNotDetermined && rateInfo.tariff?.general?.value != null && (
+                    <p style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 8, marginBottom: 0 }}>
+                      {lang === "es" ? "↓ Se auto-completó el campo de tasa. Podés ajustarlo." : "↓ The rate field was auto-filled. You can adjust it."}
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -466,7 +485,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <p style={{ ...sectionStyle, marginTop: 4 }}>{c.section_destination}</p>
               <div style={{ marginBottom: 12 }}>
                 <label style={labelStyle}>{c.tariff_rate}</label>
-                <input type="number" value={tariffRate} onChange={(e) => setTariffRate(e.target.value)} placeholder="14" style={inputStyle} />
+                <input type="number" value={tariffRate} onChange={(e) => { setTariffRate(e.target.value); setTariffNotDetermined(false); setRateReferential(false); }} placeholder="—" style={inputStyle} />
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, padding: "10px 14px", background: "rgba(34,197,94,0.07)", borderRadius: 8, border: "1px solid rgba(34,197,94,0.2)", cursor: "pointer" }} onClick={() => setWithCert(!withCert)}>
                 <div style={{ width: 20, height: 20, borderRadius: 4, background: withCert ? "#22c55e" : "transparent", border: `2px solid ${withCert ? "#22c55e" : "rgba(255,255,255,0.3)"}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -512,8 +531,36 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   </button>
                 </div>
 
-                {/* Total principal */}
+                {/* D4 — arancel no determinado: subtotal conocido, sin "costo total" completo */}
+                {result.tariffUnknown && (
+                  <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 22, border: "1px solid rgba(148,163,184,0.4)", marginBottom: 16 }}>
+                    <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6, marginBottom: 12 }}>
+                      {lang === "es"
+                        ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
+                        : "We couldn't determine the tariff precisely enough to complete this estimate."}
+                    </p>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 12px", background: "rgba(0,87,255,0.08)", borderRadius: 8 }}>
+                      <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{lang === "es" ? "Subtotal conocido (valor + logística, sin arancel ni tributos)" : "Known subtotal (value + logistics, excl. duty and taxes)"}</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: "#0057FF" }}>{cur} {fmt(result.knownSubtotal)}</span>
+                    </div>
+                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 10 }}>
+                      {lang === "es"
+                        ? "Verificá la posición y el arancel en el sistema oficial del país importador o con un despachante, y volvé a ingresar la tasa a mano para ver el total."
+                        : "Verify the position and duty in the importing country's official system or with a customs broker, then re-enter the rate manually to see the total."}
+                    </p>
+                  </div>
+                )}
+
+                {/* Total principal — sólo cuando la tasa está disponible */}
+                {!result.tariffUnknown && (
                 <div style={{ background: "linear-gradient(135deg, #0D1B3E, #0A0A0F)", borderRadius: 16, padding: 24, border: "1px solid rgba(201,168,76,0.3)", marginBottom: 16 }}>
+                  {result.referential && (
+                    <p style={{ fontSize: 11, color: "#C9A84C", marginBottom: 8, lineHeight: 1.5 }}>
+                      {lang === "es"
+                        ? "⚠ Estimación referencial: la tasa arancelaria es un promedio a 6 dígitos, no la línea nacional definitiva. Requiere validación."
+                        : "⚠ Referential estimate: the tariff rate is a 6-digit average, not the definitive national line. Requires validation."}
+                    </p>
+                  )}
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.total_cost} ({incoterm}) — {cur}</p>
                   {currency !== "USD" && (
                     fxRate ? (
@@ -550,6 +597,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     </>
                   )}
                 </div>
+                )}
 
                 {/* Desglose */}
                 <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 20, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 16 }}>
@@ -571,7 +619,7 @@ function Modulo04Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 </div>
 
                 {/* Acciones */}
-                <Link href={`/modulo02${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: tariffRate, pref_rate: withCert ? prefRate : "" })}`} style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 10 }}>
+                <Link href={`/modulo02${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: result.tariffUnknown ? "" : tariffRate, base_rate_status: result.tariffUnknown ? "not_determined" : (rateReferential ? "referential" : ""), pref_rate: withCert && !result.tariffUnknown ? prefRate : "" })}`} style={{ display: "block", textAlign: "center", padding: "12px", borderRadius: 10, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", marginBottom: 10 }}>
                   {c.sim_cert}
                 </Link>
 
