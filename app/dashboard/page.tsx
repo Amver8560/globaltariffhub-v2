@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { MARKETING_CONSENT_TEXT } from "@/lib/legalVersions";
 
 const CONTACT_EMAIL = "analia@globaltariffhub.com";
 
@@ -19,6 +20,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [marketingOn, setMarketingOn] = useState<boolean | null>(null);
+  const [mktBusy, setMktBusy] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -34,10 +37,36 @@ export default function DashboardPage() {
         .eq("id", user.id)
         .single();
       setProfile(prof);
+
+      // Preferencia de comunicaciones (marketing). Sin fila → OFF.
+      const { data: uc } = await supabase
+        .from("user_consents")
+        .select("marketing_consent")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setMarketingOn(uc?.marketing_consent ?? false);
+
       setLoading(false);
     };
     load();
   }, [router]);
+
+  const toggleMarketing = async () => {
+    if (mktBusy || marketingOn === null) return;
+    const next = !marketingOn;
+    setMktBusy(true);
+    try {
+      const res = await fetch("/api/consent/marketing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: next }),
+      });
+      const j = await res.json().catch(() => null);
+      if (res.ok && j?.ok) setMarketingOn(typeof j.marketing_consent === "boolean" ? j.marketing_consent : next);
+    } finally {
+      setMktBusy(false);
+    }
+  };
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -150,6 +179,39 @@ export default function DashboardPage() {
               </div>
             );
           })}
+        </div>
+
+        {/* Comunicaciones */}
+        <div style={{ background: "#0D1B3E", borderRadius: 14, padding: 20, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
+          <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Comunicaciones</p>
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap" }}>
+            <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.6, maxWidth: 520 }}>{MARKETING_CONSENT_TEXT}</p>
+            <button
+              onClick={toggleMarketing}
+              disabled={mktBusy || marketingOn === null}
+              style={{
+                flexShrink: 0,
+                padding: "8px 18px",
+                borderRadius: 20,
+                border: "1px solid",
+                borderColor: marketingOn ? "#22c55e" : "rgba(255,255,255,0.2)",
+                background: marketingOn ? "rgba(34,197,94,0.15)" : "transparent",
+                color: marketingOn ? "#22c55e" : "rgba(255,255,255,0.5)",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: mktBusy || marketingOn === null ? "not-allowed" : "pointer",
+              }}
+            >
+              {marketingOn === null ? "…" : mktBusy ? "Guardando…" : marketingOn ? "Activadas" : "Desactivadas"}
+            </button>
+          </div>
+          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 10 }}>
+            {marketingOn === null
+              ? ""
+              : marketingOn
+              ? "Estás recibiendo estas comunicaciones. Podés desactivarlas cuando quieras."
+              : "No vas a recibir estas comunicaciones. Podés volver a activarlas cuando quieras."}
+          </p>
         </div>
 
         {/* Contacto — apertura anticipada */}

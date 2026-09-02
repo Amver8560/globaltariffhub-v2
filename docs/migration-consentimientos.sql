@@ -37,10 +37,14 @@ CREATE TABLE IF NOT EXISTS public.consent_events (
 CREATE INDEX IF NOT EXISTS idx_consent_events_user
   ON public.consent_events (user_id, document, occurred_at DESC);
 
--- Idempotencia atómica del alta y de las transiciones de estado:
--- un único evento por (usuario, documento, versión, acción).
+-- Idempotencia atómica del alta: los eventos del alta usan un occurred_at
+-- estable (= user_consents.created_at), así el reintento de /api/register no
+-- duplica. Las transiciones de marketing del dashboard / enlace de baja usan
+-- occurred_at = now() → cada cambio real queda como fila propia (historial
+-- completo). Índice NO parcial → PostgREST lo infiere como árbitro de
+-- ON CONFLICT DO NOTHING.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_consent_events_once
-  ON public.consent_events (user_id, document, document_version, action);
+  ON public.consent_events (user_id, document, document_version, action, occurred_at);
 
 -- Append-only: bloquea UPDATE de filas históricas. NO bloquea DELETE,
 -- para que el ON DELETE CASCADE de la baja de cuenta funcione.

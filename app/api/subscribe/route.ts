@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { setMarketingConsent } from "@/lib/consent";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -49,6 +50,17 @@ export async function POST(req: NextRequest) {
       { error: "No pudimos registrar tu email. Probá de nuevo en un momento." },
       { status: 500 }
     );
+  }
+
+  // Si el email pertenece a una cuenta, sincronizar su consentimiento de
+  // marketing por la misma lógica única. Best-effort: el subscriber ya quedó.
+  try {
+    await setMarketingConsent({ email: cleanEmail, enabled: true, source: "waitlist" });
+  } catch (syncErr) {
+    console.error("[subscribe] no se pudo sincronizar el consentimiento de la cuenta", {
+      email: cleanEmail,
+      err: String(syncErr),
+    });
   }
 
   // ── 2. Emails (best-effort — no bloquean el alta ya persistida) ──
