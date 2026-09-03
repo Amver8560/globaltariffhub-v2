@@ -33,7 +33,8 @@ export function isSupportedIncoterm(v: unknown): v is Incoterm {
 export type BaseComponent = "pre_shipment" | "international_freight" | "insurance";
 
 export const BASE_COMPONENT_LABEL_ES: Record<BaseComponent, string> = {
-  pre_shipment: "costos de pre-embarque",
+  // Rótulo simple para usuarios sin experiencia en comercio exterior.
+  pre_shipment: "costos previos al transporte internacional",
   international_freight: "flete internacional",
   insurance: "seguro internacional",
 };

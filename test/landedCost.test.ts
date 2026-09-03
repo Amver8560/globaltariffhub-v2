@@ -32,19 +32,36 @@ describe("computeLandedCost — CIF: nada se re-suma para la base", () => {
   });
 });
 
-describe("computeLandedCost — CFR: sólo se pide el seguro", () => {
-  it("informado suma; el flete no se re-suma", () => {
+describe("computeLandedCost — CFR (validación ATLAS: flete ya incluido, sólo pide seguro)", () => {
+  it("reconoce el flete ya incluido; suma sólo el seguro; sin double counting", () => {
     const r = computeLandedCost(
       base({
         incoterm: "CFR",
         declared_value: 10000,
-        international_freight: { state: "informed", value: 700 }, // debe ignorarse
+        international_freight: { state: "informed", value: 700 }, // debe ignorarse (ya en el precio)
+        pre_shipment: { state: "informed", value: 400 },          // no lo pide CFR → ignorado
         insurance: { state: "informed", kind: "amount", value: 80 },
       }),
     );
-    expect(r.base_known).toBe(10080);
+    expect(r.base_known).toBe(10080); // 10000 + 80 seguro, NADA de flete ni pre-embarque
     expect(r.added_to_base.map((l) => l.key)).toEqual(["insurance"]);
     expect(r.already_in_price).toContain("Flete internacional");
+    expect(r.missing_base_components).toHaveLength(0);
+    expect(r.completeness).toBe("complete");
+  });
+
+  it("seguro NO informado → resultado parcial, sin aplicar ningún default", () => {
+    const r = computeLandedCost(base({ incoterm: "CFR", declared_value: 10000, insurance: { state: "missing" } }));
+    expect(r.base_known).toBe(10000); // se muestra lo conocido
+    expect(r.missing_base_components).toEqual(["seguro internacional"]);
+    expect(r.completeness).toBe("partial");
+    expect(r.added_to_base.find((l) => l.key === "insurance")).toBeUndefined(); // no se inventó %
+  });
+
+  it("seguro = 0 informado deliberadamente → completo, sin faltantes", () => {
+    const r = computeLandedCost(base({ incoterm: "CFR", declared_value: 10000, insurance: { state: "zero" } }));
+    expect(r.missing_base_components).toHaveLength(0);
+    expect(r.base_known).toBe(10000);
     expect(r.completeness).toBe("complete");
   });
 });
@@ -142,13 +159,13 @@ describe("computeLandedCost — EXW: pide pre-embarque + flete + seguro", () => 
       }),
     );
     expect(r.base_known).toBe(10960);
-    expect(r.missing_base_components).toContain("costos de pre-embarque");
+    expect(r.missing_base_components).toContain("costos previos al transporte internacional");
     expect(r.completeness).toBe("partial");
   });
 });
 
-describe("computeLandedCost — FCA: pre-embarque es contextual (no bloquea)", () => {
-  it("flete y seguro informados, pre-embarque faltante → resultado COMPLETO", () => {
+describe("computeLandedCost — FCA (validación ATLAS: modelo reducido, sin double counting, faltantes → parcial)", () => {
+  it("flete y seguro informados, pre-embarque contextual faltante → resultado COMPLETO", () => {
     const r = computeLandedCost(
       base({
         incoterm: "FCA",
@@ -157,11 +174,41 @@ describe("computeLandedCost — FCA: pre-embarque es contextual (no bloquea)", (
         insurance: { state: "informed", kind: "amount", value: 40 },
       }),
     );
-    // pre_shipment aparece listado como no informado pero NO marca base incompleta
-    expect(r.missing_base_components).toContain("costos de pre-embarque");
+    // el pre-embarque en FCA es contextual: se lista como no informado pero NO bloquea la base
+    expect(r.missing_base_components).toContain("costos previos al transporte internacional");
     expect(r.base_complete).toBe(true);
     expect(r.completeness).toBe("complete");
-    expect(r.base_known).toBe(10740);
+    expect(r.base_known).toBe(10740); // 10000 + 700 + 40
+  });
+
+  it("despacho de exportación ya está en el precio: un valor cargado en un componente no pedido se ignora (sin double counting)", () => {
+    const r = computeLandedCost(
+      base({
+        incoterm: "FCA",
+        declared_value: 10000,
+        // FCA sólo pide international_freight, insurance y (contextual) pre_shipment.
+        international_freight: { state: "informed", value: 700 },
+        insurance: { state: "informed", kind: "amount", value: 40 },
+        pre_shipment: { state: "informed", value: 300 }, // pre-terminal: se suma
+      }),
+    );
+    expect(r.base_known).toBe(11040); // 10000 + 700 + 40 + 300
+    // no hay componentes de origen separados que pudieran duplicarse
+    expect(r.added_to_base.map((l) => l.key).sort()).toEqual(["insurance", "international_freight", "pre_shipment"]);
+  });
+
+  it("flete faltante → resultado PARCIAL, sin defaults, con el faltante señalado", () => {
+    const r = computeLandedCost(
+      base({
+        incoterm: "FCA",
+        international_freight: { state: "missing" },
+        insurance: { state: "informed", kind: "amount", value: 40 },
+      }),
+    );
+    expect(r.completeness).toBe("partial");
+    expect(r.missing_base_components).toContain("flete internacional");
+    expect(r.base_known).toBe(10040); // 10000 + 40 seguro; el flete NO se estima
+    expect(r.added_to_base.find((l) => l.key === "international_freight")).toBeUndefined();
   });
 });
 

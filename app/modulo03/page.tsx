@@ -49,8 +49,8 @@ const t = {
     quantity: "Cantidad",
     currency: "Moneda",
     section_components: "Componentes a agregar según el Incoterm",
-    pre_shipment: "Costos de pre-embarque",
-    pre_shipment_help: "Costos hasta dejar la mercadería lista para el transporte internacional.",
+    pre_shipment: "Costos hasta dejar la mercadería lista para el transporte internacional",
+    pre_shipment_help: "",
     intl_freight: "Flete internacional",
     insurance: "Seguro internacional",
     insurance_kind_amount: "Monto",
@@ -100,8 +100,8 @@ const t = {
     quantity: "Quantity",
     currency: "Currency",
     section_components: "Components to add for this Incoterm",
-    pre_shipment: "Pre-shipment costs",
-    pre_shipment_help: "Costs to get the goods ready for international transport.",
+    pre_shipment: "Costs to get the goods ready for international transport",
+    pre_shipment_help: "",
     intl_freight: "International freight",
     insurance: "International insurance",
     insurance_kind_amount: "Amount",
@@ -553,7 +553,6 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   <div style={{ marginBottom: 14 }}>
                     <label style={labelStyle}>{c.pre_shipment}</label>
                     <input type="number" value={preShipment} onChange={(e) => setPreShipment(e.target.value)} placeholder="" style={inputStyle} />
-                    <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 4 }}>{c.pre_shipment_help}</p>
                   </div>
                 )}
 
