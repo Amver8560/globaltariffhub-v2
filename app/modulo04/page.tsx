@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { SUPPORTED_COUNTRIES } from "@/lib/taxEngine";
 import LegalDisclaimer from "@/components/LegalDisclaimer";
 import { exportViabilityPDF } from "@/lib/exportPDF";
 import { buildOpQuery, readOpContext } from "@/lib/opContext";
@@ -23,10 +22,10 @@ const ALL_COUNTRIES = [
 const OTHER_COST_KEYS = ["import_clearance", "dest_port", "dest_inland"] as const;
 type OtherCostKey = (typeof OTHER_COST_KEYS)[number];
 
-// Destinos curados del selector de M04. Un destino heredado de M01/M03 que no
-// esté acá se agrega como opción extra para que el valor recibido se hidrate.
+// El selector "País de importación" usa la MISMA lista estática que el de país
+// proveedor (ALL_COUNTRIES), para representar cualquier destino transmitido por
+// M01/M03 desde el primer render (continuidad). Los extras van al final.
 const DEST_EXTRA = ["Ecuador", "Venezuela", "Bolivia", "Costa Rica", "Guatemala", "Panamá", "Otros"];
-const DEST_OPTIONS = [...SUPPORTED_COUNTRIES, ...DEST_EXTRA];
 
 const t = {
   es: {
@@ -352,12 +351,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   <label style={labelStyle}>{c.destination} *</label>
                   <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, borderColor: !destination ? "rgba(239,68,68,0.5)" : "rgba(0,87,255,0.3)" }}>
                     <option value="">{lang === "es" ? "— Seleccioná —" : "— Select —"}</option>
-                    {/* Continuidad: si el destino llegó de M01/M03 y no está en la lista
-                        curada, se incluye igual para que se hidrate el valor recibido. */}
-                    {destination && !DEST_OPTIONS.includes(destination) && (
-                      <option value={destination}>{destination}</option>
-                    )}
-                    {SUPPORTED_COUNTRIES.map(co => <option key={co} value={co}>{co}</option>)}
+                    {ALL_COUNTRIES.map(co => <option key={co} value={co}>{co}</option>)}
                     <option disabled>──────────</option>
                     {DEST_EXTRA.map(co => <option key={co} value={co}>{co}</option>)}
                   </select>
