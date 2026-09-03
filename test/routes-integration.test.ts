@@ -53,8 +53,31 @@ vi.mock("@/lib/ncmApi", () => ({ getNCMCode: vi.fn(), normalizeNCM8: (s: string)
 vi.mock("@/lib/taricApi", () => ({ getTARICRate: vi.fn(), hs6ToTaric: (s: string) => s.padEnd(10, "0") }));
 vi.mock("@/lib/witsApi", () => ({ getWitsRates: vi.fn(async () => ({ mfn_rate: null, pref_rate: null, year: null, source: "none" })) }));
 
+// Bloque 3 — resolver de arancel controlado por test (no toca fuentes reales).
+const tariffBehavior: { status: "referential" | "not_determined"; value: number | null } = { status: "referential", value: 10 };
+vi.mock("@/lib/tariffResolver", () => ({
+  resolveTariff: vi.fn(async () => ({
+    general: {
+      status: tariffBehavior.status,
+      value: tariffBehavior.value,
+      unit: "%",
+      basis: "referential_multilateral",
+      source: { id: "test", name: "test", kind: "api" },
+      as_of: { kind: "year", value: "2025" },
+      nomenclature: { system: "HS", level: "HS6", national_position_determined: false },
+      jurisdiction: { country: "Brasil", role: "import" },
+      confidence: { level: "medium", rationale: "test" },
+      requires_validation: true,
+      note: "test",
+    },
+    preferential: null,
+    jurisdiction: { regime: "unknown" },
+  })),
+}));
+
 import { POST as searchPOST } from "@/app/api/search/route";
 import { POST as certificatePOST } from "@/app/api/certificate/route";
+import { POST as viabilityPOST } from "@/app/api/viability/route";
 
 const MARKER = "\x00ENRICHED\x00";
 
@@ -135,5 +158,57 @@ describe("/api/certificate — catch no streaming", () => {
     const body = await res.json();
     expect(body.credit_refunded).toBe(false);
     expect(body.error).toMatch(/analia@globaltariffhub\.com/);
+  });
+});
+
+describe("/api/viability — Bloque 3 · motor canónico de costos", () => {
+  function req(fields: Record<string, string>) {
+    const fd = new FormData();
+    const base: Record<string, string> = {
+      hs_code: "220421", tariff_system: "HS", supplier_country: "Argentina",
+      destination: "Brasil", unit_price: "10000", quantity: "1", lang: "es",
+    };
+    for (const [k, v] of Object.entries({ ...base, ...fields })) fd.set(k, v);
+    return new Request("http://x/api/viability", { method: "POST", body: fd }) as never;
+  }
+
+  beforeEach(() => { tariffBehavior.status = "referential"; tariffBehavior.value = 10; });
+
+  it("sin Incoterm → 400 MISSING_INCOTERM y NO consume crédito", async () => {
+    const res: any = await viabilityPOST(req({}));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.code).toBe("MISSING_INCOTERM");
+    expect(checkAndConsumeCredit).not.toHaveBeenCalled();
+  });
+
+  it("CIF + flete informado → el flete no se re-suma; base = precio declarado", async () => {
+    const res: any = await viabilityPOST(req({ incoterm: "CIF", intl_freight: "800" }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.cost.base_known).toBe(10000);
+    expect(body.cost.already_in_price).toContain("Flete internacional");
+    expect(body.cost.operation_estimate).toBe(11000); // + 10% arancel
+    expect(body.not_included_notice).toBeTruthy();
+  });
+
+  it("FOB con flete NO informado → resultado parcial, no bloqueo; sin default", async () => {
+    const res: any = await viabilityPOST(req({ incoterm: "FOB" }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.cost.completeness).toBe("partial");
+    expect(body.cost.missing_base_components).toEqual(
+      expect.arrayContaining(["flete internacional", "seguro internacional"]),
+    );
+    expect(body.cost.base_known).toBe(10000);
+  });
+
+  it("arancel not_determined → sólo base conocida, sin estimación", async () => {
+    tariffBehavior.status = "not_determined"; tariffBehavior.value = null;
+    const res: any = await viabilityPOST(req({ incoterm: "CIF" }));
+    const body = await res.json();
+    expect(body.cost.completeness).toBe("not_computable");
+    expect(body.cost.operation_estimate).toBeNull();
+    expect(body.cost.base_known).toBe(10000);
   });
 });

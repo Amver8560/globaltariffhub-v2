@@ -48,12 +48,63 @@ describe("guardarraíl Bloque 2", () => {
     expect(src, "viability importa calculateTaxes").not.toMatch(/import\s*\{[^}]*calculateTaxes/);
     expect(src, "viability llama calculateTaxes()").not.toMatch(/calculateTaxes\s*\(/);
     expect(src).toMatch(/not_included_notice/);
-    expect(src).toMatch(/estimated_import_base_plus_duty/);
   });
 
   it("contención R3 — viability no arma precios sugeridos por multiplicador", () => {
     const src = read("app/api/viability/route.ts");
     expect(src).not.toMatch(/suggested_price_(min|unit|max)/);
     expect(src).not.toMatch(/landed_unit\s*\*/);
+  });
+});
+
+describe("guardarraíl Bloque 3 — Incoterm + modelo de costos", () => {
+  it("ninguna fórmula de seguro fija (0.005 / 0,5% hardcodeado) en viability / M3 / M4", () => {
+    for (const p of ["app/api/viability/route.ts", "app/modulo03/page.tsx", "app/modulo04/page.tsx"]) {
+      const src = read(p);
+      expect(src, `${p} tiene 0.005 hardcodeado`).not.toMatch(/\*\s*0\.005\b/);
+      expect(src, `${p} tiene "* 0.5 / 100" hardcodeado`).not.toMatch(/\*\s*0\.5\s*\/\s*100/);
+    }
+  });
+
+  it("la fórmula de costo vive sólo en lib/landedCost.ts", () => {
+    for (const p of ["app/api/viability/route.ts", "app/modulo03/page.tsx", "app/modulo04/page.tsx"]) {
+      const src = read(p);
+      expect(src, `${p} define cifBase =`).not.toMatch(/cifBase\s*=/);
+      expect(src, `${p} suma fob_total + freight`).not.toMatch(/fob_total\s*\+\s*freight/);
+    }
+  });
+
+  it("M3 ya no define un array local INCOTERMS con DAP/DDP/CPT", () => {
+    const src = read("app/modulo03/page.tsx");
+    expect(src).not.toMatch(/const\s+INCOTERMS\s*=\s*\[/);
+    expect(src).not.toMatch(/code:\s*"DAP"|code:\s*"DDP"|code:\s*"CPT"/);
+  });
+
+  it("M4 — claves muertas del modelo anterior eliminadas del diccionario", () => {
+    const src = read("app/modulo04/page.tsx");
+    for (const k of ["landed_cost", "landed_unit", "tax_breakdown", "total_taxes", "tax_burden", "price_analysis", "suggested_min", "suggested_ref", "suggested_max"]) {
+      expect(src, `M4 aún tiene la clave ${k}`).not.toMatch(new RegExp(`\\b${k}\\s*:`));
+    }
+  });
+
+  it("no quedan rótulos 'Costo total CIF' / 'nacionalizado' en M3 y sus PDF", () => {
+    for (const p of ["app/modulo03/page.tsx", "lib/exportPDF.ts"]) {
+      const src = read(p);
+      expect(src, `${p} usa 'Costo total CIF'`).not.toMatch(/Costo total CIF/i);
+      expect(src, `${p} usa 'nacionalizad'`).not.toMatch(/nacionalizad/i);
+      expect(src, `${p} usa 'COSTO TOTAL SIN CERTIFICADO'`).not.toMatch(/COSTO TOTAL SIN CERTIFICADO/i);
+    }
+  });
+
+  it("opContext extiende con incoterm y NO con transport_mode", () => {
+    const src = read("lib/opContext.ts");
+    expect(src).toMatch(/incoterm\?:\s*string/);
+    expect(src).not.toMatch(/transport_mode/);
+  });
+
+  it("Incoterms soportados: exactamente EXW/FCA/FOB/CFR/CIF; sin DAP/DDP/CPT/CIP calculables", () => {
+    const src = read("lib/incoterms.ts");
+    expect(src).toMatch(/"EXW"\s*\|\s*"FCA"\s*\|\s*"FOB"\s*\|\s*"CFR"\s*\|\s*"CIF"/);
+    expect(src).not.toMatch(/"DAP"|"DDP"|"CPT"|"CIP"/);
   });
 });

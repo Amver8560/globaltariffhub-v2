@@ -11,12 +11,21 @@ export interface OpContext {
   system?: string;      // "HS" | "NCM" | "TARIC"
   base_rate?: string;   // tasa general, número como texto (ej "14" o "14%")
   pref_rate?: string;   // tasa preferencial con acuerdo/certificado
-  fob_value?: string;
+  fob_value?: string;   // precio comercial cotizado (número como texto)
   quantity?: string;
   // Bloque 2 — procedencia mínima. El receptor NUNCA reconstruye una tasa
   // como "determinada" desde la URL: a lo sumo es "referencial".
   base_rate_status?: string;  // "referential" | "not_determined"
   pref_rate_status?: string;  // "referential" | "not_determined"
+  // Bloque 3 — contexto económico acumulativo de la operación (D12 revisada).
+  // Cada módulo reutiliza lo conocido y sólo pide lo que falta. Sin defaults:
+  // un campo ausente = dato no informado; "0" = cero informado deliberadamente.
+  incoterm?: string;         // "EXW" | "FCA" | "FOB" | "CFR" | "CIF"
+  currency?: string;         // "USD" | "EUR" | ...
+  intl_freight?: string;     // flete internacional (monto)
+  insurance_kind?: string;   // "amount" | "percent"
+  insurance_value?: string;  // monto o porcentaje del seguro
+  pre_shipment?: string;     // costos de pre-embarque (monto) — EXW / FCA
 }
 
 /** Construye "?a=1&b=2" a partir del contexto, omitiendo vacíos. */
@@ -46,5 +55,11 @@ export function readOpContext(sp: URLSearchParams | { get(k: string): string | n
     quantity: g("quantity"),
     base_rate_status: g("base_rate_status"),
     pref_rate_status: g("pref_rate_status"),
+    incoterm: g("incoterm"),
+    currency: g("currency"),
+    intl_freight: g("intl_freight"),
+    insurance_kind: g("insurance_kind"),
+    insurance_value: g("insurance_value"),
+    pre_shipment: g("pre_shipment"),
   };
 }

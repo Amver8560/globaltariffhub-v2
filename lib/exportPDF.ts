@@ -249,87 +249,145 @@ export function exportCertificatePDF(result: any, params: {
   doc.save(`GTH_Analisis_Preferencia_${tariffSystem}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
 }
 
-// ── MÓDULO 03 — Calculadora CIF ──────────────────────────────────────────────
-export function exportCIFPDF(result: any, params: {
-  tariffCode: string; tariffSystem: string; origin: string; destination: string;
-  incoterm: string; currency: string; fobValue: string;
-  tariffRate: string; prefRate: string; withCert: boolean; lang: string;
-  rateInfo?: any;
-}) {
-  const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const { tariffCode, tariffSystem, origin, destination, incoterm, currency,
-    fobValue, tariffRate, prefRate, withCert, lang, rateInfo } = params;
-  const es = lang === "es";
-  const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
-  const fmt = (n: number) => `${currency} ${n.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// ── Bloque 3 — Bloque de resultado del motor canónico de costos ──────────────
+// Consumido por M3 (exportCIFPDF) y M4 (exportViabilityPDF). Estructura D9:
+// precio declarado → base estimada para el arancel → arancel → estimación GTH
+// → (aparte) otros costos declarados. No se usan rótulos de costo total ni de
+//   operación aduanera completada; el resultado es una estimación de alcance GTH.
+function costResultRows(
+  doc: jsPDF,
+  cost: any,
+  opts: { incoterm: string; currency: string; fxRate: number | null; es: boolean; declaredValue: number },
+  y: number,
+): number {
+  const { incoterm, currency, fxRate, es, declaredValue } = opts;
+  const conv = (n: number) => (currency !== "USD" && fxRate ? n * fxRate : n);
+  const fmt = (n: number) =>
+    `${currency} ${conv(n || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  header(doc, es ? "Calculadora CIF e Incoterms" : "CIF & Incoterms Calculator", date);
+  y = sectionTitle(doc, es ? "ESTIMACIÓN DENTRO DEL ALCANCE DE GTH" : "ESTIMATE WITHIN GTH'S SCOPE", y);
+  y = row(doc, `${es ? "Precio comercial cotizado" : "Quoted commercial price"} (${incoterm})`, fmt(declaredValue), y);
 
-  let y = 38;
+  if (cost.already_in_price?.length) {
+    y = row(doc, es ? "Ya en el precio (no se re-suma)" : "Already in price (not re-added)", cost.already_in_price.join(" · "), y);
+  }
+  for (const li of cost.added_to_base ?? []) {
+    y = row(doc, `+ ${li.label_es}`, fmt(li.amount), y);
+  }
+  y = row(doc, es ? "Base estimada para el arancel" : "Estimated duty base", fmt(cost.base_known), y, BLUE);
+  y = row(
+    doc,
+    es ? "Nota de base" : "Base note",
+    es
+      ? "La base definitiva aplicable puede variar según la normativa de la jurisdicción importadora y debe validarse cuando corresponda."
+      : "The final applicable base may vary under the importing jurisdiction's rules and must be validated where applicable.",
+    y,
+    GOLD,
+  );
 
-  // Operación
-  y = sectionTitle(doc, es ? "DATOS DE LA OPERACIÓN" : "OPERATION DATA", y);
-  y = row(doc, "Incoterm", incoterm, y);
-  y = row(doc, es ? "País de origen" : "Country of origin", origin || "—", y);
-  y = row(doc, es ? "País de destino" : "Country of destination", destination || "—", y);
-  y = row(doc, `${es ? "Código" : "Code"} ${tariffSystem}`, tariffCode || "—", y);
-  if (rateInfo?.description) y = row(doc, es ? "Producto" : "Product", rateInfo.description, y);
-  if (rateInfo?.agreement && rateInfo.agreement !== "null") y = row(doc, es ? "Acuerdo" : "Agreement", rateInfo.agreement, y);
-  y += 4;
+  if (cost.missing_base_components?.length) {
+    y = row(
+      doc,
+      es ? "No informado" : "Not informed",
+      (es ? "Falta: " : "Missing: ") +
+        cost.missing_base_components.join(", ") +
+        (es ? ". La estimación puede variar al incorporarlo(s). No se asume ningún valor." : ". The estimate may change once added. No value is assumed."),
+      y,
+      GOLD,
+    );
+  }
 
-  // Desglose de costos
-  y = sectionTitle(doc, es ? "DESGLOSE DE COSTOS" : "COST BREAKDOWN", y);
-  const items = [
-    [es ? "Valor FOB" : "FOB Value", result.fob],
-    [es ? "Flete internacional" : "International freight", result.freight],
-    [es ? "Seguro" : "Insurance", result.insurance],
-    [es ? "Gastos origen" : "Origin costs", result.origCosts],
-    [es ? `Arancel (${tariffRate}%)` : `Tariff (${tariffRate}%)`, result.tariffAmt],
-    [es ? "Gastos destino" : "Destination costs", result.destCosts],
-  ];
-  items.forEach(([label, val]) => {
-    if (val !== undefined && val !== null) {
-      y = row(doc, String(label), fmt(val as number), y);
-    }
-  });
+  if (cost.completeness === "not_computable") {
+    y = row(doc, es ? "Estado" : "Status", cost.note_es || (es ? "No se puede estimar el arancel." : "The tariff cannot be estimated."), y, GOLD);
+    return y + 2;
+  }
+
+  y = row(doc, `${es ? "Arancel" : "Tariff"} (${cost.duty?.rate ?? "—"}% · ${es ? "referencial" : "referential"})`, fmt(cost.duty?.amount ?? 0), y, RED);
   y += 2;
 
-  // Total highlight
   setFill(doc, DARK);
-  doc.roundedRect(14, y, 182, 14, 3, 3, "F");
+  doc.roundedRect(14, y, 182, 16, 3, 3, "F");
   setColor(doc, WHITE);
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
-  doc.text(es ? "COSTO TOTAL SIN CERTIFICADO" : "TOTAL COST WITHOUT CERTIFICATE", 20, y + 6);
+  const label = (es ? "Estimación de la operación dentro del alcance de GTH" : "Operation estimate within GTH's scope") +
+    (cost.completeness === "partial" ? (es ? " (provisional)" : " (provisional)") : "");
+  doc.text(label.toUpperCase(), 18, y + 6);
   doc.setFontSize(13);
-  doc.text(fmt(result.totalWithout), 190, y + 9, { align: "right" });
-  y += 18;
+  doc.text(fmt(cost.operation_estimate ?? 0), 190, y + 11, { align: "right" });
+  y += 20;
 
-  if (withCert && result.totalWith !== undefined) {
-    setFill(doc, GREEN);
-    doc.roundedRect(14, y, 182, 14, 3, 3, "F");
-    setColor(doc, WHITE);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text(es ? `COSTO CON CERTIFICADO (${prefRate}%)` : `COST WITH CERTIFICATE (${prefRate}%)`, 20, y + 6);
-    doc.setFontSize(13);
-    doc.text(fmt(result.totalWith), 190, y + 9, { align: "right" });
-    y += 18;
-
-    const saving = result.totalWithout - result.totalWith;
-    if (saving > 0) {
-      setFill(doc, GOLD);
-      doc.roundedRect(14, y, 182, 10, 2, 2, "F");
-      setColor(doc, DARK);
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.text(es ? `Ahorro estimado con certificado: ${fmt(saving)}` : `Estimated savings with certificate: ${fmt(saving)}`, 105, y + 6.5, { align: "center" });
-      y += 14;
+  if (cost.other_costs_declared?.length) {
+    y = sectionTitle(doc, es ? "OTROS COSTOS DE LA OPERACIÓN QUE INFORMASTE" : "OTHER OPERATION COSTS YOU INFORMED", y);
+    for (const li of cost.other_costs_declared) y = row(doc, li.label_es, fmt(li.amount), y);
+    if (cost.total_with_other_costs != null) {
+      y = row(doc, es ? "Total incluyendo lo que informaste" : "Total including what you informed", fmt(cost.total_with_other_costs), y, BLUE);
     }
+  }
+  return y + 2;
+}
+
+// ── MÓDULO 03 — Calculadora de costos de operación ──────────────────────────
+export function exportCIFPDF(
+  data: {
+    cost: any;
+    costPref?: any;
+    incoterm: string;
+    currency: string;
+    fxRate: number | null;
+    declaredValue: string;
+    tariffCode: string;
+    tariffSystem: string;
+    origin: string;
+    destination: string;
+    withCert: boolean;
+    prefRate: string;
+    rateInfo?: any;
+    notIncludedNotice: string;
+  },
+  params: { lang: string },
+) {
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const { lang } = params;
+  const es = lang === "es";
+  const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
+  const conv = (n: number) => (data.currency !== "USD" && data.fxRate ? n * data.fxRate : n);
+  const fmtC = (n: number) => `${data.currency} ${conv(n || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  header(doc, es ? "Estimación de costo de operación" : "Operation cost estimate", date);
+  let y = 38;
+
+  y = sectionTitle(doc, es ? "DATOS DE LA OPERACIÓN" : "OPERATION DATA", y);
+  y = row(doc, "Incoterm", data.incoterm, y);
+  if (data.cost?.scope_note_es && es) y = row(doc, "", data.cost.scope_note_es, y);
+  y = row(doc, es ? "País de origen" : "Country of origin", data.origin || "—", y);
+  y = row(doc, es ? "País de destino" : "Country of destination", data.destination || "—", y);
+  y = row(doc, `${es ? "Código" : "Code"} ${data.tariffSystem}`, data.tariffCode || "—", y);
+  if (data.rateInfo?.description) y = row(doc, es ? "Producto" : "Product", data.rateInfo.description, y);
+  y += 4;
+
+  y = costResultRows(doc, data.cost, {
+    incoterm: data.incoterm, currency: data.currency, fxRate: data.fxRate, es,
+    declaredValue: parseFloat(data.declaredValue) || 0,
+  }, y);
+
+  if (data.withCert && data.costPref && data.costPref.operation_estimate != null && data.cost.operation_estimate != null) {
+    const saving = data.cost.operation_estimate - data.costPref.operation_estimate;
+    y = row(doc, `${es ? "Estimación con certificado preferencial" : "Estimate with preferential certificate"} (${data.prefRate}%)`, fmtC(data.costPref.operation_estimate), y, GREEN);
+    if (saving > 0) y = row(doc, es ? "Ahorro estimado con certificado" : "Estimated saving with certificate", fmtC(saving), y, GOLD);
+  }
+
+  if (data.notIncludedNotice) {
+    if (y > 255) { doc.addPage(); y = 20; }
+    setColor(doc, GOLD);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    const nl = doc.splitTextToSize(data.notIncludedNotice, 178);
+    doc.text(nl, 14, y); y += nl.length * 4 + 4;
   }
 
   footer(doc, lang);
-  doc.save(`GTH_CIF_${incoterm}_${tariffCode || "consulta"}_${Date.now()}.pdf`);
+  doc.save(`GTH_Costo_Operacion_${data.incoterm}_${data.tariffCode || "consulta"}_${Date.now()}.pdf`);
 }
 
 // ── MÓDULO 01 — Búsqueda Arancelaria ─────────────────────────────────────────
@@ -523,12 +581,15 @@ export function exportSearchPDF(response: any, params: {
 export function exportViabilityPDF(result: any, params: {
   supplierCountry: string; destination: string; tariffSystem: string;
   fobUnit: string; quantity: string; lang: string;
+  currency?: string; fxRate?: number | null;
 }) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const { supplierCountry, destination, tariffSystem, fobUnit, quantity, lang } = params;
+  const { supplierCountry, destination, tariffSystem, quantity, lang } = params;
   const es = lang === "es";
   const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
-  const fmt = (n: number) => `USD ${n?.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "—"}`;
+  const commercial = result.commercial || {};
+  const currency = params.currency || commercial.currency || "USD";
+  const fxRate = params.fxRate ?? null;
 
   header(doc, es ? "Análisis de Viabilidad de Importación" : "Import Viability Analysis", date);
 
@@ -539,8 +600,9 @@ export function exportViabilityPDF(result: any, params: {
   y = row(doc, es ? "País proveedor" : "Supplier country", supplierCountry, y);
   y = row(doc, es ? "País de destino" : "Destination country", destination, y);
   y = row(doc, es ? "Sistema arancelario" : "Tariff system", tariffSystem, y);
-  y = row(doc, es ? "Precio FOB unitario" : "FOB unit price", `USD ${fobUnit}`, y);
-  y = row(doc, es ? "Cantidad" : "Quantity", quantity, y);
+  y = row(doc, "Incoterm", commercial.incoterm || "—", y);
+  y = row(doc, es ? "Precio unitario cotizado" : "Quoted unit price", `${currency} ${(commercial.unit_price != null && currency !== "USD" && fxRate ? commercial.unit_price * fxRate : commercial.unit_price) ?? "—"}`, y);
+  y = row(doc, es ? "Cantidad" : "Quantity", String(commercial.quantity ?? quantity), y);
   y += 4;
 
   // Producto identificado
@@ -555,36 +617,15 @@ export function exportViabilityPDF(result: any, params: {
   y = tariffDatumRows(doc, result.product?.tariff, y, es);
   y += 4;
 
-  // Estructura de costos
-  y = sectionTitle(doc, es ? "ESTRUCTURA DE COSTOS" : "COST BREAKDOWN", y);
-  y = row(doc, es ? "Valor FOB total" : "Total FOB value", fmt(result.commercial?.fob_total), y);
-  y = row(doc, es ? "Flete internacional" : "International freight", fmt(result.commercial?.freight_total), y);
-  y = row(doc, es ? "Seguro" : "Insurance", fmt(result.commercial?.insurance), y);
-  y = row(doc, es ? "Valor CIF" : "CIF value", fmt(result.commercial?.cif), y, BLUE);
-  y += 4;
-
-  // Bloque 2 — sin fiscalidad interna. Sólo base CIF + arancel (referencial) o nada.
-  if (result.tariff_not_determined || !result.estimated_import_base_plus_duty) {
-    y = row(doc, es ? "Estado" : "Status",
-      es ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
-         : "We couldn't determine the tariff precisely enough to complete this estimate.", y, GOLD);
-  } else {
-    if (result.result_basis === "referential") {
-      y = row(doc, es ? "Nota" : "Note",
-        es ? "Estimación referencial: la tasa arancelaria es un promedio a 6 dígitos (HS6), no la línea nacional definitiva."
-           : "Referential estimate: the tariff rate is a 6-digit (HS6) average, not the definitive national line.", y, GOLD);
-    }
-    y = row(doc, `${es ? "Arancel de importación" : "Import duty"} (${result.duty?.rate ?? "—"}%)`,
-      fmt(result.duty?.amount ?? 0), y, RED);
-    y += 2;
-    setFill(doc, DARK);
-    doc.roundedRect(14, y, 182, 16, 3, 3, "F");
-    setColor(doc, WHITE);
-    doc.setFontSize(9);
-    doc.text((result.estimated_import_base_plus_duty.label || (es ? "Estimación parcial de la operación" : "Partial operation estimate")).toUpperCase(), 18, y + 6);
-    doc.setFontSize(13);
-    doc.text(fmt(result.estimated_import_base_plus_duty.value), 190, y + 11, { align: "right" });
-    y += 20;
+  // Motor canónico de costos (Bloque 3 — mismo bloque que M3)
+  if (result.cost) {
+    y = costResultRows(doc, result.cost, {
+      incoterm: commercial.incoterm || "—",
+      currency,
+      fxRate,
+      es,
+      declaredValue: commercial.declared_value || 0,
+    }, y);
   }
 
   // Nota de alcance — siempre visible.

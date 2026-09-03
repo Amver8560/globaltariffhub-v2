@@ -4,6 +4,8 @@ import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
 import { resolveTariff } from "@/lib/tariffResolver";
 import { notDetermined } from "@/lib/tariffDatum";
+import { isSupportedIncoterm, type Incoterm } from "@/lib/incoterms";
+import { computeLandedCost, toMoney, toInsurance, type CostInput, type OtherCost } from "@/lib/landedCost";
 
 // Bloque 2 — contención de alcance: M4 NO incorpora fiscalidad interna
 // (IVA/VAT/GST, percepciones, anticipos, impuestos internos). No se invoca el
@@ -21,11 +23,8 @@ export async function POST(req: NextRequest) {
   let userId: string | undefined;
   let lang = "es";
   try {
-    // Verificar créditos antes de procesar
-    const credit = await checkAndConsumeCredit();
-    if (!credit.ok) return credit.error!;
-    userId = credit.userId;
-
+    // Validación de inputs ANTES de consumir crédito: un 400 no debe descontar
+    // una consulta. (Bloque 3 · D6 — Incoterm explícito, sin default silencioso.)
     const formData = await req.formData();
     const image = formData.get("image") as File | null;
     const description = (formData.get("description") as string || "").trim();
@@ -33,17 +32,38 @@ export async function POST(req: NextRequest) {
     const tariff_system = (formData.get("tariff_system") as string || "NCM").toUpperCase();
     const supplier_country = formData.get("supplier_country") as string || "China";
     const destination = formData.get("destination") as string || "";
-    const fob_unit = parseFloat(formData.get("fob_unit") as string || "0");
+    const unit_price = parseFloat(formData.get("unit_price") as string || formData.get("fob_unit") as string || "0");
     const quantity = parseInt(formData.get("quantity") as string || "1");
-    const freight_total = parseFloat(formData.get("freight_total") as string || "0");
+    // Bloque 3 — condiciones comerciales y componentes de la operación.
+    const incotermRaw = (formData.get("incoterm") as string || "").toUpperCase();
+    const currency = (formData.get("currency") as string || "USD").toUpperCase();
+    const intlFreightStr = (formData.get("intl_freight") as string) ?? "";
+    const preShipmentStr = (formData.get("pre_shipment") as string) ?? "";
+    const insuranceKind = (formData.get("insurance_kind") as string || "amount");
+    const insuranceValueStr = (formData.get("insurance_value") as string) ?? "";
+    const otherCostsRaw = (formData.get("other_costs") as string) || "";
     lang = (formData.get("lang") as string || "es").toLowerCase();
     const es = lang === "es";
 
-    if (!destination || fob_unit <= 0) {
+    if (!destination || unit_price <= 0) {
       return NextResponse.json({
-        error: es ? "Seleccioná el país de importación e ingresá el precio FOB." : "Select import country and enter FOB price."
+        error: es ? "Seleccioná el país de importación e ingresá el precio comercial cotizado." : "Select import country and enter the quoted commercial price."
       }, { status: 400 });
     }
+    if (!isSupportedIncoterm(incotermRaw)) {
+      return NextResponse.json({
+        error: es
+          ? "Elegí el Incoterm correspondiente al precio informado."
+          : "Choose the Incoterm that corresponds to the quoted price.",
+        code: "MISSING_INCOTERM",
+      }, { status: 400 });
+    }
+    const incoterm: Incoterm = incotermRaw;
+
+    // Verificar créditos antes de procesar (después de validar inputs).
+    const credit = await checkAndConsumeCredit();
+    if (!credit.ok) return credit.error!;
+    userId = credit.userId;
 
     // ── Paso 1: Identificación del producto con IA ──
     // La IA identifica el producto. Sus cifras arancelarias (tariff_rate,
@@ -151,12 +171,7 @@ Identify the product and return ONLY valid JSON without extra text:
       }
     }
 
-    // ── Paso 2: Valor CIF ──
-    const fob_total = fob_unit * quantity;
-    const insurance = fob_total * 0.005;
-    const cif = fob_total + freight_total + insurance;
-
-    // ── Paso 3: Resolución de la tasa arancelaria (Bloque 2) ──
+    // ── Paso 2: Resolución de la tasa arancelaria (Bloque 2, intacto) ──
     const code = hs_code || productInfo.ncm_code || productInfo.hs_code || productInfo.taric_code || "";
     const resolved = await resolveTariff({
       importCountry: destination,
@@ -179,48 +194,53 @@ Identify the product and return ONLY valid JSON without extra text:
       tariff_system,
       tariff: general,
     };
-    const commercial = { fob_unit, fob_total, freight_total, insurance, cif, quantity, supplier_country, destination };
 
     const not_included_notice = es ? NOT_INCLUDED_NOTICE_ES : NOT_INCLUDED_NOTICE_EN;
 
-    // D4 — sin tasa determinable, NO se calcula nada que dependa del arancel.
-    if (general.status === "not_determined") {
-      return NextResponse.json({
-        product: productOut,
-        commercial,
-        tariff_not_determined: true,
-        subtotal_known: {
-          label: es ? "Valor CIF conocido (sin arancel ni tributos)" : "Known CIF value (excl. duty and taxes)",
-          value: cif,
-        },
-        message: es
-          ? "No pudimos determinar el arancel con suficiente precisión para completar esta estimación."
-          : "We couldn't determine the tariff precisely enough to complete this estimate.",
-        not_included_notice,
-        taxes: null,
-        analysis: null,
-      });
+    // ── Paso 3: Motor canónico de costos (Bloque 3, mismo que M3) ──
+    // precio cotizado + Incoterm → qué ya está incluido → qué falta conocer
+    //   → base conocida/estimada → TariffDatum → estimación dentro del alcance GTH.
+    // Sin defaults, sin fiscalidad, sin double counting. Tres estados: informed/zero/missing.
+    let other_costs: OtherCost[] = [];
+    if (otherCostsRaw) {
+      try {
+        const parsed = JSON.parse(otherCostsRaw);
+        if (Array.isArray(parsed)) {
+          other_costs = parsed
+            .filter((x) => x && typeof x.label === "string")
+            .map((x) => ({ label: String(x.label), amount: toMoney(x.amount) }));
+        }
+      } catch { /* other_costs opcional; se ignora si viene mal formado */ }
     }
 
-    // Tasa referencial → estimación PARCIAL, dentro del alcance de GTH:
-    // base CIF + arancel. Sin fiscalidad interna, sin precios sugeridos.
-    const r2 = (x: number) => Math.round(x * 100) / 100;
-    const duty_amount = r2((cif * (general.value as number)) / 100);
-    const estimated_import_base_plus_duty = r2(cif + duty_amount);
+    const costInput: CostInput = {
+      declared_value: unit_price * quantity,
+      incoterm,
+      pre_shipment: toMoney(preShipmentStr),
+      international_freight: toMoney(intlFreightStr),
+      insurance: toInsurance(insuranceKind, insuranceValueStr),
+      other_costs,
+      duty: {
+        status: general.status === "not_determined" ? "not_determined" : "referential",
+        rate: general.status === "not_determined" ? null : (general.value as number | null),
+      },
+      quantity: toMoney(String(quantity)),
+    };
+    const cost = computeLandedCost(costInput);
 
     return NextResponse.json({
       product: productOut,
-      commercial,
-      result_basis: general.status, // "referential" (o "determined" a futuro)
-      duty: { rate: general.value, amount: duty_amount, basis: general.status },
-      estimated_import_base_plus_duty: {
-        label: es ? "Estimación parcial de la operación" : "Partial operation estimate",
-        sublabel: es ? "Valor CIF + arancel — dentro del alcance de GTH" : "CIF value + duty — within GTH's scope",
-        value: estimated_import_base_plus_duty,
+      commercial: {
+        unit_price,
+        quantity,
+        declared_value: costInput.declared_value,
+        incoterm,
+        currency,
+        supplier_country,
+        destination,
       },
+      cost,
       not_included_notice,
-      taxes: null,
-      analysis: null,
     });
 
   } catch (err: any) {
