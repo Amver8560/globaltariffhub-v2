@@ -182,9 +182,11 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
   const swapCountries = () => {
     const newOrigin = destination;
+    const newDest = origin;
     setOrigin(newOrigin);
-    setDestination(origin);
-    if (newOrigin) setSystem(getSystemForCountry(newOrigin));
+    setDestination(newDest);
+    // La nomenclatura la determina la jurisdicción importadora (destino).
+    if (newDest) setSystem(getSystemForCountry(newDest));
   };
 
   const handleSearch = async () => {
@@ -314,71 +316,16 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           </div>
         </div>
 
-        {/* Operación de Comercio Exterior */}
-        <div style={{ marginBottom: 20 }}>
-          <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
-            {lang === "es" ? "Operación de Comercio Exterior" : "Trade Operation"}
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {([
-              { key: "importacion" as Operation, icon: "📥", es: "Importación", en: "Import", desc_es: "Traer un producto al país", desc_en: "Bring a product into the country" },
-              { key: "exportacion" as Operation, icon: "📤", es: "Exportación", en: "Export", desc_es: "Enviar un producto al exterior", desc_en: "Send a product abroad" },
-            ]).map((op) => (
-              <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); setApiError(null); }}
-                style={{
-                  padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#C9A84C" : "rgba(255,255,255,0.1)"}`,
-                  background: operation === op.key ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)",
-                  color: "#FFFFFF", cursor: "pointer", textAlign: "left",
-                  transition: "all 0.15s",
-                }}>
-                <div style={{ fontSize: 22, marginBottom: 6 }}>{op.icon}</div>
-                <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 3 }}>{lang === "es" ? op.es : op.en}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{lang === "es" ? op.desc_es : op.desc_en}</div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* País origen / destino / nomenclatura */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
-            <div>
-              <label style={labelStyle}>{c.origin}</label>
-              <select value={origin} onChange={(e) => { const v = e.target.value; setOrigin(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>
-                <option value="">{c.select_country}</option>
-                {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
-              </select>
-            </div>
-            <button onClick={swapCountries} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
-            <div>
-              <label style={labelStyle}>{c.destination}</label>
-              <select value={destination} onChange={(e) => setDestination(e.target.value)} style={selectStyle}>
-                <option value="">{c.select_country}</option>
-                {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
-              </select>
-            </div>
-          </div>
-
-          {/* Switch nomenclatura */}
-          <div>
-            <label style={labelStyle}>{c.nomenclature}</label>
-            <div style={{ display: "flex", gap: 8 }}>
-              {SYSTEMS.map((s) => (
-                <button key={s} onClick={() => setSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${system === s ? "#0057FF" : "rgba(255,255,255,0.1)"}`, background: system === s ? "rgba(0,87,255,0.2)" : "transparent", color: system === s ? "#FFFFFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs búsqueda */}
+        {/* 1 · Producto — imagen / descripción / código */}
+        <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+          {lang === "es" ? "1 · Producto" : "1 · Product"}
+        </p>
         <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "#0D1B3E", borderRadius: 12, padding: 6, border: "1px solid rgba(0,87,255,0.2)" }}>
           {([["image", c.tab_image], ["text", c.tab_text], ["code", c.tab_code]] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => { setTab(key); setResponse(null); setError(""); setApiError(null); }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === key ? "#0057FF" : "transparent", color: tab === key ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{label}</button>
           ))}
         </div>
-
-        {/* Panel búsqueda */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
+        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
 
           {tab === "image" && (
             <div>
@@ -409,37 +356,100 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
             </div>
           )}
 
-          {error && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 12 }}>{error}</p>}
-          {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSearch} retrying={loading} />}
-
-          <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginTop: 18, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
-            {loading ? c.btn_searching : c.btn_search}
-          </button>
-
-          {/* Pasos animados durante la búsqueda */}
-          {loading && (
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
-              {[
-                { step: 1, icon: "🔍", es: "Identificando el producto...", en: "Identifying the product..." },
-                { step: 2, icon: "📋", es: "Clasificando con HS / NCM / TARIC...", en: "Classifying with HS / NCM / TARIC..." },
-                { step: 3, icon: "🤝", es: "Verificando acuerdos comerciales...", en: "Checking trade agreements..." },
-                { step: 4, icon: "✓", es: "Preparando resultados...", en: "Preparing results..." },
-              ].map((s) => {
-                const active = streamStep === s.step;
-                const done = streamStep > s.step;
-                return (
-                  <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 10, opacity: done ? 0.4 : active ? 1 : 0.2, transition: "opacity 0.4s" }}>
-                    <span style={{ fontSize: 16 }}>{done ? "✓" : s.icon}</span>
-                    <span style={{ fontSize: 13, color: active ? "#C9A84C" : done ? "#22c55e" : "rgba(255,255,255,0.4)", fontWeight: active ? 600 : 400 }}>
-                      {lang === "es" ? s.es : s.en}
-                    </span>
-                    {active && <span style={{ marginLeft: 4, animation: "pulse 1s infinite", color: "#C9A84C" }}>●</span>}
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
+
+        {/* 2 · Operación de Comercio Exterior */}
+        <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+          {lang === "es" ? "2 · Operación" : "2 · Operation"}
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+          {([
+            { key: "importacion" as Operation, icon: "📥", es: "Importación", en: "Import", desc_es: "Traer un producto al país", desc_en: "Bring a product into the country" },
+            { key: "exportacion" as Operation, icon: "📤", es: "Exportación", en: "Export", desc_es: "Enviar un producto al exterior", desc_en: "Send a product abroad" },
+          ]).map((op) => (
+            <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); setApiError(null); }}
+              style={{
+                padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#C9A84C" : "rgba(255,255,255,0.1)"}`,
+                background: operation === op.key ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)",
+                color: "#FFFFFF", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+              }}>
+              <div style={{ fontSize: 22, marginBottom: 6 }}>{op.icon}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 3 }}>{lang === "es" ? op.es : op.en}</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{lang === "es" ? op.desc_es : op.desc_en}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* 3 · Origen / destino · 4 · Nomenclatura (determinada por jurisdicción) */}
+        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+          <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+            {lang === "es" ? "3 · Origen y destino" : "3 · Origin and destination"}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
+            <div>
+              <label style={labelStyle}>{c.origin}</label>
+              <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
+                <option value="">{c.select_country}</option>
+                {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+              </select>
+            </div>
+            <button onClick={swapCountries} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
+            <div>
+              <label style={labelStyle}>{c.destination}</label>
+              <select value={destination} onChange={(e) => { const v = e.target.value; setDestination(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>
+                <option value="">{c.select_country}</option>
+                {COUNTRIES.map((co) => <option key={co} value={co}>{co}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* 4 · Nomenclatura — GTH la determina según la jurisdicción cuando puede */}
+          <div>
+            <label style={labelStyle}>{lang === "es" ? "4 · Nomenclatura" : "4 · Nomenclature"}</label>
+            <div style={{ display: "flex", gap: 8 }}>
+              {SYSTEMS.map((s) => (
+                <button key={s} onClick={() => setSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${system === s ? "#0057FF" : "rgba(255,255,255,0.1)"}`, background: system === s ? "rgba(0,87,255,0.2)" : "transparent", color: system === s ? "#FFFFFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
+              ))}
+            </div>
+            {destination && getSystemForCountry(destination) === system && getSystemForCountry(destination) !== "HS" && (
+              <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6 }}>
+                {lang === "es"
+                  ? `GTH seleccionó ${system} según la jurisdicción de ${destination}. Podés cambiarlo si tu operación usa otra.`
+                  : `GTH selected ${system} based on ${destination}'s jurisdiction. You can change it if your operation uses another.`}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Buscar */}
+        {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
+        {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSearch} retrying={loading} />}
+        <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginBottom: 24, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
+          {loading ? c.btn_searching : c.btn_search}
+        </button>
+
+        {loading && (
+          <div style={{ marginTop: -8, marginBottom: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+            {[
+              { step: 1, icon: "🔍", es: "Identificando el producto...", en: "Identifying the product..." },
+              { step: 2, icon: "📋", es: "Clasificando con HS / NCM / TARIC...", en: "Classifying with HS / NCM / TARIC..." },
+              { step: 3, icon: "🤝", es: "Verificando acuerdos comerciales...", en: "Checking trade agreements..." },
+              { step: 4, icon: "✓", es: "Preparando resultados...", en: "Preparing results..." },
+            ].map((s) => {
+              const active = streamStep === s.step;
+              const done = streamStep > s.step;
+              return (
+                <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 10, opacity: done ? 0.4 : active ? 1 : 0.2, transition: "opacity 0.4s" }}>
+                  <span style={{ fontSize: 16 }}>{done ? "✓" : s.icon}</span>
+                  <span style={{ fontSize: 13, color: active ? "#C9A84C" : done ? "#22c55e" : "rgba(255,255,255,0.4)", fontWeight: active ? 600 : 400 }}>
+                    {lang === "es" ? s.es : s.en}
+                  </span>
+                  {active && <span style={{ marginLeft: 4, animation: "pulse 1s infinite", color: "#C9A84C" }}>●</span>}
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Resultados */}
         {response && response.results?.length > 0 && (
@@ -611,37 +621,9 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                       </div>
                     </div>
 
-                    {/* Tributos en destino */}
-                    {r.taxes && r.taxes.length > 0 && (
-                      <div style={{ marginBottom: 16 }}>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1 }}>
-                          {lang === "es" ? "🌐 Aranceles en destino" : "🌐 Destination tariffs"}
-                        </p>
-                        <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, overflow: "hidden" }}>
-                          {r.taxes.map((tax, ti) => (
-                            <div key={ti} style={{
-                              display: "grid",
-                              gridTemplateColumns: "80px 60px 1fr",
-                              gap: 12,
-                              alignItems: "center",
-                              padding: "10px 16px",
-                              background: ti % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent",
-                              borderBottom: ti < r.taxes!.length - 1 ? "1px solid rgba(255,255,255,0.05)" : "none",
-                            }}>
-                              <span style={{ fontFamily: "monospace", fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>{tax.code} %</span>
-                              <span style={{
-                                fontSize: 14, fontWeight: 800,
-                                color: tax.rate === "0%" ? "rgba(255,255,255,0.35)" : "#ef4444",
-                              }}>{tax.rate}</span>
-                              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-                                {tax.label}
-                                {tax.note ? <span style={{ color: "rgba(255,255,255,0.35)", marginLeft: 6 }}>— {tax.note}</span> : null}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {/* El arancel resuelto por Bloque 2 se muestra arriba en <TariffValue>.
+                        No se renderiza r.taxes[] (tasas generadas por IA): no debe competir
+                        con el TariffDatum de las fuentes. */}
 
                     {r.notes && (
                       <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px 16px", marginBottom: 16 }}>
@@ -667,6 +649,10 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                             base_rate_status: g?.status ?? "not_determined",
                             pref_rate: p && p.value != null ? String(p.value) : "",
                             pref_rate_status: p ? p.status : "",
+                            // Bloque 3 · continuidad: el TariffDatum exacto que ve el usuario
+                            // viaja completo. El receptor lo reutiliza; no vuelve a consultar fuentes.
+                            tariff_datum: g ? JSON.stringify(g) : "",
+                            pref_tariff_datum: p ? JSON.stringify(p) : "",
                           });
                           return (
                             <>

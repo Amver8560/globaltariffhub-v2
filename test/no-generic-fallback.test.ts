@@ -108,3 +108,62 @@ describe("guardarraíl Bloque 3 — Incoterm + modelo de costos", () => {
     expect(src).not.toMatch(/"DAP"|"DDP"|"CPT"|"CIP"/);
   });
 });
+
+describe("corrección — un TariffDatum en continuidad (M01 → M03)", () => {
+  it("M01 ya no renderiza r.taxes[] como aranceles compitiendo con el TariffDatum", () => {
+    const src = read("app/modulo01/page.tsx");
+    expect(src, "M01 aún itera r.taxes con tax.rate").not.toMatch(/r\.taxes\.map\([^)]*tax[^)]*\)/);
+    expect(src).not.toMatch(/🌐 Aranceles en destino/);
+    expect(src).not.toMatch(/\{tax\.rate\}/);
+  });
+
+  it("exportSearchPDF ya no imprime la sección de r.taxes[]", () => {
+    const src = read("lib/exportPDF.ts");
+    expect(src).not.toMatch(/ARANCELES EN DESTINO|DESTINATION TARIFFS/);
+    expect(src).not.toMatch(/r\.taxes\.forEach/);
+  });
+
+  it("M01 transmite el TariffDatum completo (tariff_datum) en el enlace", () => {
+    const src = read("app/modulo01/page.tsx");
+    expect(src).toMatch(/tariff_datum:\s*g\s*\?\s*JSON\.stringify\(g\)/);
+  });
+
+  it("opContext transporta tariff_datum / pref_tariff_datum", () => {
+    const src = read("lib/opContext.ts");
+    expect(src).toMatch(/tariff_datum\?:\s*string/);
+    expect(src).toMatch(/pref_tariff_datum\?:\s*string/);
+  });
+
+  it("M03 NO re-ejecuta el fetch de arancel cuando llega un tariff_datum", () => {
+    const src = read("app/modulo03/page.tsx");
+    expect(src).toMatch(/if\s*\(\s*searchParams\.get\(["']tariff_datum["']\)\s*\)\s*return;/);
+  });
+
+  it("M03 reutiliza el datum recibido (lo parsea y lo muestra)", () => {
+    const src = read("app/modulo03/page.tsx");
+    expect(src).toMatch(/JSON\.parse\(ctx\.tariff_datum\)/);
+    expect(src).toMatch(/datum=\{receivedDatum\}/);
+  });
+});
+
+describe("correcciones de flujo — M01 orden / moneda / incoterm neutral", () => {
+  it("useFxCurrency no asume USD cuando la moneda es ''", () => {
+    const src = read("lib/useFxCurrency.ts");
+    expect(src).toMatch(/if\s*\(!currency\)\s*return\s*"";/);
+  });
+
+  it("M03 inicializa la moneda desde el contexto, no fija USD", () => {
+    const src = read("app/modulo03/page.tsx");
+    expect(src).toMatch(/useFxCurrency\(searchParams\.get\(["']currency["']\)\s*\|\|\s*""\)/);
+  });
+
+  it("M03 — Incoterm: indicación neutral al entrar, error rojo sólo con precio cargado", () => {
+    const src = read("app/modulo03/page.tsx");
+    expect(src).toMatch(/n\(declaredValue\)\s*>\s*0[\s\S]{0,120}incoterm_pick[\s\S]{0,120}incoterm_help/);
+  });
+
+  it("M01 — nomenclatura determinada por la jurisdicción del destino", () => {
+    const src = read("app/modulo01/page.tsx");
+    expect(src).toMatch(/setDestination\(v\);\s*if\s*\(v\)\s*setSystem\(getSystemForCountry\(v\)\)/);
+  });
+});

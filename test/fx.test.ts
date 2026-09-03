@@ -17,6 +17,12 @@ describe("Bloque 3 · unidad FX compartida (D10)", () => {
     expect(fxFormat(10, "EUR", null)).toBe("10,00");
   });
 
+  it("moneda no elegida (''): no se asume USD; formatea el número tal cual", () => {
+    expect(fxDisplayCurrency("", 1)).toBe("");
+    expect(fxDisplayCurrency("", null)).toBe("");
+    expect(fxFormat(1234.5, "", 999)).toBe("1.234,50"); // sin conversión aunque haya fxRate
+  });
+
   it("la lista de monedas es la esperada", () => {
     expect([...FX_CURRENCIES]).toEqual(["USD", "EUR", "ARS", "BRL", "CLP"]);
   });

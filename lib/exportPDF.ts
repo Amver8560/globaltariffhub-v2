@@ -495,54 +495,8 @@ export function exportSearchPDF(response: any, params: {
     }
 
     // Tributos en destino — 3 columnas en la misma línea: código | tasa | descripción
-    if (r.taxes?.length) {
-      if (y > 245) { doc.addPage(); y = 20; }
-      y = sectionTitle(doc, es ? "ARANCELES EN DESTINO" : "DESTINATION TARIFFS", y);
-      r.taxes.forEach((tax: any, ti: number) => {
-        if (y > 265) { doc.addPage(); y = 20; }
-        const isZero = String(tax.rate) === "0%";
-        const codeText = safe(String(tax.code));
-        const rateText = safe(String(tax.rate));
-        const labelText = safe(tax.note ? `${tax.label} — ${tax.note}` : tax.label);
-
-        // Calcular líneas PRIMERO para saber la altura real de la fila
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "bold");
-        const codeLines = doc.splitTextToSize(codeText, 48);
-        doc.setFont("helvetica", "normal");
-        const labelLines = doc.splitTextToSize(labelText, 96);
-        const rowH = Math.max(codeLines.length * 5.5, labelLines.length * 5, 10);
-        const pad = 3;
-
-        // Separadores verticales con altura correcta
-        doc.setDrawColor(180, 200, 230);
-        doc.line(68, y - pad, 68, y + rowH);
-        doc.line(92, y - pad, 92, y + rowH);
-
-        // Col 1 — Código (dorado, bold, 8pt)
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "bold");
-        setColor(doc, GOLD);
-        doc.text(codeLines, 20, y);
-
-        // Col 2 — Tasa (bold, coloreada, 10pt)
-        doc.setFontSize(10);
-        doc.setTextColor(isZero ? 150 : 210, isZero ? 150 : 50, isZero ? 150 : 50);
-        doc.text(rateText, 72, y);
-
-        // Col 3 — Descripción (normal, 8pt)
-        doc.setFontSize(8);
-        doc.setFont("helvetica", "normal");
-        setColor(doc, [100, 120, 150]);
-        doc.text(labelLines, 96, y);
-
-        // Línea horizontal separadora
-        doc.setDrawColor(210, 218, 235);
-        doc.line(14, y + rowH, 196, y + rowH);
-        y += rowH + 2;
-      });
-      y += 4;
-    }
+    // Bloque 3 — no se imprime r.taxes[] (tasas generadas por IA): el arancel es
+    // el TariffDatum de Bloque 2, ya impreso arriba con tariffDatumRows().
 
     // Notas — por qué este código arancelario
     if (r.notes) {

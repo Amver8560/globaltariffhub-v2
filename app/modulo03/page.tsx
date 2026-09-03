@@ -157,13 +157,18 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [rateApiError, setRateApiError] = useState<AIErrorView | null>(null);
   const [tariffNotDetermined, setTariffNotDetermined] = useState(false);
   const [rateReferential, setRateReferential] = useState(false);
+  // Bloque 3 · continuidad: TariffDatum recibido de M01/M02. Si llega, se reutiliza
+  // tal cual y NO se vuelve a consultar las fuentes.
+  const [receivedDatum, setReceivedDatum] = useState<any>(null);
+  const [receivedPrefDatum, setReceivedPrefDatum] = useState<any>(null);
+  const cameWithDatum = !!searchParams.get("tariff_datum");
   const [tariffRate, setTariffRate] = useState("");
   const [withCert, setWithCert] = useState(false);
   const [prefRate, setPrefRate] = useState("0");
 
   // ── Bloque 3 — condiciones comerciales y componentes ──
   const [incoterm, setIncoterm] = useState<string>("");
-  const fx = useFxCurrency("USD");
+  const fx = useFxCurrency(searchParams.get("currency") || "");
   const [declaredValue, setDeclaredValue] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [preShipment, setPreShipment] = useState("");
@@ -196,19 +201,55 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (ctx.pre_shipment != null) setPreShipment(ctx.pre_shipment);
     if (ctx.insurance_kind === "percent" || ctx.insurance_kind === "amount") setInsuranceKind(ctx.insurance_kind);
     if (ctx.insurance_value != null) setInsuranceValue(ctx.insurance_value);
-    // Bloque 2 — una tasa traída por URL es, a lo sumo, referencial.
-    if (ctx.base_rate && ctx.base_rate_status !== "not_determined") {
+
+    // Bloque 3 · continuidad: el TariffDatum resuelto en M01/M02 viaja completo.
+    // Se reutiliza tal cual (value, status, source, as_of, nivel). NO se re-consulta.
+    let usedDatum = false;
+    if (ctx.tariff_datum) {
+      try {
+        const d = JSON.parse(ctx.tariff_datum);
+        if (d && typeof d === "object") {
+          setReceivedDatum(d);
+          usedDatum = true;
+          if (d.status === "not_determined" || d.value == null) {
+            setTariffRate("");
+            setTariffNotDetermined(true);
+            setRateReferential(false);
+          } else {
+            setTariffRate(String(d.value));
+            setTariffNotDetermined(false);
+            setRateReferential(d.status === "referential");
+          }
+        }
+      } catch { /* datum mal formado: se ignora y se cae a la lógica normal */ }
+    }
+    if (ctx.pref_tariff_datum) {
+      try {
+        const dp = JSON.parse(ctx.pref_tariff_datum);
+        if (dp && typeof dp === "object" && dp.value != null) {
+          setReceivedPrefDatum(dp);
+          setPrefRate(String(dp.value));
+          setWithCert(true);
+        }
+      } catch { /* ignora */ }
+    }
+
+    // Compatibilidad: si no vino el datum completo, usar los campos sueltos.
+    if (!usedDatum && ctx.base_rate && ctx.base_rate_status !== "not_determined") {
       setTariffRate(ctx.base_rate);
       setRateReferential(ctx.base_rate_status === "referential");
     }
-    if (ctx.pref_rate && ctx.pref_rate_status !== "not_determined") {
+    if (!ctx.pref_tariff_datum && ctx.pref_rate && ctx.pref_rate_status !== "not_determined") {
       setPrefRate(ctx.pref_rate);
       setWithCert(true);
     }
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Auto-fetch de tasa al llegar de M01/M02 con datos completos ──
+  // ── Auto-fetch de tasa SÓLO si NO llegó un TariffDatum en la URL ──
+  // Una operación, un TariffDatum: si el recorrido ya trae uno válido, no se
+  // vuelve a ejecutar resolveTariff() al entrar.
   useEffect(() => {
+    if (searchParams.get("tariff_datum")) return;
     const code = searchParams.get("tariff_code");
     const sys = searchParams.get("system") || "HS";
     const orig = searchParams.get("origin");
@@ -323,6 +364,10 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     base_rate: tariffNotDetermined ? "" : tariffRate,
     base_rate_status: tariffNotDetermined ? "not_determined" : (rateReferential ? "referential" : ""),
     pref_rate: withCert && !tariffNotDetermined ? prefRate : "",
+    // Continuidad: se reenvía el TariffDatum recibido/obtenido para el arancel,
+    // así el módulo siguiente no vuelve a consultar las fuentes.
+    tariff_datum: receivedDatum ? JSON.stringify(receivedDatum) : (rateInfo?.tariff?.general ? JSON.stringify(rateInfo.tariff.general) : ""),
+    pref_tariff_datum: receivedPrefDatum ? JSON.stringify(receivedPrefDatum) : (rateInfo?.tariff?.preferential ? JSON.stringify(rateInfo.tariff.preferential) : ""),
   });
 
   const inputStyle = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
@@ -423,10 +468,26 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {rateInfo.notes && rateInfo.notes !== "null" && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 8, marginBottom: 0 }}>{rateInfo.notes}</p>}
                 </div>
               )}
+              {/* Bloque 3 · continuidad: se muestra el MISMO TariffDatum que vio el usuario en M01. */}
+              {!rateInfo && receivedDatum && (
+                <div style={{ marginTop: 10, padding: "14px 16px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.3)", borderRadius: 10 }}>
+                  <TariffValue datum={receivedDatum} lang={lang} label={lang === "es" ? "Tasa arancelaria (traída de la búsqueda)" : "Tariff rate (from the search)"} />
+                  {receivedPrefDatum && receivedPrefDatum.value != null && (
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                      <TariffValue datum={receivedPrefDatum} lang={lang} label={lang === "es" ? "Tasa preferencial" : "Preferential rate"} />
+                    </div>
+                  )}
+                  <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", marginTop: 8, marginBottom: 0 }}>
+                    {lang === "es"
+                      ? "Es el dato de la operación en curso. No se volvió a consultar. Podés ajustar la tasa abajo si corresponde."
+                      : "This is the current operation's datum. It was not re-queried. You can adjust the rate below if needed."}
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Incoterm — sin preselección */}
-            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: `1px solid ${incoterm ? "rgba(0,87,255,0.2)" : "rgba(239,68,68,0.35)"}`, marginBottom: 20 }}>
+            {/* Incoterm — sin preselección. Indicación neutral al entrar; error sólo al intentar calcular. */}
+            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: `1px solid ${!incoterm && n(declaredValue) > 0 ? "rgba(239,68,68,0.35)" : "rgba(0,87,255,0.2)"}`, marginBottom: 20 }}>
               <p style={sectionStyle}>{c.incoterm_title}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
                 {SUPPORTED_INCOTERMS.map((code) => (
@@ -436,7 +497,9 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 ))}
               </div>
               {!meta && (
-                <p style={{ fontSize: 12, color: "#ef4444", fontWeight: 600 }}>⚠ {c.incoterm_pick}</p>
+                n(declaredValue) > 0
+                  ? <p style={{ fontSize: 12, color: "#ef4444", fontWeight: 600 }}>⚠ {c.incoterm_pick}</p>
+                  : <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)" }}>{c.incoterm_help}</p>
               )}
               {meta && (
                 <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "12px 14px" }}>
@@ -695,7 +758,19 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             ) : (
               <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 40, border: "1px solid rgba(0,87,255,0.1)", textAlign: "center" }}>
                 <div style={{ fontSize: 48, marginBottom: 16 }}>📦</div>
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15 }}>{c.empty}</p>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 15, marginBottom: 16 }}>{c.empty}</p>
+                {!tariffCode && !receivedDatum && (
+                  <>
+                    <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 12.5, marginBottom: 12, lineHeight: 1.5 }}>
+                      {lang === "es"
+                        ? "¿No tenés el código arancelario ni el arancel? Conviene empezar por el producto en el Módulo 01: clasifica y trae el dato hasta acá."
+                        : "Don't have the tariff code or the rate? Start from the product in Module 01: it classifies and carries the datum here."}
+                    </p>
+                    <Link href="/modulo01" style={{ display: "inline-block", padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.35)", color: "#6B9FFF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                      {lang === "es" ? "🔍 Empezar en Módulo 01" : "🔍 Start in Module 01"}
+                    </Link>
+                  </>
+                )}
               </div>
             )}
           </div>

@@ -10,14 +10,15 @@ import { useEffect, useState } from "react";
 export const FX_CURRENCIES = ["USD", "EUR", "ARS", "BRL", "CLP"] as const;
 export type FxCurrency = (typeof FX_CURRENCIES)[number];
 
-/** Moneda efectiva de visualización: cae a USD si no hay cotización. Función pura (testeable). */
+/** Moneda efectiva de visualización. "" = sin moneda elegida (no se asume USD). */
 export function fxDisplayCurrency(currency: string, fxRate: number | null): string {
+  if (!currency) return ""; // GTH no conoce la moneda: no asumir USD
   return currency !== "USD" && !fxRate ? "USD" : currency;
 }
 
-/** Convierte un monto en USD a la moneda elegida y lo formatea. Función pura (testeable). */
+/** Formatea un monto (base en USD). Sin conversión si la moneda es "" o USD o no hay cotización. */
 export function fxFormat(usd: number, currency: string, fxRate: number | null): string {
-  const v = currency !== "USD" && fxRate ? usd * fxRate : usd;
+  const v = currency && currency !== "USD" && fxRate ? usd * fxRate : usd;
   return v.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
@@ -33,13 +34,14 @@ export interface FxCurrencyState {
   fmt: (usd: number) => string;
 }
 
-export function useFxCurrency(initialCurrency = "USD"): FxCurrencyState {
+export function useFxCurrency(initialCurrency = ""): FxCurrencyState {
   const [currency, setCurrency] = useState(initialCurrency);
   const [fxRate, setFxRate] = useState<number | null>(1);
   const [fxMeta, setFxMeta] = useState<{ date: string; source: string } | null>(null);
 
   useEffect(() => {
-    if (currency === "USD") {
+    // "" = sin moneda elegida · "USD" = base, sin conversión.
+    if (!currency || currency === "USD") {
       setFxRate(1);
       setFxMeta(null);
       return;

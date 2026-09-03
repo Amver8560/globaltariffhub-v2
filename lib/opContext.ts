@@ -11,6 +11,11 @@ export interface OpContext {
   system?: string;      // "HS" | "NCM" | "TARIC"
   base_rate?: string;   // tasa general, número como texto (ej "14" o "14%")
   pref_rate?: string;   // tasa preferencial con acuerdo/certificado
+  // Bloque 3 · continuidad: el TariffDatum completo resuelto en M01/M02
+  // (value, status, source, as_of, nivel), serializado como JSON. El módulo
+  // receptor lo reutiliza tal cual; NO vuelve a consultar las fuentes.
+  tariff_datum?: string;      // JSON.stringify(TariffDatum.general) o vacío
+  pref_tariff_datum?: string; // JSON.stringify(TariffDatum.preferential) o vacío
   fob_value?: string;   // precio comercial cotizado (número como texto)
   quantity?: string;
   // Bloque 2 — procedencia mínima. El receptor NUNCA reconstruye una tasa
@@ -61,5 +66,7 @@ export function readOpContext(sp: URLSearchParams | { get(k: string): string | n
     insurance_kind: g("insurance_kind"),
     insurance_value: g("insurance_value"),
     pre_shipment: g("pre_shipment"),
+    tariff_datum: g("tariff_datum"),
+    pref_tariff_datum: g("pref_tariff_datum"),
   };
 }
