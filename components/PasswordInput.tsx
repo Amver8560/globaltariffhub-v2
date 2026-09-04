@@ -9,7 +9,7 @@ export default function PasswordInput({ style, ...props }: Props) {
   const [show, setShow] = useState(false);
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="gth-password-field" style={{ position: "relative" }}>
       <input
         {...props}
         type={show ? "text" : "password"}
@@ -19,6 +19,7 @@ export default function PasswordInput({ style, ...props }: Props) {
         type="button"
         onClick={() => setShow((s) => !s)}
         aria-label={show ? "Ocultar contraseña" : "Mostrar contraseña"}
+        className="gth-password-toggle"
         style={{
           position: "absolute",
           right: 8,
@@ -30,10 +31,6 @@ export default function PasswordInput({ style, ...props }: Props) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          color: "rgba(255,255,255,0.5)",
           padding: 0,
         }}
       >
@@ -49,6 +46,39 @@ export default function PasswordInput({ style, ...props }: Props) {
           </svg>
         )}
       </button>
+
+      {/* Contraste consistente del ícono + estados hover/focus (inline style
+          gana sobre CSS externo, por eso color y fondo del botón viven acá)
+          y neutralización del repintado de autofill del navegador, que en
+          Chrome/Safari pone el campo casi blanco y vuelve invisible tanto el
+          ícono como el texto sobre el fondo oscuro del formulario. */}
+      <style jsx>{`
+        .gth-password-toggle {
+          background: rgba(255, 255, 255, 0.07);
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          color: rgba(255, 255, 255, 0.85);
+        }
+        .gth-password-toggle:hover {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.14);
+        }
+        .gth-password-toggle:focus-visible {
+          outline: 2px solid #6b9fff;
+          outline-offset: 2px;
+        }
+        .gth-password-field input:-webkit-autofill,
+        .gth-password-field input:-webkit-autofill:hover,
+        .gth-password-field input:-webkit-autofill:focus,
+        .gth-password-field input:-webkit-autofill:active {
+          -webkit-text-fill-color: #fff;
+          -webkit-box-shadow: 0 0 0 1000px #0d1b3e inset;
+          box-shadow: 0 0 0 1000px #0d1b3e inset;
+          caret-color: #fff;
+          transition: background-color 9999s ease-in-out 0s;
+        }
+      `}</style>
     </div>
   );
 }

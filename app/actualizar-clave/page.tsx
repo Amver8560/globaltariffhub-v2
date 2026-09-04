@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { resolveRecoveryLink } from "@/lib/recoveryLink";
 import PasswordInput from "@/components/PasswordInput";
 
 export default function ActualizarClavePage() {
@@ -17,11 +18,13 @@ export default function ActualizarClavePage() {
   const [done, setDone] = useState(false);
 
   // Establece la sesión de recuperación a partir del enlace del email.
-  // Soporta las tres formas en que puede llegar:
-  //   a) ?token_hash=…&type=recovery   → verifyOtp  (plantilla {{ .TokenHash }})
-  //   b) #access_token=…&refresh_token=… → setSession (flujo implícito / plantilla por defecto)
-  //   c) sesión ya activa               → getSession (enlace vía /auth/callback)
+  // Soporta las formas en que puede llegar:
+  //   a) ?token_hash=…&type=recovery      → verifyOtp  (plantilla {{ .TokenHash }})
+  //   b) #access_token=…&refresh_token=…  → setSession (flujo implícito / plantilla por defecto)
+  //   c) ?code=…                          → exchangeCodeForSession (flujo PKCE)
+  //   d) sesión ya activa                 → getSession (enlace vía /auth/callback)
   // (a) y (b) NO dependen de cookies → funcionan al abrir el email en otro dispositivo.
+  // (c) sólo funciona si el code-verifier vive en este mismo navegador.
   useEffect(() => {
     const supabase = createClient();
 
@@ -37,40 +40,38 @@ export default function ActualizarClavePage() {
     };
 
     const run = async () => {
-      const hp = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-      const qp = new URLSearchParams(window.location.search);
+      const action = resolveRecoveryLink(window.location.search, window.location.hash);
 
-      // Error explícito de Supabase en el fragmento (token vencido o ya usado)
-      const fragErr = hp.get("error_code") || hp.get("error");
-      if (fragErr) {
-        cleanUrl();
-        finish(false, /expired|otp/i.test(fragErr) ? "expired" : "generic");
-        return;
+      switch (action.kind) {
+        case "error": {
+          cleanUrl();
+          finish(false, action.reason);
+          return;
+        }
+        case "token_hash": {
+          const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: action.token_hash });
+          cleanUrl();
+          finish(!error, "expired");
+          return;
+        }
+        case "tokens": {
+          const { error } = await supabase.auth.setSession({ access_token: action.access_token, refresh_token: action.refresh_token });
+          cleanUrl();
+          finish(!error, "expired");
+          return;
+        }
+        case "code": {
+          const { error } = await supabase.auth.exchangeCodeForSession(action.code);
+          cleanUrl();
+          finish(!error, "expired");
+          return;
+        }
+        case "session": {
+          const { data } = await supabase.auth.getSession();
+          finish(!!data.session, "generic");
+          return;
+        }
       }
-
-      // a) token_hash en la query
-      const tokenHash = qp.get("token_hash");
-      const type = qp.get("type");
-      if (tokenHash && type === "recovery") {
-        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
-        cleanUrl();
-        finish(!error, "expired");
-        return;
-      }
-
-      // b) tokens en el fragmento
-      const at = hp.get("access_token");
-      const rt = hp.get("refresh_token");
-      if (at && rt) {
-        const { error } = await supabase.auth.setSession({ access_token: at, refresh_token: rt });
-        cleanUrl();
-        finish(!error, "expired");
-        return;
-      }
-
-      // c) sesión ya activa
-      const { data } = await supabase.auth.getSession();
-      finish(!!data.session, "generic");
     };
 
     run();
