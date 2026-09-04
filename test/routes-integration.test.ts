@@ -174,6 +174,27 @@ describe("/api/viability — Bloque 3 · motor canónico de costos", () => {
 
   beforeEach(() => { tariffBehavior.status = "referential"; tariffBehavior.value = 10; });
 
+  it("body JSON / no-form → 400 INVALID_REQUEST, sin 5xx y sin consumir crédito", async () => {
+    const jsonReq = new Request("http://x/api/viability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ destination: "Brasil", unit_price: 10000 }),
+    }) as never;
+    const res: any = await viabilityPOST(jsonReq);
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.code).toBe("INVALID_REQUEST");
+    expect(checkAndConsumeCredit).not.toHaveBeenCalled();
+  });
+
+  it("body vacío → 400 INVALID_REQUEST, sin consumir crédito", async () => {
+    const emptyReq = new Request("http://x/api/viability", { method: "POST" }) as never;
+    const res: any = await viabilityPOST(emptyReq);
+    expect(res.status).toBe(400);
+    expect((await res.json()).code).toBe("INVALID_REQUEST");
+    expect(checkAndConsumeCredit).not.toHaveBeenCalled();
+  });
+
   it("sin Incoterm → 400 MISSING_INCOTERM y NO consume crédito", async () => {
     const res: any = await viabilityPOST(req({}));
     expect(res.status).toBe(400);

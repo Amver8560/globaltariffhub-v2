@@ -25,7 +25,21 @@ export async function POST(req: NextRequest) {
   try {
     // Validación de inputs ANTES de consumir crédito: un 400 no debe descontar
     // una consulta. (Bloque 3 · D6 — Incoterm explícito, sin default silencioso.)
-    const formData = await req.formData();
+    let formData: FormData;
+    try {
+      formData = await req.formData();
+    } catch {
+      // Body vacío, JSON o cualquier cosa que no parsee como FormData → 400
+      // explícito. NO se consume crédito (checkAndConsumeCredit corre después).
+      return NextResponse.json(
+        {
+          error:
+            "No se pudo leer el formulario de la operación. / Could not read the operation form.",
+          code: "INVALID_REQUEST",
+        },
+        { status: 400 },
+      );
+    }
     const image = formData.get("image") as File | null;
     const description = (formData.get("description") as string || "").trim();
     const hs_code = (formData.get("hs_code") as string || "").trim();
