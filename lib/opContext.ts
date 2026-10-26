@@ -16,7 +16,7 @@ export interface OpContext {
   // receptor lo reutiliza tal cual; NO vuelve a consultar las fuentes.
   tariff_datum?: string;      // JSON.stringify(TariffDatum.general) o vacío
   pref_tariff_datum?: string; // JSON.stringify(TariffDatum.preferential) o vacío
-  fob_value?: string;   // precio comercial cotizado (número como texto)
+  fob_value?: string;   // precio comercial cotizado TOTAL de la operación (no por unidad)
   quantity?: string;
   // Bloque 2 — procedencia mínima. El receptor NUNCA reconstruye una tasa
   // como "determinada" desde la URL: a lo sumo es "referencial".

@@ -27,6 +27,19 @@ type OtherCostKey = (typeof OTHER_COST_KEYS)[number];
 // M01/M03 desde el primer render (continuidad). Los extras van al final.
 const DEST_EXTRA = ["Ecuador", "Venezuela", "Bolivia", "Costa Rica", "Guatemala", "Panamá", "Otros"];
 
+// El contexto entre módulos (opContext.fob_value) viaja como valor TOTAL de la
+// operación (así lo usan M02 y M03). M04 trabaja con precio por unidad, así que
+// convierte al leer y al escribir. Sin cantidad válida, el valor pasa tal cual.
+const roundTo = (n: number, d: number) => String(Math.round(n * 10 ** d) / 10 ** d);
+function totalToUnit(total: string, qty?: string): string {
+  const t = parseFloat(total), q = parseFloat(qty ?? "");
+  return Number.isFinite(t) && Number.isFinite(q) && q > 0 ? roundTo(t / q, 6) : total;
+}
+function unitToTotal(unit: string, qty: string): string {
+  const u = parseFloat(unit), q = parseFloat(qty);
+  return Number.isFinite(u) && Number.isFinite(q) && q > 0 ? roundTo(u * q, 2) : unit;
+}
+
 const t = {
   es: {
     title: "Viabilidad de Importación",
@@ -184,7 +197,8 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     if (ctx.system) setTariffSystem(ctx.system);
     if (ctx.origin) setSupplierCountry(ctx.origin);
     if (ctx.destination) setDestination(ctx.destination);
-    if (ctx.fob_value) setUnitPrice(ctx.fob_value);
+    // fob_value en el contexto es el TOTAL de la operación; M04 pide precio por unidad.
+    if (ctx.fob_value) setUnitPrice(totalToUnit(ctx.fob_value, ctx.quantity));
     if (ctx.quantity) setQuantity(ctx.quantity);
     if (ctx.incoterm && (SUPPORTED_INCOTERMS as readonly string[]).includes(ctx.incoterm)) setIncoterm(ctx.incoterm);
     if (ctx.currency) fx.setCurrency(ctx.currency);
@@ -269,7 +283,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     system: "HS",
     origin: supplierCountry,
     destination,
-    fob_value: unitPrice,
+    fob_value: unitToTotal(unitPrice, quantity),
     quantity,
     incoterm,
     currency: fx.currency,
