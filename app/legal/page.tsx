@@ -53,7 +53,7 @@ export default function Legal() {
           {
             icon: "📋",
             title: "Nature of the service",
-            body: "Global Tariff Hub is an analytical support tool for international trade. It allows users to estimate tariffs, simulate transactions, and calculate import costs. All results are indicative estimates and do not constitute a definitive customs assessment, nor do they represent legal or customs advice.",
+            body: "Global Tariff Hub is an analytical support tool for international trade. It allows users to estimate tariffs, analyze transactions, and calculate import costs. All results are indicative estimates and do not constitute a definitive customs assessment, nor do they represent legal or customs advice.",
           },
           {
             icon: "🏛",

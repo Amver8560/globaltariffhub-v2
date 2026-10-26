@@ -36,13 +36,13 @@ const T = {
     nav_login: "Iniciar sesión",
     nav_cta: "Crear cuenta →",
 
-    hero_eyebrow_open: "ACCESO ANTICIPADO · GRATIS HASTA EL 4 DE SEPTIEMBRE",
+    hero_eyebrow_open: "ACCESO ANTICIPADO · GRATIS POR TIEMPO LIMITADO",
     hero_eyebrow_closed: "PRÓXIMO LANZAMIENTO",
     h1: "Explorá una operación de comercio exterior desde tu producto.",
     hero_sub:
       "Aunque no sepas por dónde empezar, Global Tariff Hub te acompaña a descubrir qué necesitás saber para comprender y evaluar una importación o exportación.",
     hero_support:
-      "Subí una foto o describí un producto. GTH te ayuda a identificarlo, explorar su clasificación arancelaria, analizar el corredor comercial, conocer requisitos y acuerdos, estimar costos y simular la operación antes de decidir avanzar.",
+      "Subí una foto o describí un producto. GTH te ayuda a identificarlo, explorar su clasificación arancelaria, analizar el corredor comercial, conocer requisitos y acuerdos, estimar costos y analizar la operación antes de decidir avanzar.",
     hero_support_closed:
       "Global Tariff Hub se encuentra en preparación para su lanzamiento. Conocé cómo funciona y registrate para recibir novedades.",
     signature: "From Product to Trade Intelligence™",
@@ -57,7 +57,7 @@ const T = {
       "Subí una foto o describí tu producto",
       "GTH te ayuda a identificarlo y clasificarlo",
       "Explorá aranceles, acuerdos, requisitos y costos",
-      "Simulá la operación antes de decidir",
+      "Analizá la operación antes de decidir",
     ],
 
     why_h2: "No necesitás saber todas las preguntas para poder empezar.",
@@ -219,7 +219,7 @@ const T = {
       "Global Tariff Hub se encuentra en preparación para su lanzamiento. Conocé cómo funciona y registrate para recibir novedades.",
     final_btn_open: "Crear cuenta y explorar →",
     final_btn_closed: "Quiero conocer el lanzamiento →",
-    final_micro_open: "Acceso gratuito hasta el 4 de septiembre · Sin tarjeta de crédito",
+    final_micro_open: "Acceso gratuito por tiempo limitado · Sin tarjeta de crédito",
     final_micro_closed: "Te avisamos cuando abra la plataforma",
 
     closing_a: "Nuestra misión no es calcular aranceles.",
@@ -231,7 +231,7 @@ const T = {
       ["/legales", "Aviso Legal"],
       ["/biblioteca", "Biblioteca"],
     ] as [string, string][],
-    footer_copy: "© 2025 Global Tariff Hub. Todos los derechos reservados.",
+    footer_copy: `© ${new Date().getFullYear()} Global Tariff Hub. Todos los derechos reservados.`,
     footer_disclaimer:
       "GTH proporciona herramientas de apoyo para análisis de comercio internacional. La clasificación arancelaria definitiva y los requisitos regulatorios deben ser verificados por profesionales competentes. Los resultados generados por IA son orientativos y no constituyen asesoramiento legal, tributario ni aduanero.",
   },
@@ -249,13 +249,13 @@ const T = {
     nav_login: "Sign in",
     nav_cta: "Create account →",
 
-    hero_eyebrow_open: "EARLY ACCESS · FREE UNTIL SEPTEMBER 4",
+    hero_eyebrow_open: "EARLY ACCESS · FREE FOR A LIMITED TIME",
     hero_eyebrow_closed: "UPCOMING LAUNCH",
     h1: "Explore an international trade operation, starting from your product.",
     hero_sub:
       "Even if you don't know where to start, Global Tariff Hub helps you discover what you need to know to understand and evaluate an import or export.",
     hero_support:
-      "Upload a photo or describe a product. GTH helps you identify it, explore its tariff classification, analyze the trade corridor, learn requirements and agreements, estimate costs and simulate the operation before deciding to move forward.",
+      "Upload a photo or describe a product. GTH helps you identify it, explore its tariff classification, analyze the trade corridor, learn requirements and agreements, estimate costs and analyze the operation before deciding to move forward.",
     hero_support_closed:
       "Global Tariff Hub is being prepared for launch. Learn how it works and sign up to get updates.",
     signature: "From Product to Trade Intelligence™",
@@ -269,7 +269,7 @@ const T = {
       "Upload a photo or describe your product",
       "GTH helps you identify and classify it",
       "Explore tariffs, agreements, requirements and costs",
-      "Simulate the operation before deciding",
+      "Analyze the operation before deciding",
     ],
 
     why_h2: "You don't need to know all the questions to get started.",
@@ -430,7 +430,7 @@ const T = {
       "Global Tariff Hub is being prepared for launch. Learn how it works and sign up to get updates.",
     final_btn_open: "Create account and explore →",
     final_btn_closed: "Get launch updates →",
-    final_micro_open: "Free access until September 4 · No credit card",
+    final_micro_open: "Free access for a limited time · No credit card",
     final_micro_closed: "We'll let you know when the platform opens",
 
     closing_a: "Our mission is not to calculate tariffs.",
@@ -442,7 +442,7 @@ const T = {
       ["/legales", "Legal Notice"],
       ["/biblioteca", "Library"],
     ] as [string, string][],
-    footer_copy: "© 2025 Global Tariff Hub. All rights reserved.",
+    footer_copy: `© ${new Date().getFullYear()} Global Tariff Hub. All rights reserved.`,
     footer_disclaimer:
       "GTH provides support tools for international trade analysis. Final tariff classification and regulatory requirements must be verified by competent professionals. AI-generated results are indicative and do not constitute legal, tax or customs advice.",
   },

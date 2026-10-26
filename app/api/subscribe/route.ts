@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
         <p style="color:rgba(255,255,255,0.75);line-height:1.7;">Gracias por registrarte. Sos de los primeros en conocer Global Tariff Hub — la plataforma arancelaria pensada para emprendedores y pymes.</p>
         <p style="color:rgba(255,255,255,0.75);line-height:1.7;margin-top:16px;">Te avisamos en cuanto lancemos. Mientras tanto, seguí nuestras novedades en <a href="https://globaltariffhub.com" style="color:#0057FF;">globaltariffhub.com</a>.</p>
         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:32px 0;" />
-        <p style="color:rgba(255,255,255,0.3);font-size:12px;">© 2025 Global Tariff Hub. Este sitio es de carácter informativo y no emite certificados de origen.</p>
+        <p style="color:rgba(255,255,255,0.3);font-size:12px;">© ${new Date().getFullYear()} Global Tariff Hub. Este sitio es de carácter informativo y no emite certificados de origen.</p>
         <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:8px;">Si no querés recibir más correos, <a href="${unsubUrl}" style="color:rgba(255,255,255,0.4);">date de baja acá</a>.</p>
       </div>
     `
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         <p style="color:rgba(255,255,255,0.75);line-height:1.7;">Thank you for signing up. You're among the first to hear about Global Tariff Hub — the tariff platform built for entrepreneurs and SMEs.</p>
         <p style="color:rgba(255,255,255,0.75);line-height:1.7;margin-top:16px;">We'll notify you as soon as we launch. In the meantime, follow our updates at <a href="https://globaltariffhub.com/en" style="color:#0057FF;">globaltariffhub.com</a>.</p>
         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:32px 0;" />
-        <p style="color:rgba(255,255,255,0.3);font-size:12px;">© 2025 Global Tariff Hub. This site is for informational purposes only and does not issue certificates of origin.</p>
+        <p style="color:rgba(255,255,255,0.3);font-size:12px;">© ${new Date().getFullYear()} Global Tariff Hub. This site is for informational purposes only and does not issue certificates of origin.</p>
         <p style="color:rgba(255,255,255,0.3);font-size:12px;margin-top:8px;">If you no longer want these emails, <a href="${unsubUrl}" style="color:rgba(255,255,255,0.4);">unsubscribe here</a>.</p>
       </div>
     `;

@@ -119,7 +119,7 @@ export default function DashboardPage() {
         {/* Banner apertura anticipada */}
         {!isPro && (
           <div style={{ background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid #C9A84C", borderRadius: 14, padding: "20px 24px", marginBottom: 28 }}>
-            <p style={{ fontSize: 13, fontWeight: 800, color: "#C9A84C", marginBottom: 4 }}>APERTURA ANTICIPADA — 01 al 04 de septiembre</p>
+            <p style={{ fontSize: 13, fontWeight: 800, color: "#C9A84C", marginBottom: 4 }}>APERTURA ANTICIPADA</p>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>Tenés 3 consultas gratuitas para recorrer todos los módulos. Cuando abramos los planes te vamos a avisar.</p>
           </div>
         )}

@@ -148,7 +148,7 @@ export default function ArticlePage() {
 
       <footer className="art-footer">
         <p>Global Tariff Hub — From Product to Trade Intelligence™</p>
-        <p>© 2025 Global Tariff Hub. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} Global Tariff Hub. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

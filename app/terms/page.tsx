@@ -38,7 +38,7 @@ export default function Terms() {
           },
           {
             title: "2. Description of service",
-            body: "Global Tariff Hub is a support platform for international trade analysis. It enables users to search tariff codes (HS, NCM, TARIC), simulate transactions using certificates of origin, calculate CIF costs, and analyze the viability of import operations. All data is provided for reference purposes and is sourced from public sources such as the WTO (WTO API), Brazil's Siscomex, and the European Union's TARIC database, all of which are subject to changes that may not be reflected in real time.",
+            body: "Global Tariff Hub is a support platform for international trade analysis. It enables users to search tariff codes (HS, NCM, TARIC), analyze transactions using certificates of origin, calculate CIF costs, and analyze the viability of import operations. All data is provided for reference purposes and is sourced from public sources such as the WTO (WTO API), Brazil's Siscomex, and the European Union's TARIC database, all of which are subject to changes that may not be reflected in real time.",
           },
           {
             title: "3. Informational nature of data",
@@ -46,7 +46,7 @@ export default function Terms() {
           },
           {
             title: "4. What GTH does not do",
-            body: "GTH does not issue certificates of origin, customs documents, or any other official documents. GTH does not provide legal, tax, or customs advice. The simulators and calculators are estimation tools and do not replace consultation with a licensed customs broker, legal advisor, or accountant specializing in international trade.",
+            body: "GTH does not issue certificates of origin, customs documents, or any other official documents. GTH does not provide legal, tax, or customs advice. The analyses and calculators are estimation tools and do not replace consultation with a licensed customs broker, legal advisor, or accountant specializing in international trade.",
           },
           {
             title: "5. Reference sources and limitation of liability",

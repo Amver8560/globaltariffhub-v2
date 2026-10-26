@@ -691,7 +691,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© {new Date().getFullYear()} Global Tariff Hub — Datos de referencia. No reemplaza consulta profesional.</p>
       </footer>
     </div>
   );

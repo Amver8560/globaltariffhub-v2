@@ -53,7 +53,7 @@ export default function Legales() {
           {
             icon: "📋",
             title: "Naturaleza del servicio",
-            body: "Global Tariff Hub es una herramienta de apoyo para el análisis de comercio internacional. Permite estimar aranceles, simular operaciones y calcular costos de importación. Todos los resultados son estimaciones orientativas y no constituyen una liquidación aduanera definitiva ni asesoramiento legal o aduanero.",
+            body: "Global Tariff Hub es una herramienta de apoyo para el análisis de comercio internacional. Permite estimar aranceles, analizar operaciones y calcular costos de importación. Todos los resultados son estimaciones orientativas y no constituyen una liquidación aduanera definitiva ni asesoramiento legal o aduanero.",
           },
           {
             icon: "🏛",
@@ -95,7 +95,7 @@ export default function Legales() {
           <p style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.7)", marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>© Derechos de Autor</p>
 
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.85, marginBottom: 16 }}>
-            <strong style={{ color: "#FFF" }}>© 2025 Global Tariff Hub.</strong> Todos los derechos reservados.
+            <strong style={{ color: "#FFF" }}>© {new Date().getFullYear()} Global Tariff Hub.</strong> Todos los derechos reservados.
           </p>
 
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.85, marginBottom: 16 }}>
@@ -129,7 +129,7 @@ export default function Legales() {
           <Link href="/privacidad" style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", textDecoration: "none" }}>Privacidad</Link>
           <Link href="/legales" style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", textDecoration: "none" }}>Aviso Legal</Link>
         </div>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)" }}>© 2025 Global Tariff Hub. Todos los derechos reservados.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.15)" }}>© {new Date().getFullYear()} Global Tariff Hub. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

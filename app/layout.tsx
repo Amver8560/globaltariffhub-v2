@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   metadataBase: new URL("https://globaltariffhub.com"),
   title: {
-    default: "Global Tariff Hub | Simulá operaciones de comercio exterior",
+    default: "Global Tariff Hub | Analizá operaciones de comercio exterior",
     template: "%s | Global Tariff Hub",
   },
   description:

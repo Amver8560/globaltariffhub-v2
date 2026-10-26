@@ -70,6 +70,8 @@ FÓRMULAS OBLIGATORIAS — usá siempre estas:
   → Ejemplo: net=1315, cert_cost=85 → ROI = (1315/85)×100 = 1547%
   → Si savings.net es negativo, el ROI es negativo y la recomendación debe desaconsejar el certificado.
 
+Organismos de Chile: DIRECON ya no existe; desde 2019 es la SUBREI (Subsecretaría de Relaciones Económicas Internacionales). Nunca nombres DIRECON como organismo vigente.
+
 Solo respondés con el JSON, sin texto adicional, sin markdown.`;
 
 export async function POST(req: NextRequest) {
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
 - Código HS: ${hs_code || "No especificado"}
 - Valor FOB: USD ${fob_value}
 - Cantidad: ${quantity} ${unit}
-- Acuerdo a simular: ${agreement || "el más conveniente disponible"}
+- Acuerdo a analizar: ${agreement || "el más conveniente disponible"}
 - Idioma de respuesta: ${lang === "en" ? "inglés" : "español"}`;
 
     // Modelo (contexto del certificado) + resolvedor de tasa (Bloque 2), en paralelo.

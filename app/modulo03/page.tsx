@@ -777,7 +777,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
       </main>
 
       <footer style={{ borderTop: "1px solid rgba(255,255,255,0.08)", padding: "20px 40px", textAlign: "center" }}>
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© 2025 Global Tariff Hub — {lang === "es" ? "Cálculo de referencia. No reemplaza consulta profesional." : "Reference calculation. Does not replace professional advice."}</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", lineHeight: 1.6 }}>© {new Date().getFullYear()} Global Tariff Hub — {lang === "es" ? "Cálculo de referencia. No reemplaza consulta profesional." : "Reference calculation. Does not replace professional advice."}</p>
       </footer>
     </div>
   );

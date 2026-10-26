@@ -35,7 +35,7 @@ export default function Terminos() {
           },
           {
             title: "2. Descripción del servicio",
-            body: "Global Tariff Hub es una plataforma de apoyo para el análisis de comercio internacional. Permite buscar códigos arancelarios (HS, NCM, TARIC), simular operaciones con certificados de origen, calcular costos CIF y analizar la viabilidad de operaciones de importación. Los datos son de referencia y se obtienen de fuentes públicas como la OMC (WTO API), Siscomex de Brasil y TARIC de la Unión Europea, las cuales están sujetas a cambios que pueden no reflejarse en tiempo real.",
+            body: "Global Tariff Hub es una plataforma de apoyo para el análisis de comercio internacional. Permite buscar códigos arancelarios (HS, NCM, TARIC), analizar operaciones con certificados de origen, calcular costos CIF y analizar la viabilidad de operaciones de importación. Los datos son de referencia y se obtienen de fuentes públicas como la OMC (WTO API), Siscomex de Brasil y TARIC de la Unión Europea, las cuales están sujetas a cambios que pueden no reflejarse en tiempo real.",
           },
           {
             title: "3. Naturaleza de los datos — Carácter informativo",
@@ -43,7 +43,7 @@ export default function Terminos() {
           },
           {
             title: "4. Lo que GTH no hace",
-            body: "GTH no emite certificados de origen, documentos aduaneros ni ningún otro documento oficial. GTH no brinda asesoramiento legal, impositivo ni aduanero. Los simuladores y calculadoras son herramientas de estimación y no reemplazan la consulta con un despachante de aduana habilitado, un asesor legal o un contador especializado en comercio exterior.",
+            body: "GTH no emite certificados de origen, documentos aduaneros ni ningún otro documento oficial. GTH no brinda asesoramiento legal, impositivo ni aduanero. Los análisis y calculadoras son herramientas de estimación y no reemplazan la consulta con un despachante de aduana habilitado, un asesor legal o un contador especializado en comercio exterior.",
           },
           {
             title: "5. Fuentes de referencia y limitación de responsabilidad",
