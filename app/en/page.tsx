@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import HomeContent from "@/components/HomeContent";
 
 export const metadata: Metadata = {
-  title: "Global Tariff Hub | Analyze foreign trade operations",
+  title: { absolute: "Global Tariff Hub | Analyze foreign trade operations" },
   description:
     "Explore an import or export starting from your product. Tariff classification, agreements, requirements, costs and viability with AI support.",
   alternates: {

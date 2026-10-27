@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy — Global Tariff Hub",
+  title: "Privacy Policy",
 };
 
 export default function Privacy() {

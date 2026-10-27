@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Legal Notice — Global Tariff Hub",
+  title: "Legal Notice",
   description: "Legal notice, limitation of liability and intellectual property rights for Global Tariff Hub.",
 };
 

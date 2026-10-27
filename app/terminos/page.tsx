@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Términos de Uso — Global Tariff Hub",
+  title: "Términos de Uso",
   description: "Términos y condiciones de uso de la plataforma Global Tariff Hub.",
 };
 

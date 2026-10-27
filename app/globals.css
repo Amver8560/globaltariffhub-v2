@@ -19,3 +19,15 @@ body {
   color: var(--white);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Módulos: en celular, las grillas de formulario marcadas pasan a una columna
+   (los estilos inline no admiten media queries, por eso el !important). */
+@media (max-width: 640px) {
+  .gth-stack {
+    grid-template-columns: 1fr !important;
+  }
+  .gth-stack .gth-swap {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+}

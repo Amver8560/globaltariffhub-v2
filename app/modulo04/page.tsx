@@ -319,7 +319,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{c.subtitle}</p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: result ? "1fr 1fr" : "1fr", gap: 24 }}>
+        <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: result ? "1fr 1fr" : "1fr", gap: 24 }}>
           {/* COLUMNA IZQUIERDA — FORMULARIO */}
           <div>
             {/* PASO 1 — PRODUCTO */}
@@ -354,7 +354,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             {/* PASO 2 — DATOS COMERCIALES */}
             <div style={cardStyle}>
               <p style={sectionTitle}>{c.step2}</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={labelStyle}>{c.supplier_country}</label>
                   <select value={supplierCountry} onChange={(e) => setSupplierCountry(e.target.value)} style={{ ...inputStyle }}>

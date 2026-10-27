@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Aviso Legal — Global Tariff Hub",
+  title: "Aviso Legal",
   description: "Aviso legal, limitación de responsabilidad y derechos de autor de Global Tariff Hub.",
 };
 

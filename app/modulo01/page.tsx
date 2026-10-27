@@ -385,7 +385,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
             {lang === "es" ? "3 · Origen y destino" : "3 · Origin and destination"}
           </p>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
+          <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
             <div>
               <label style={labelStyle}>{c.origin}</label>
               <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
@@ -393,7 +393,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
               </select>
             </div>
-            <button onClick={swapCountries} style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
+            <button onClick={swapCountries} className="gth-swap" style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
             <div>
               <label style={labelStyle}>{c.destination}</label>
               <select value={destination} onChange={(e) => { const v = e.target.value; setDestination(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>

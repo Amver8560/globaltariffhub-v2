@@ -401,7 +401,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600, maxWidth: 640, margin: "0 auto" }}>{c.subtitle}</p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+        <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
 
           {/* ── Columna izquierda — formulario ── */}
           <div>
@@ -430,7 +430,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {rateLoading ? "⏳ Buscando..." : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
                 </button>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
+              <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 8 }}>
                 <div>
                   <label style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 4 }}>{lang === "es" ? "País de origen" : "Origin country"}</label>
                   <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={{ ...inputStyle }}>

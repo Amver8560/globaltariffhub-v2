@@ -353,7 +353,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
         <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: "rgba(255,255,255,0.8)" }}>{c.step1}</h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+          <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
             <div>
               <label style={labelStyle}>{c.origin}</label>
               <select value={origin} onChange={(e) => setOrigin(e.target.value)} style={selectStyle}>
