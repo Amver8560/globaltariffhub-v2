@@ -703,7 +703,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
                             <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_pct}</span>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{m.pct!.toFixed(1)}%</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{m.pct!.toLocaleString(lang === "es" ? "es-AR" : "en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</span>
                           </div>
                           {m.total != null && (
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
