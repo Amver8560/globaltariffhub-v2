@@ -66,6 +66,25 @@ const colFTA: TradeAgreement = { name: "TLC de Colombia", scope: "Tratado de lib
 ["Estados Unidos", "Canadá", "Corea del Sur"].forEach((p) => addBilateral("Colombia", p, colFTA));
 EU.forEach((p) => addBilateral("Colombia", p, { name: "Acuerdo Comercial Colombia–UE", scope: "Acuerdo comercial multipartes con la Unión Europea" }));
 
+// Acuerdos de Complementación Económica (ALADI) con nombre propio.
+// Van antes del genérico "ALADI — acuerdo de alcance parcial" para que todos
+// los módulos muestren el mismo nombre que reconoce el usuario (p. ej. ACE N°35).
+const MERCOSUR_FULL = ["Argentina", "Brasil", "Uruguay", "Paraguay"];
+const mercosurACE = (partner: string, n: number) =>
+  MERCOSUR_FULL.forEach((p) =>
+    addBilateral(partner, p, {
+      name: `ACE N°${n} (${partner} – MERCOSUR)`,
+      scope: `Acuerdo de Complementación Económica N°${n} entre ${partner} y el MERCOSUR (ALADI)`,
+    })
+  );
+mercosurACE("Chile", 35);
+mercosurACE("Perú", 58);
+mercosurACE("Ecuador", 59);
+mercosurACE("Colombia", 72);
+addBilateral("Argentina", "México", { name: "ACE N°6 (Argentina – México)", scope: "Acuerdo de Complementación Económica N°6 entre Argentina y México (ALADI)" });
+addBilateral("Brasil", "México", { name: "ACE N°53 (Brasil – México)", scope: "Acuerdo de Complementación Económica N°53 entre Brasil y México (ALADI)" });
+addBilateral("Uruguay", "México", { name: "ACE N°60 (Uruguay – México)", scope: "Tratado de Libre Comercio Uruguay–México, ACE N°60 (ALADI)" });
+
 // UE – Reino Unido
 EU.forEach((p) =>
   addBilateral(p, "Reino Unido", { name: "Acuerdo de Comercio y Cooperación UE–Reino Unido", scope: "Acuerdo post-Brexit entre la UE y el Reino Unido" })

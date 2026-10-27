@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, MODEL_DEADLINE_MS } from "@/lib/aiError";
 import { resolveTariff } from "@/lib/tariffResolver";
+import { getTradeAgreement } from "@/lib/tradeAgreements";
 
 export const maxDuration = 60;
 
@@ -112,6 +113,13 @@ export async function POST(req: NextRequest) {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON in response");
     const parsed = JSON.parse(jsonMatch[0]);
+
+    // Mismo nombre de acuerdo que M01 y M04 (tabla común), no el que escriba el modelo.
+    const knownAgreement = getTradeAgreement(origin, destination);
+    if (knownAgreement && parsed.agreement && typeof parsed.agreement === "object") {
+      parsed.agreement.name = knownAgreement.name;
+      parsed.agreement.description = knownAgreement.scope;
+    }
 
     const general = resolved?.general ?? null;
     const preferential = resolved?.preferential ?? null;

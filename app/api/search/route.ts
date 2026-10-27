@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkAndConsumeCredit } from "@/lib/credits";
 import { aiErrorResponse, buildAIErrorPayload, MODEL_DEADLINE_MS, ENRICH_DEADLINE_MS } from "@/lib/aiError";
 import { resolveTariff, toLegacyView } from "@/lib/tariffResolver";
+import { getTradeAgreement } from "@/lib/tradeAgreements";
 import type { TariffStatus } from "@/lib/tariffDatum";
 
 const STATUS_TO_LEGACY_CONF: Record<TariffStatus, "alta" | "media" | "baja"> = {
@@ -188,6 +189,21 @@ export async function POST(req: NextRequest) {
           if (!parsed) {
             await emitError(new Error("El modelo no devolvió un JSON utilizable"));
             return;
+          }
+
+          // Nombre del acuerdo: si la tabla común lo conoce, manda sobre el que
+          // escribió el modelo, así M01, M02 y M04 muestran el mismo nombre.
+          const knownAgreement = getTradeAgreement(origin, destination);
+          if (knownAgreement) {
+            const ri = parsed.route_info as Record<string, unknown> | undefined;
+            if (ri && typeof ri === "object") {
+              ri.agreement = knownAgreement.name;
+              ri.agreement_active = true;
+            }
+            const rs = parsed.results as Array<Record<string, unknown>> | undefined;
+            rs?.forEach((r) => {
+              if (r.trade_agreement && r.trade_agreement !== "Ninguno") r.trade_agreement = knownAgreement.name;
+            });
           }
 
           // ── 3. Resolución de tasa por jurisdicción/nomenclatura/fuente (Bloque 2) ──
