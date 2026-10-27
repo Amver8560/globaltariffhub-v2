@@ -91,8 +91,14 @@ export async function POST(req: NextRequest) {
       taric_code: "",
       requires_permits: [],
     };
+    // true sólo si la IA respondió y se pudo leer: sin eso NO se puede afirmar
+    // que el producto "no tiene restricciones" (antes, con código conocido, la
+    // IA no corría y la pantalla decía "Sin restricciones" por defecto).
+    let restrictionsChecked = false;
 
-    const needsAI = !hs_code && (image || description);
+    // La IA corre también cuando el código ya viene de otro módulo: además de
+    // identificar el producto, es la que detecta permisos y organismos de control.
+    const needsAI = Boolean(hs_code || description || (image && image.size > 0));
 
     if (needsAI) {
       const messages: any[] = [];
@@ -115,9 +121,14 @@ export async function POST(req: NextRequest) {
         ? "TARIC (Arancel Integrado Europeo, 10 dígitos)"
         : "HS (Sistema Armonizado Internacional, 6 dígitos)";
 
+      const knownCodeEs = hs_code ? `\nEl usuario ya indicó el código ${hs_code} (${tariff_system}). Usalo como código del producto salvo que sea evidentemente incorrecto.` : "";
+      const knownCodeEn = hs_code ? `\nThe user already provided code ${hs_code} (${tariff_system}). Use it as the product code unless it is clearly wrong.` : "";
+
       const promptText = es
         ? `Analizá este producto${description ? ` (descripción: "${description}")` : ""} para importación desde ${supplier_country} hacia ${destination}.
-El usuario trabaja con el sistema ${systemLabel}.
+El usuario trabaja con el sistema ${systemLabel}.${knownCodeEs}
+
+PERMISOS: en "requires_permits" listá los organismos de control, registros o intervenciones obligatorias en ${destination} para este producto (por ejemplo, en Argentina: INV para vinos, ANMAT para alimentos y cosméticos, SENASA para productos de origen animal o vegetal, ENACOM para equipos de telecomunicaciones). Devolvé [] sólo si no corresponde ninguno.
 
 IMPORTANTE: Determiná la tasa arancelaria EFECTIVA real, aplicando las excepciones de régimen que correspondan al país de destino: bienes de capital (BK), bienes de tecnología/informática (BIT), zonas francas, regímenes de perfeccionamiento o drawback, tasa preferencial por TLC según el país de origen, y SGP.
 
@@ -139,7 +150,9 @@ Identificá el producto y devolvé SOLO JSON válido sin texto adicional:
   "confidence": "high/medium/low"
 }`
         : `Analyze this product${description ? ` (description: "${description}")` : ""} for import from ${supplier_country} to ${destination}.
-The user works with the ${systemLabel} system.
+The user works with the ${systemLabel} system.${knownCodeEn}
+
+PERMITS: in "requires_permits" list the control agencies, registrations or mandatory interventions in ${destination} for this product (e.g. in Argentina: INV for wine, ANMAT for food and cosmetics, SENASA for animal or plant products, ENACOM for telecom equipment). Return [] only if none apply.
 
 IMPORTANT: Determine the ACTUAL effective tariff rate, applying the regime exceptions that apply to the destination country: capital goods, IT/technology goods, free zones, inward-processing or drawback regimes, preferential FTA rate by country of origin, and GSP.
 
@@ -179,10 +192,17 @@ Identify the product and return ONLY valid JSON without extra text:
         try {
           const parsed = JSON.parse(jsonMatch[0]);
           productInfo = { ...productInfo, ...parsed };
+          restrictionsChecked = true;
         } catch {
           // Mantener productInfo por defecto si JSON inválido
         }
       }
+    }
+
+    // El código que trajo el usuario manda sobre el que sugiera la IA.
+    if (hs_code) {
+      const key = tariff_system === "NCM" ? "ncm_code" : tariff_system === "TARIC" ? "taric_code" : "hs_code";
+      productInfo[key] = hs_code;
     }
 
     // ── Paso 2: Resolución de la tasa arancelaria (Bloque 2, intacto) ──
@@ -205,6 +225,7 @@ Identify the product and return ONLY valid JSON without extra text:
       chapter: productInfo.chapter ?? null,
       requires_permits: productInfo.requires_permits || [],
       import_restrictions: productInfo.import_restrictions ?? null,
+      restrictions_checked: restrictionsChecked,
       tariff_system,
       tariff: general,
     };
@@ -242,6 +263,16 @@ Identify the product and return ONLY valid JSON without extra text:
     };
     const cost = computeLandedCost(costInput);
 
+    // Tasa preferencial por acuerdo (misma fuente que M01/M02): si existe y es
+    // menor que la general, se calcula también la operación con certificado.
+    const preferential = resolved?.preferential;
+    const prefRate = preferential && preferential.value !== null ? (preferential.value as number) : null;
+    const generalRate = general.status === "not_determined" ? null : (general.value as number | null);
+    const cost_pref =
+      prefRate !== null && generalRate !== null && prefRate < generalRate
+        ? computeLandedCost({ ...costInput, duty: { status: "referential", rate: prefRate } })
+        : null;
+
     return NextResponse.json({
       product: productOut,
       commercial: {
@@ -254,6 +285,8 @@ Identify the product and return ONLY valid JSON without extra text:
         destination,
       },
       cost,
+      preferential: cost_pref ? preferential : null,
+      cost_pref,
       not_included_notice,
     });
 

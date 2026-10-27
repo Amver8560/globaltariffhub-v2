@@ -95,6 +95,22 @@ const t = {
     error_product: "Subí una foto o describí el producto.",
     error_incoterm: "Elegí el Incoterm correspondiente al precio informado.",
     no_permits: "Sin restricciones especiales identificadas",
+    permits_unchecked: "No pudimos evaluar permisos ni restricciones para este producto. Verificalo con un despachante de aduana.",
+    restrictions: "Restricciones",
+    pref_rate: "Tasa preferencial",
+    with_cert: "Con certificado de origen",
+    saving: "Ahorro estimado con certificado",
+    section_sale: "3. Venta (opcional)",
+    sale_help: "Completá uno o los dos para ver márgenes y precio sugerido.",
+    sale_price: "Precio de venta previsto por unidad",
+    target_margin: "Margen objetivo (%)",
+    margins_title: "Márgenes",
+    margin_unit: "Margen por unidad",
+    margin_pct: "Margen sobre el precio de venta",
+    margin_total: "Margen total de la operación",
+    suggested_price: "Precio de venta sugerido por unidad",
+    suggested_for: "para un margen del",
+    margins_note: "Referencial: se calcula sobre el costo por unidad estimado por GTH. No incluye impuestos internos, costos de comercialización ni componentes no informados.",
     to_m2: "📄 M02 — ¿Podés pagar menos aranceles? →",
   },
   en: {
@@ -151,6 +167,22 @@ const t = {
     error_product: "Upload a photo or describe the product.",
     error_incoterm: "Choose the Incoterm that corresponds to the quoted price.",
     no_permits: "No special restrictions identified",
+    permits_unchecked: "We couldn't assess permits or restrictions for this product. Check with a customs broker.",
+    restrictions: "Restrictions",
+    pref_rate: "Preferential rate",
+    with_cert: "With certificate of origin",
+    saving: "Estimated saving with certificate",
+    section_sale: "3. Sale (optional)",
+    sale_help: "Fill in one or both to see margins and a suggested price.",
+    sale_price: "Planned sale price per unit",
+    target_margin: "Target margin (%)",
+    margins_title: "Margins",
+    margin_unit: "Margin per unit",
+    margin_pct: "Margin on sale price",
+    margin_total: "Total operation margin",
+    suggested_price: "Suggested sale price per unit",
+    suggested_for: "for a margin of",
+    margins_note: "Referential: based on the per-unit cost estimated by GTH. Does not include internal taxes, selling costs or components not informed.",
     to_m2: "📄 M02 — Can you pay lower tariffs? →",
   },
 };
@@ -180,6 +212,9 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const [otherCosts, setOtherCosts] = useState<Record<OtherCostKey, string>>({
     import_clearance: "", dest_port: "", dest_inland: "",
   });
+
+  const [salePrice, setSalePrice] = useState("");
+  const [targetMargin, setTargetMargin] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -277,6 +312,34 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const sectionTitle: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#C9A84C", marginBottom: 14, borderBottom: "1px solid rgba(201,168,76,0.2)", paddingBottom: 6 };
 
   const cost = result?.cost;
+  const costPref = result?.cost_pref;
+
+  // Márgenes: aritmética sobre el costo por unidad que ya estimó el motor.
+  // Sin precio de venta ni margen objetivo informados, no se muestra nada.
+  const margins = (() => {
+    const sale = parseFloat(salePrice);
+    const target = parseFloat(targetMargin);
+    const hasSale = Number.isFinite(sale) && sale > 0;
+    const hasTarget = Number.isFinite(target) && target >= 0 && target < 100;
+    const qty = parseFloat(quantity);
+    if (!hasSale && !hasTarget) return null;
+    const row = (label: string, unitCost: number | null | undefined) => {
+      if (unitCost == null) return null;
+      const unit = hasSale ? sale - unitCost : null;
+      return {
+        label,
+        unit,
+        pct: hasSale ? ((sale - unitCost) / sale) * 100 : null,
+        total: unit != null && Number.isFinite(qty) && qty > 0 ? unit * qty : null,
+        suggested: hasTarget ? unitCost / (1 - target / 100) : null,
+      };
+    };
+    const rows = [
+      row(lang === "es" ? "Sin certificado de origen" : "Without certificate of origin", cost?.per_unit),
+      costPref ? row(c.with_cert, costPref.per_unit) : null,
+    ].filter((r): r is NonNullable<typeof r> => r !== null);
+    return rows.length ? { rows } : null;
+  })();
 
   const opCtx = () => ({
     tariff_code: result?.product?.hs_code || hsCode || "",
@@ -460,6 +523,22 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               ))}
             </div>
 
+            {/* Venta (opcional) — sólo para márgenes; no entra al cálculo de costos */}
+            <div style={cardStyle}>
+              <p style={sectionTitle}>{c.section_sale}</p>
+              <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>{c.sale_help}</p>
+              <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>{c.sale_price}</label>
+                  <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="" style={inputStyle} />
+                </div>
+                <div>
+                  <label style={labelStyle}>{c.target_margin}</label>
+                  <input type="number" value={targetMargin} onChange={(e) => setTargetMargin(e.target.value)} placeholder="" min="0" max="99" style={inputStyle} />
+                </div>
+              </div>
+            </div>
+
             {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)" }}>{error}</p>}
             {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleAnalyze} retrying={loading} />}
 
@@ -506,8 +585,16 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     ))}
                   </div>
                 )}
-                {(!result.product.requires_permits || result.product.requires_permits.length === 0) && (
-                  <p style={{ fontSize: 12, color: "#22c55e" }}>✓ {c.no_permits}</p>
+                {result.product.import_restrictions && (
+                  <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 8, padding: "10px 14px", marginTop: 8 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "#ef4444", marginBottom: 6 }}>⚠ {c.restrictions}</p>
+                    <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.5 }}>{result.product.import_restrictions}</p>
+                  </div>
+                )}
+                {(!result.product.requires_permits || result.product.requires_permits.length === 0) && !result.product.import_restrictions && (
+                  result.product.restrictions_checked
+                    ? <p style={{ fontSize: 12, color: "#22c55e" }}>✓ {c.no_permits}</p>
+                    : <p style={{ fontSize: 12, color: "#C9A84C", lineHeight: 1.5 }}>⚠ {c.permits_unchecked}</p>
                 )}
               </div>
 
@@ -558,6 +645,21 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         {cost.per_unit != null && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{c.unit_cost}: {fmt(cost.per_unit)}</p>}
                       </div>
                       {cost.completeness === "partial" && <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 8, lineHeight: 1.5 }}>{cost.note_es}</p>}
+
+                      {costPref?.operation_estimate != null && cost.operation_estimate != null && (
+                        <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(34,197,94,0.08)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.3)" }}>
+                          {result.preferential && <TariffValue datum={result.preferential} lang={lang} label={c.pref_rate} />}
+                          <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 4px" }}>
+                            <span style={{ fontSize: 13, color: "#22c55e" }}>{c.with_cert} ({costPref.duty.rate}%)</span>
+                            <span style={{ fontSize: 14, fontWeight: 800 }}>{fmt(costPref.operation_estimate)}</span>
+                          </div>
+                          {costPref.per_unit != null && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {fmt(costPref.per_unit)}</p>}
+                          <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6 }}>
+                            <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.saving}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{fmt(cost.operation_estimate - costPref.operation_estimate)}</span>
+                          </div>
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -584,6 +686,42 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
                   <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 12, lineHeight: 1.55 }}>{result.not_included_notice}</p>
                   <LegalDisclaimer lang={lang as "es" | "en"} compact />
+                </div>
+              )}
+
+              {margins && (
+                <div style={cardStyle}>
+                  <p style={sectionTitle}>📈 {c.margins_title}{cost?.completeness === "partial" ? ` · ${c.provisional}` : ""}</p>
+                  {margins.rows.map((m) => (
+                    <div key={m.label} style={{ marginBottom: 10 }}>
+                      {margins.rows.length > 1 && <p style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: 4 }}>{m.label}</p>}
+                      {m.unit != null && (
+                        <>
+                          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                            <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_unit}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{fmt(m.unit)}</span>
+                          </div>
+                          <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                            <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_pct}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{m.pct!.toFixed(1)}%</span>
+                          </div>
+                          {m.total != null && (
+                            <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                              <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_total}</span>
+                              <span style={{ fontSize: 13, fontWeight: 700 }}>{fmt(m.total)}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {m.suggested != null && (
+                        <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
+                          <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.suggested_price} {c.suggested_for} {targetMargin}%</span>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: "#C9A84C" }}>{fmt(m.suggested)}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", lineHeight: 1.5 }}>{c.margins_note}</p>
                 </div>
               )}
 
