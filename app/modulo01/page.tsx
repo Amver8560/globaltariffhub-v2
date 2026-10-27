@@ -270,26 +270,26 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
   const selectStyle = {
     width: "100%", padding: "10px 14px", borderRadius: 8,
-    border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F",
+    border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33",
     color: "#FFFFFF", fontSize: 14, outline: "none", cursor: "pointer",
   };
 
   const labelStyle = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6, display: "block" as const };
 
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/modulos" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{lang === "es" ? "◇ Todos los módulos" : "◇ All modules"}</Link>
-          <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
+          <div style={{ display: "flex", background: "#13294B", borderRadius: 20, padding: 3, border: "1px solid rgba(59,123,246,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
-              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
+              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#3B7BF6" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
             ))}
           </div>
         </div>
@@ -299,9 +299,9 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
         {/* Header */}
         <div style={{ marginBottom: 32, textAlign: "center" }}>
-          <span style={{ background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.4)", borderRadius: 20, padding: "5px 16px", color: "#0057FF", fontSize: 12, fontWeight: 600 }}>Módulo 01</span>
+          <span style={{ background: "rgba(59,123,246,0.15)", border: "1px solid rgba(59,123,246,0.4)", borderRadius: 20, padding: "5px 16px", color: "#3B7BF6", fontSize: 12, fontWeight: 600 }}>Módulo 01</span>
           <h1 style={{ fontSize: 32, fontWeight: 800, marginTop: 14, marginBottom: 6 }}>{c.title}</h1>
-          <p style={{ color: "#C9A84C", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
+          <p style={{ color: "#E3B341", fontSize: 15, fontWeight: 600 }}>{c.subtitle}</p>
           <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
             {[
               { icon: "🔍", label: lang === "es" ? "Clasificación por imagen, descripción o código" : "Classification by image, description or code" },
@@ -317,21 +317,21 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         </div>
 
         {/* 1 · Producto — imagen / descripción / código */}
-        <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+        <p style={{ fontSize: 13, color: "#E3B341", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
           {lang === "es" ? "1 · Producto" : "1 · Product"}
         </p>
-        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "#0D1B3E", borderRadius: 12, padding: 6, border: "1px solid rgba(0,87,255,0.2)" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, background: "#13294B", borderRadius: 12, padding: 6, border: "1px solid rgba(59,123,246,0.2)" }}>
           {([["image", c.tab_image], ["text", c.tab_text], ["code", c.tab_code]] as [Tab, string][]).map(([key, label]) => (
-            <button key={key} onClick={() => { setTab(key); setResponse(null); setError(""); setApiError(null); }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === key ? "#0057FF" : "transparent", color: tab === key ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{label}</button>
+            <button key={key} onClick={() => { setTab(key); setResponse(null); setError(""); setApiError(null); }} style={{ flex: 1, padding: "10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: tab === key ? "#3B7BF6" : "transparent", color: tab === key ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{label}</button>
           ))}
         </div>
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+        <div style={{ background: "#13294B", borderRadius: 16, padding: 28, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 20 }}>
 
           {tab === "image" && (
             <div>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 12 }}>{c.image_label}</p>
               <div onClick={() => fileRef.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleImage(f); }}
-                style={{ border: "2px dashed rgba(0,87,255,0.4)", borderRadius: 12, padding: "32px 20px", textAlign: "center", cursor: "pointer", marginBottom: 14, background: "rgba(0,87,255,0.03)" }}>
+                style={{ border: "2px dashed rgba(59,123,246,0.4)", borderRadius: 12, padding: "32px 20px", textAlign: "center", cursor: "pointer", marginBottom: 14, background: "rgba(59,123,246,0.03)" }}>
                 {imagePreview ? <img src={imagePreview} alt="preview" style={{ maxHeight: 180, borderRadius: 8, maxWidth: "100%" }} /> : (
                   <><div style={{ fontSize: 36, marginBottom: 10 }}>📷</div>
                     <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, marginBottom: 4 }}>{c.image_drop}</p>
@@ -339,27 +339,27 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 )}
               </div>
               <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImage(f); }} />
-              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.desc_placeholder} style={{ width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 13, outline: "none", boxSizing: "border-box" }} />
+              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.desc_placeholder} style={{ width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33", color: "#FFFFFF", fontSize: 13, outline: "none", boxSizing: "border-box" }} />
               <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 6 }}>{c.desc_optional}</p>
             </div>
           )}
 
           {tab === "text" && (
             <div>
-              <textarea value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.desc_placeholder} rows={4} style={{ width: "100%", padding: "14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "Arial" }} />
+              <textarea value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.desc_placeholder} rows={4} style={{ width: "100%", padding: "14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33", color: "#FFFFFF", fontSize: 14, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "Arial" }} />
             </div>
           )}
 
           {tab === "code" && (
             <div>
-              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.code_placeholder} style={{ width: "100%", padding: "14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 20, fontFamily: "monospace", outline: "none", boxSizing: "border-box", letterSpacing: 2 }} />
+              <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.code_placeholder} style={{ width: "100%", padding: "14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33", color: "#FFFFFF", fontSize: 20, fontFamily: "monospace", outline: "none", boxSizing: "border-box", letterSpacing: 2 }} />
             </div>
           )}
 
         </div>
 
         {/* 2 · Operación de Comercio Exterior */}
-        <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+        <p style={{ fontSize: 13, color: "#E3B341", marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
           {lang === "es" ? "2 · Operación" : "2 · Operation"}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
@@ -369,8 +369,8 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
           ]).map((op) => (
             <button key={op.key} onClick={() => { setOperation(op.key); setResponse(null); setError(""); setApiError(null); }}
               style={{
-                padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#C9A84C" : "rgba(255,255,255,0.1)"}`,
-                background: operation === op.key ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.02)",
+                padding: "16px 20px", borderRadius: 12, border: `2px solid ${operation === op.key ? "#E3B341" : "rgba(255,255,255,0.1)"}`,
+                background: operation === op.key ? "rgba(227,179,65,0.1)" : "rgba(255,255,255,0.02)",
                 color: "#FFFFFF", cursor: "pointer", textAlign: "left", transition: "all 0.15s",
               }}>
               <div style={{ fontSize: 22, marginBottom: 6 }}>{op.icon}</div>
@@ -381,8 +381,8 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         </div>
 
         {/* 3 · Origen / destino · 4 · Nomenclatura (determinada por jurisdicción) */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 24, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
-          <p style={{ fontSize: 13, color: "#C9A84C", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
+        <div style={{ background: "#13294B", borderRadius: 16, padding: 24, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 20 }}>
+          <p style={{ fontSize: 13, color: "#E3B341", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1.5, fontWeight: 700 }}>
             {lang === "es" ? "3 · Origen y destino" : "3 · Origin and destination"}
           </p>
           <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 12, alignItems: "end", marginBottom: 20 }}>
@@ -393,7 +393,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                 {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
               </select>
             </div>
-            <button onClick={swapCountries} className="gth-swap" style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#0057FF", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
+            <button onClick={swapCountries} className="gth-swap" style={{ padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33", color: "#3B7BF6", cursor: "pointer", fontSize: 18, marginBottom: 0 }}>⇄</button>
             <div>
               <label style={labelStyle}>{c.destination}</label>
               <select value={destination} onChange={(e) => { const v = e.target.value; setDestination(v); if (v) setSystem(getSystemForCountry(v)); }} style={selectStyle}>
@@ -408,7 +408,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
             <label style={labelStyle}>{lang === "es" ? "4 · Nomenclatura" : "4 · Nomenclature"}</label>
             <div style={{ display: "flex", gap: 8 }}>
               {SYSTEMS.map((s) => (
-                <button key={s} onClick={() => setSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${system === s ? "#0057FF" : "rgba(255,255,255,0.1)"}`, background: system === s ? "rgba(0,87,255,0.2)" : "transparent", color: system === s ? "#FFFFFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
+                <button key={s} onClick={() => setSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${system === s ? "#3B7BF6" : "rgba(255,255,255,0.1)"}`, background: system === s ? "rgba(59,123,246,0.2)" : "transparent", color: system === s ? "#FFFFFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
               ))}
             </div>
             {destination && getSystemForCountry(destination) === system && getSystemForCountry(destination) !== "HS" && (
@@ -424,7 +424,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
         {/* Buscar */}
         {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
         {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSearch} retrying={loading} />}
-        <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginBottom: 24, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
+        <button onClick={handleSearch} disabled={loading || !origin || !destination} style={{ marginBottom: 24, width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !origin || !destination ? "rgba(59,123,246,0.3)" : "linear-gradient(135deg, #3B7BF6, #2557C7)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !origin || !destination ? "not-allowed" : "pointer" }}>
           {loading ? c.btn_searching : c.btn_search}
         </button>
 
@@ -441,10 +441,10 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
               return (
                 <div key={s.step} style={{ display: "flex", alignItems: "center", gap: 10, opacity: done ? 0.4 : active ? 1 : 0.2, transition: "opacity 0.4s" }}>
                   <span style={{ fontSize: 16 }}>{done ? "✓" : s.icon}</span>
-                  <span style={{ fontSize: 13, color: active ? "#C9A84C" : done ? "#22c55e" : "rgba(255,255,255,0.4)", fontWeight: active ? 600 : 400 }}>
+                  <span style={{ fontSize: 13, color: active ? "#E3B341" : done ? "#2FB380" : "rgba(255,255,255,0.4)", fontWeight: active ? 600 : 400 }}>
                     {lang === "es" ? s.es : s.en}
                   </span>
-                  {active && <span style={{ marginLeft: 4, animation: "pulse 1s infinite", color: "#C9A84C" }}>●</span>}
+                  {active && <span style={{ marginLeft: 4, animation: "pulse 1s infinite", color: "#E3B341" }}>●</span>}
                 </div>
               );
             })}
@@ -458,7 +458,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
               <button
                 onClick={() => exportSearchPDF(response, { origin, destination, system, query, lang, operation: operation || undefined })}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(227,179,65,0.4)", background: "rgba(227,179,65,0.1)", color: "#E3B341", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 📄 {lang === "es" ? "Exportar informe PDF" : "Export PDF report"}
               </button>
@@ -466,22 +466,22 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
             {/* Info de ruta */}
             {response.route_info?.agreement && response.route_info.agreement !== "Ninguno" && (
-              <div style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ background: "rgba(47,179,128,0.1)", border: "1px solid rgba(47,179,128,0.3)", borderRadius: 10, padding: "12px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 10 }}>
                 <span style={{ fontSize: 18 }}>🤝</span>
-                <span style={{ fontSize: 14, color: "#22c55e", fontWeight: 600 }}>{response.route_info.origin} → {response.route_info.destination}: {response.route_info.agreement}</span>
+                <span style={{ fontSize: 14, color: "#2FB380", fontWeight: 600 }}>{response.route_info.origin} → {response.route_info.destination}: {response.route_info.agreement}</span>
               </div>
             )}
 
             <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 16 }}>{c.results}</h2>
 
             {response.results.map((r, i) => (
-              <div key={i} style={{ background: "#0D1B3E", borderRadius: 14, border: `1px solid ${r.recommended ? "rgba(201,168,76,0.5)" : "rgba(255,255,255,0.08)"}`, marginBottom: 16, overflow: "hidden" }}>
+              <div key={i} style={{ background: "#13294B", borderRadius: 14, border: `1px solid ${r.recommended ? "rgba(227,179,65,0.5)" : "rgba(255,255,255,0.08)"}`, marginBottom: 16, overflow: "hidden" }}>
 
                 {/* Banner recomendado / alternativa */}
                 {r.recommended ? (
-                  <div style={{ background: "rgba(201,168,76,0.12)", borderBottom: "1px solid rgba(201,168,76,0.25)", padding: "8px 20px", display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ background: "rgba(227,179,65,0.12)", borderBottom: "1px solid rgba(227,179,65,0.25)", padding: "8px 20px", display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 13 }}>✓</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C" }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "#E3B341" }}>
                       {lang === "es" ? "Resultado más probable" : "Most likely result"}
                     </span>
                     {r.applies_when && (
@@ -513,7 +513,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                               <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 2 }}>
                                 {lang === "es" ? "Origen" : "Origin"} · {orig.system}
                               </span>
-                              <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#C9A84C", letterSpacing: 2 }}>
+                              <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#E3B341", letterSpacing: 2 }}>
                                 {orig.code || "—"}
                               </span>
                             </div>
@@ -524,14 +524,14 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                                   <span style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", display: "block", marginBottom: 2 }}>
                                     {lang === "es" ? "Destino" : "Destination"} · {dest.system}
                                   </span>
-                                  <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#0057FF", letterSpacing: 2 }}>
+                                  <span style={{ fontFamily: "monospace", fontSize: 22, fontWeight: 800, color: "#3B7BF6", letterSpacing: 2 }}>
                                     {dest.code}
                                   </span>
                                 </div>
                               </>
                             )}
                             {sameSystem && (
-                              <span style={{ background: "rgba(0,87,255,0.2)", color: "#0057FF", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)", marginBottom: 4 }}>{orig.system}</span>
+                              <span style={{ background: "rgba(59,123,246,0.2)", color: "#3B7BF6", fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 10, border: "1px solid rgba(59,123,246,0.4)", marginBottom: 4 }}>{orig.system}</span>
                             )}
                           </div>
                         );
@@ -550,7 +550,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                       <TariffValue datum={r.tariff?.general} lang={lang} label={c.base_rate} />
                     </div>
                     {r.tariff?.preferential && r.tariff.preferential.value != null && (
-                      <div style={{ background: "rgba(34,197,94,0.08)", borderRadius: 8, padding: "12px 16px", border: "1px solid rgba(34,197,94,0.2)", flex: "1 1 260px", minWidth: 240 }}>
+                      <div style={{ background: "rgba(47,179,128,0.08)", borderRadius: 8, padding: "12px 16px", border: "1px solid rgba(47,179,128,0.2)", flex: "1 1 260px", minWidth: 240 }}>
                         <TariffValue datum={r.tariff.preferential} lang={lang} label={`${c.pref_rate}${r.trade_agreement && r.trade_agreement !== "Ninguno" ? ` — ${r.trade_agreement}` : ""}`} />
                       </div>
                     )}
@@ -573,7 +573,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                         </span>
                         {links.map((l) => (
                           <a key={l.url} href={l.url} target="_blank" rel="noopener noreferrer"
-                            style={{ fontSize: 11, color: "#0057FF", textDecoration: "none", background: "rgba(0,87,255,0.1)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 20, padding: "3px 12px", fontWeight: 600 }}
+                            style={{ fontSize: 11, color: "#3B7BF6", textDecoration: "none", background: "rgba(59,123,246,0.1)", border: "1px solid rgba(59,123,246,0.25)", borderRadius: 20, padding: "3px 12px", fontWeight: 600 }}
                             onClick={(e) => e.stopPropagation()}>
                             ↗ {l.label}
                           </a>
@@ -592,29 +592,29 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                       {[["HS", r.hs_code], ["NCM", r.ncm_code], ["TARIC", r.taric_code]].map(([sys, code]) => (
                         <div key={sys} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "8px 14px" }}>
                           <p style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginBottom: 3 }}>{sys}</p>
-                          <p style={{ fontFamily: "monospace", fontSize: 14, fontWeight: 700, color: "#C9A84C" }}>{code}</p>
+                          <p style={{ fontFamily: "monospace", fontSize: 14, fontWeight: 700, color: "#E3B341" }}>{code}</p>
                         </div>
                       ))}
                     </div>
 
                     {/* Documentos */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                      <div style={{ background: "rgba(0,87,255,0.07)", borderRadius: 10, padding: "16px" }}>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#0057FF", marginBottom: 10 }}>📤 {c.origin_docs}</p>
+                      <div style={{ background: "rgba(59,123,246,0.07)", borderRadius: 10, padding: "16px" }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "#3B7BF6", marginBottom: 10 }}>📤 {c.origin_docs}</p>
                         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                           {r.origin_documents?.map((doc, j) => (
                             <li key={j} style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: 8 }}>
-                              <span style={{ color: "#0057FF" }}>•</span>{doc}
+                              <span style={{ color: "#3B7BF6" }}>•</span>{doc}
                             </li>
                           ))}
                         </ul>
                       </div>
-                      <div style={{ background: "rgba(201,168,76,0.07)", borderRadius: 10, padding: "16px" }}>
-                        <p style={{ fontSize: 12, fontWeight: 700, color: "#C9A84C", marginBottom: 10 }}>📥 {c.dest_docs}</p>
+                      <div style={{ background: "rgba(227,179,65,0.07)", borderRadius: 10, padding: "16px" }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: "#E3B341", marginBottom: 10 }}>📥 {c.dest_docs}</p>
                         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                           {r.destination_documents?.map((doc, j) => (
                             <li key={j} style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", padding: "4px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", gap: 8 }}>
-                              <span style={{ color: "#C9A84C" }}>•</span>{doc}
+                              <span style={{ color: "#E3B341" }}>•</span>{doc}
                             </li>
                           ))}
                         </ul>
@@ -634,7 +634,7 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
 
                     {/* Botones de acción */}
                     {!origin || !destination ? (
-                      <p style={{ fontSize: 12, color: "#C9A84C", fontStyle: "italic" }}>
+                      <p style={{ fontSize: 12, color: "#E3B341", fontStyle: "italic" }}>
                         {lang === "es" ? "⚠️ Seleccioná país de origen y destino para continuar." : "⚠️ Select origin and destination country to continue."}
                       </p>
                     ) : (
@@ -659,13 +659,13 @@ export default function Modulo01({ defaultLang = "es" }: { defaultLang?: Lang })
                               {r.trade_agreement && r.trade_agreement !== "Ninguno" && (
                                 <Link
                                   href={`/modulo02${opQ}`}
-                                  style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                                  style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(47,179,128,0.15)", border: "1px solid rgba(47,179,128,0.3)", color: "#2FB380", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                                   📄 {c.sim_cert}
                                 </Link>
                               )}
                               <Link
                                 href={`/modulo03${opQ}`}
-                                style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                                style={{ padding: "10px 18px", borderRadius: 8, background: "rgba(59,123,246,0.15)", border: "1px solid rgba(59,123,246,0.3)", color: "#3B7BF6", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                                 📦 {c.calc_cif}
                               </Link>
                             </>

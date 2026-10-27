@@ -6,12 +6,12 @@ export const metadata = {
 
 export default function Privacidad() {
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#C9A84C", border: "1px solid #C9A84C" }}>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#E3B341", border: "1px solid #E3B341" }}>
             GTH
           </div>
           <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: 1 }}>Global Tariff Hub</span>
@@ -22,7 +22,7 @@ export default function Privacidad() {
       {/* Content */}
       <main style={{ maxWidth: 760, margin: "0 auto", padding: "60px 40px 80px" }}>
         <div style={{ marginBottom: 40 }}>
-          <span style={{ background: "rgba(201,168,76,0.15)", border: "1px solid #C9A84C", borderRadius: 20, padding: "5px 16px", color: "#C9A84C", fontSize: 12, fontWeight: 600 }}>
+          <span style={{ background: "rgba(227,179,65,0.15)", border: "1px solid #E3B341", borderRadius: 20, padding: "5px 16px", color: "#E3B341", fontSize: 12, fontWeight: 600 }}>
             Legal
           </span>
           <h1 style={{ fontSize: 36, fontWeight: 800, marginTop: 20, marginBottom: 8 }}>Política de Privacidad</h1>
@@ -32,7 +32,7 @@ export default function Privacidad() {
         {[
           {
             title: "1. Quiénes somos",
-            body: "Global Tariff Hub es una plataforma de consulta arancelaria para emprendedores, pequeñas y medianas empresas que operan en comercio internacional. El responsable del tratamiento de datos es Global Tariff Hub, contacto: analia@globaltariffhub.com."
+            body: "Global Tariff Hub es una plataforma de consulta arancelaria para emprendedores, pequeñas y medianas empresas que operan en comercio internacional. El responsable del tratamiento de datos es Global Tariff Hub, contacto: globaltariffhub@gmail.com."
           },
           {
             title: "2. Qué datos recopilamos",
@@ -48,11 +48,11 @@ export default function Privacidad() {
           },
           {
             title: "5. Conservación de datos",
-            body: "Conservamos tu email mientras el servicio esté activo o hasta que solicites su eliminación. Podés solicitar la baja en cualquier momento escribiendo a analia@globaltariffhub.com con el asunto 'Baja de lista'."
+            body: "Conservamos tu email mientras el servicio esté activo o hasta que solicites su eliminación. Podés solicitar la baja en cualquier momento escribiendo a globaltariffhub@gmail.com con el asunto 'Baja de lista'."
           },
           {
             title: "6. Tus derechos",
-            body: "Tenés derecho a acceder, rectificar, cancelar u oponerte al tratamiento de tus datos personales. Para ejercer cualquiera de estos derechos escribinos a analia@globaltariffhub.com. Respondemos en un plazo máximo de 30 días hábiles."
+            body: "Tenés derecho a acceder, rectificar, cancelar u oponerte al tratamiento de tus datos personales. Para ejercer cualquiera de estos derechos escribinos a globaltariffhub@gmail.com. Respondemos en un plazo máximo de 30 días hábiles."
           },
           {
             title: "7. Seguridad",
@@ -69,10 +69,10 @@ export default function Privacidad() {
           </div>
         ))}
 
-        <div style={{ marginTop: 48, padding: "24px", background: "#0D1B3E", borderRadius: 12, border: "1px solid rgba(0,87,255,0.2)" }}>
+        <div style={{ marginTop: 48, padding: "24px", background: "#13294B", borderRadius: 12, border: "1px solid rgba(59,123,246,0.2)" }}>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.7 }}>
             ¿Tenés preguntas sobre esta política? Escribinos a{" "}
-            <a href="mailto:analia@globaltariffhub.com" style={{ color: "#0057FF" }}>analia@globaltariffhub.com</a>
+            <a href="mailto:globaltariffhub@gmail.com" style={{ color: "#3B7BF6" }}>globaltariffhub@gmail.com</a>
           </p>
         </div>
       </main>

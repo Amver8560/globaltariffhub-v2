@@ -166,8 +166,8 @@ export function creditNote(view: AIErrorView, lang: string): string | null {
       return en ? "Your query was not deducted." : "Tu consulta no se descontó.";
     case "review":
       return en
-        ? "We couldn't confirm your query's status. Write to analia@globaltariffhub.com to review it."
-        : "No pudimos confirmar el estado de tu consulta. Escribinos a analia@globaltariffhub.com para revisarlo.";
+        ? "We couldn't confirm your query's status. Write to globaltariffhub@gmail.com to review it."
+        : "No pudimos confirmar el estado de tu consulta. Escribinos a globaltariffhub@gmail.com para revisarlo.";
     case "spent":
     case "none":
     default:

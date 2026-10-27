@@ -10,16 +10,16 @@ import { PUBLIC_ACCESS_MODE } from "@/lib/accessMode";
 type Lang = "es" | "en";
 
 const C = {
-  bg: "#062863",
-  bgCard: "#0B1E3D",
-  blue: "#2563EB",
-  blueBright: "#3B82F6",
-  gold: "#F4C542",
+  bg: "#0B1B33",
+  bgCard: "#0B1B33",
+  blue: "#3B7BF6",
+  blueBright: "#3B7BF6",
+  gold: "#E3B341",
   white: "#FFFFFF",
-  textSec: "#B8C4D9",
-  textMuted: "rgba(184,196,217,0.55)",
-  border: "rgba(59,130,246,0.25)",
-  borderGold: "rgba(244,197,66,0.35)",
+  textSec: "#A3B2CC",
+  textMuted: "rgba(163,178,204,0.55)",
+  border: "rgba(59,123,246,0.25)",
+  borderGold: "rgba(227,179,65,0.35)",
 };
 
 const T = {
@@ -134,7 +134,7 @@ const T = {
       },
       {
         href: "/modulo03",
-        color: "#22c55e",
+        color: "#2FB380",
         name: "Calculadora CIF",
         question: "¿Cuánto podría costar traerlo?",
         copy:
@@ -346,7 +346,7 @@ const T = {
       },
       {
         href: "/modulo03",
-        color: "#22c55e",
+        color: "#2FB380",
         name: "CIF Calculator",
         question: "What could it cost to bring it in?",
         copy:
@@ -720,9 +720,9 @@ const CSS = `
 .gth-home h1,.gth-home h2,.gth-home h3{margin:0;letter-spacing:-0.5px}
 .gth-home p{margin:0}
 
-.gth-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 48px;border-bottom:1px solid ${C.border};background:rgba(6,40,99,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);flex-wrap:wrap}
+.gth-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 48px;border-bottom:1px solid ${C.border};background:rgba(11,27,51,0.97);position:sticky;top:0;z-index:100;backdrop-filter:blur(14px);flex-wrap:wrap}
 .gth-logo{display:flex;align-items:center;gap:10px}
-.gth-logo-mark{width:36px;height:36px;flex-shrink:0;border-radius:9px;background:linear-gradient(135deg,${C.blue},#0D2247);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:${C.gold};border:1.5px solid ${C.gold}}
+.gth-logo-mark{width:36px;height:36px;flex-shrink:0;border-radius:9px;background:linear-gradient(135deg,${C.blue},#13294B);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:${C.gold};border:1.5px solid ${C.gold}}
 .gth-logo-name{display:block;font-weight:800;font-size:15px;line-height:1.1}
 .gth-logo-tag{display:block;font-size:10px;color:${C.gold}bb;font-weight:500}
 .gth-nav-links{display:flex;align-items:center;gap:24px;font-size:13px;font-weight:500}
@@ -735,9 +735,9 @@ const CSS = `
 .gth-link-muted:hover{color:${C.white}}
 .gth-btn{display:inline-block;border-radius:8px;font-weight:700;cursor:pointer;transition:opacity .15s}
 .gth-btn:hover{opacity:.9}
-.gth-btn-gold{font-size:12px;color:${C.bg};background:linear-gradient(135deg,${C.gold},#F9D96A);padding:8px 18px}
-.gth-btn-primary{padding:15px 28px;font-size:14px;background:linear-gradient(135deg,${C.blue},#0D2247);color:${C.white};border:none}
-.gth-btn-ghost{padding:15px 26px;font-size:14px;background:transparent;color:${C.blueBright};border:1.5px solid rgba(59,130,246,0.4)}
+.gth-btn-gold{font-size:12px;color:${C.bg};background:linear-gradient(135deg,${C.gold},#F0CC6E);padding:8px 18px}
+.gth-btn-primary{padding:15px 28px;font-size:14px;background:linear-gradient(135deg,${C.blue},#13294B);color:${C.white};border:none}
+.gth-btn-ghost{padding:15px 26px;font-size:14px;background:transparent;color:${C.blueBright};border:1.5px solid rgba(59,123,246,0.4)}
 .gth-btn-gold-outline{color:${C.gold};border-color:${C.borderGold}}
 
 .gth-eyebrow{font-size:11px;font-weight:800;color:${C.gold};letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
@@ -750,7 +750,7 @@ const CSS = `
 .gth-hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
 .gth-microcopy{font-size:12px;color:${C.textMuted};margin-top:14px}
 .gth-hero-img{display:flex;align-items:center;justify-content:center}
-.gth-hero-img img{width:100%;max-width:520px;height:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 24px rgba(37,99,235,0.4)) brightness(1.05)}
+.gth-hero-img img{width:100%;max-width:520px;height:auto;mix-blend-mode:screen;filter:drop-shadow(0 0 24px rgba(59,123,246,0.4)) brightness(1.05)}
 
 .gth-steps{max-width:1200px;margin:0 auto;padding:0 48px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .gth-step{background:${C.bgCard};border:1px solid ${C.border};border-radius:12px;padding:18px 16px}
@@ -758,7 +758,7 @@ const CSS = `
 .gth-step p{font-size:12px;color:${C.textSec};font-weight:600;line-height:1.4;margin-top:6px}
 
 .gth-section{padding:72px 48px;border-bottom:1px solid ${C.border}}
-.gth-alt{background:linear-gradient(135deg,rgba(37,99,235,0.06),rgba(6,40,99,0.9))}
+.gth-alt{background:linear-gradient(135deg,rgba(59,123,246,0.06),rgba(11,27,51,0.9))}
 .gth-narrow{max-width:820px;margin:0 auto}
 .gth-wide{max-width:1160px;margin:0 auto}
 .gth-section h2{font-size:clamp(22px,3vw,32px);font-weight:800;margin-bottom:18px}
@@ -792,7 +792,7 @@ const CSS = `
 .gth-aud-card{background:${C.bgCard};border:1px solid ${C.border};border-radius:14px;padding:20px 22px}
 .gth-aud-card h3{font-size:14px;font-weight:700;color:${C.white};margin-bottom:6px}
 .gth-aud-card p{font-size:13px;line-height:1.6;margin:0}
-.gth-aud-card--primary{border-color:${C.borderGold};background:linear-gradient(135deg,rgba(244,197,66,0.08),${C.bgCard})}
+.gth-aud-card--primary{border-color:${C.borderGold};background:linear-gradient(135deg,rgba(227,179,65,0.08),${C.bgCard})}
 .gth-aud-card--primary h3{font-size:17px;color:${C.gold}}
 .gth-aud-card--primary p{font-size:14px;color:${C.textSec}}
 .gth-aud-sub{font-size:12px;font-weight:700;color:${C.textMuted};text-transform:uppercase;letter-spacing:1px;margin:24px 0 4px}
@@ -804,7 +804,7 @@ const CSS = `
 .gth-srccard p{font-size:12px;line-height:1.6;margin:0}
 .gth-srccard--ai{border-color:rgba(167,139,250,0.35)}
 .gth-badge{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.8px;padding:3px 8px;border-radius:6px}
-.gth-badge-src{background:rgba(34,197,94,0.14);color:#4ade80;border:1px solid rgba(34,197,94,0.3)}
+.gth-badge-src{background:rgba(47,179,128,0.14);color:#5FD3A3;border:1px solid rgba(47,179,128,0.3)}
 .gth-badge-ai{background:rgba(167,139,250,0.14);color:#c4b5fd;border:1px solid rgba(167,139,250,0.3)}
 
 .gth-mission-lead{font-size:19px;font-weight:700;color:${C.gold};line-height:1.45;margin-bottom:18px}

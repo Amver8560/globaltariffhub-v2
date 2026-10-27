@@ -35,7 +35,7 @@ function AccessForm() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "#07152F",
+      background: "#0B1B33",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -43,8 +43,8 @@ function AccessForm() {
       padding: 24,
     }}>
       <div style={{
-        background: "#0B1E3D",
-        border: "1px solid rgba(59,130,246,0.25)",
+        background: "#0B1B33",
+        border: "1px solid rgba(59,123,246,0.25)",
         borderRadius: 20,
         padding: "48px 40px",
         maxWidth: 400,
@@ -54,17 +54,17 @@ function AccessForm() {
         {/* Logo */}
         <div style={{
           width: 48, height: 48, borderRadius: 10,
-          background: "linear-gradient(135deg, #2563EB, #0B1E3D)",
+          background: "linear-gradient(135deg, #3B7BF6, #0B1B33)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontWeight: 800, fontSize: 14, color: "#F4C542",
-          border: "1.5px solid #F4C542",
+          fontWeight: 800, fontSize: 14, color: "#E3B341",
+          border: "1.5px solid #E3B341",
           margin: "0 auto 24px",
         }}>GTH</div>
 
         <h1 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginBottom: 8 }}>
           Global Tariff Hub
         </h1>
-        <p style={{ fontSize: 13, color: "rgba(184,196,217,0.6)", marginBottom: 32, lineHeight: 1.6 }}>
+        <p style={{ fontSize: 13, color: "rgba(163,178,204,0.6)", marginBottom: 32, lineHeight: 1.6 }}>
           Sitio en acceso privado.<br />Ingresá la contraseña para continuar.
         </p>
 
@@ -79,8 +79,8 @@ function AccessForm() {
             style={{
               padding: "14px 18px",
               borderRadius: 10,
-              border: `1.5px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(59,130,246,0.25)"}`,
-              background: "#07152F",
+              border: `1.5px solid ${error ? "rgba(239,68,68,0.5)" : "rgba(59,123,246,0.25)"}`,
+              background: "#0B1B33",
               color: "#FFFFFF",
               fontSize: 15,
               outline: "none",
@@ -99,8 +99,8 @@ function AccessForm() {
               borderRadius: 10,
               border: "none",
               background: loading
-                ? "rgba(59,130,246,0.4)"
-                : "linear-gradient(135deg, #2563EB, #1d4ed8)",
+                ? "rgba(59,123,246,0.4)"
+                : "linear-gradient(135deg, #3B7BF6, #2557C7)",
               color: "#FFFFFF",
               fontSize: 15,
               fontWeight: 700,
@@ -111,7 +111,7 @@ function AccessForm() {
           </button>
         </form>
 
-        <p style={{ fontSize: 11, color: "rgba(184,196,217,0.3)", marginTop: 28 }}>
+        <p style={{ fontSize: 11, color: "rgba(163,178,204,0.3)", marginTop: 28 }}>
           From Product to Trade Intelligence™
         </p>
       </div>
@@ -121,7 +121,7 @@ function AccessForm() {
 
 export default function AccesoPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#07152F" }} />}>
+    <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0B1B33" }} />}>
       <AccessForm />
     </Suspense>
   );

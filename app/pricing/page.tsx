@@ -4,12 +4,12 @@ import Link from "next/link";
 
 export default function PricingPage() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0F", color: "#FFF", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0B1B33", color: "#FFF", fontFamily: "Arial, sans-serif" }}>
 
       {/* NAV */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFF" }}>
-          <div style={{ width: 32, height: 32, borderRadius: 7, background: "linear-gradient(135deg,#0057FF,#0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+          <div style={{ width: 32, height: 32, borderRadius: 7, background: "linear-gradient(135deg,#3B7BF6,#13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 15 }}>Global Tariff Hub</span>
         </Link>
         <Link href="/dashboard" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>← Dashboard</Link>
@@ -24,7 +24,7 @@ export default function PricingPage() {
         </p>
         <Link
           href="/"
-          style={{ display: "inline-block", padding: "13px 32px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+          style={{ display: "inline-block", padding: "13px 32px", borderRadius: 10, background: "linear-gradient(135deg,#3B7BF6,#2557C7)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
         >
           ← Volver al inicio
         </Link>

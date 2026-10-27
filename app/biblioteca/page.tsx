@@ -87,28 +87,28 @@ export default function BibliotecaPage() {
 }
 
 const CSS = `
-.lib{background:#062863;color:#fff;min-height:100vh;font-family:var(--font-inter),'Helvetica Neue',Arial,sans-serif}
+.lib{background:#0B1B33;color:#fff;min-height:100vh;font-family:var(--font-inter),'Helvetica Neue',Arial,sans-serif}
 .lib a{color:inherit;text-decoration:none}
-.lib-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid rgba(59,130,246,0.25)}
+.lib-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid rgba(59,123,246,0.25)}
 .lib-logo{display:flex;align-items:center;gap:10px}
-.lib-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#2563EB,#0D2247);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#F4C542;border:1.5px solid #F4C542}
+.lib-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3B7BF6,#13294B);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#E3B341;border:1.5px solid #E3B341}
 .lib-name{font-weight:800;font-size:15px}
-.lib-back{font-size:13px;color:rgba(184,196,217,0.6)}
+.lib-back{font-size:13px;color:rgba(163,178,204,0.6)}
 .lib-main{max-width:860px;margin:0 auto;padding:56px 24px 80px}
-.lib-eyebrow{font-size:11px;font-weight:800;color:#F4C542;letter-spacing:2px;margin-bottom:12px}
+.lib-eyebrow{font-size:11px;font-weight:800;color:#E3B341;letter-spacing:2px;margin-bottom:12px}
 .lib-main h1{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-0.5px;margin:0 0 14px}
-.lib-lead{font-size:16px;color:#B8C4D9;line-height:1.7;margin:0 0 40px}
+.lib-lead{font-size:16px;color:#A3B2CC;line-height:1.7;margin:0 0 40px}
 .lib-h2{font-size:18px;font-weight:800;margin:36px 0 14px}
 .lib-grid{display:grid;gap:14px}
-.lib-card{background:#0B1E3D;border:1px solid rgba(59,130,246,0.25);border-radius:14px;padding:22px 24px}
-.lib-cat{font-size:11px;font-weight:700;color:#F4C542;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px}
+.lib-card{background:#0B1B33;border:1px solid rgba(59,123,246,0.25);border-radius:14px;padding:22px 24px}
+.lib-cat{font-size:11px;font-weight:700;color:#E3B341;text-transform:uppercase;letter-spacing:1px;margin:0 0 8px}
 .lib-card h3{font-size:17px;font-weight:700;line-height:1.35;margin:0 0 8px}
-.lib-card h3 a:hover{color:#F4C542}
-.lib-excerpt{font-size:13px;color:#B8C4D9;line-height:1.7;margin:0 0 10px}
-.lib-readmore{font-size:13px;font-weight:700;color:#3B82F6}
-.lib-note{font-size:13px;color:rgba(184,196,217,0.55);line-height:1.7;margin:0 0 12px}
+.lib-card h3 a:hover{color:#E3B341}
+.lib-excerpt{font-size:13px;color:#A3B2CC;line-height:1.7;margin:0 0 10px}
+.lib-readmore{font-size:13px;font-weight:700;color:#3B7BF6}
+.lib-note{font-size:13px;color:rgba(163,178,204,0.55);line-height:1.7;margin:0 0 12px}
 .lib-cats{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.lib-cats li{font-size:12px;color:#B8C4D9;background:rgba(255,255,255,0.04);border:1px solid rgba(59,130,246,0.25);border-radius:20px;padding:6px 14px}
+.lib-cats li{font-size:12px;color:#A3B2CC;background:rgba(255,255,255,0.04);border:1px solid rgba(59,123,246,0.25);border-radius:20px;padding:6px 14px}
 .lib-footer{border-top:1px solid rgba(255,255,255,0.08);padding:24px 40px;text-align:center}
 .lib-footer p{font-size:11px;color:rgba(255,255,255,0.4);margin:2px 0}
 @media (max-width:520px){.lib-nav{padding:14px 16px}.lib-main{padding:40px 16px 60px}}

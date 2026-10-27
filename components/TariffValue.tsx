@@ -11,8 +11,8 @@
 import type { TariffDatum, TariffStatus } from "@/lib/tariffDatum";
 
 const LABEL: Record<TariffStatus, { es: string; en: string; color: string; bg: string }> = {
-  determined:     { es: "Determinado",    en: "Determined",     color: "#22c55e", bg: "rgba(34,197,94,0.12)" },
-  referential:    { es: "Referencial",    en: "Referential",    color: "#C9A84C", bg: "rgba(201,168,76,0.12)" },
+  determined:     { es: "Determinado",    en: "Determined",     color: "#2FB380", bg: "rgba(47,179,128,0.12)" },
+  referential:    { es: "Referencial",    en: "Referential",    color: "#E3B341", bg: "rgba(227,179,65,0.12)" },
   not_determined: { es: "No determinado", en: "Not determined", color: "#94a3b8", bg: "rgba(148,163,184,0.12)" },
 };
 
@@ -71,7 +71,7 @@ export default function TariffValue({
       })()}
 
       {d?.requires_validation && status !== "not_determined" && (
-        <p style={{ fontSize: 11, color: "#C9A84C", margin: 0 }}>
+        <p style={{ fontSize: 11, color: "#E3B341", margin: 0 }}>
           ⚠ {en
             ? "Requires validation in the official system of the importing country or with a customs broker."
             : "Requiere validación en el sistema oficial del país importador o con un despachante de aduana."}

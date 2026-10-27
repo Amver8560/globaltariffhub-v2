@@ -33,21 +33,21 @@ const MODULES = {
       question: "¿Qué impuestos paga este producto?",
       title: "Clasificación Arancelaria con IA",
       desc: "Encontrá el código HS / NCM / TARIC de tu producto y su arancel de referencia por país, con los acuerdos comerciales aplicables.",
-      color: "#0057FF", bg: "rgba(0,87,255,0.12)", border: "rgba(0,87,255,0.4)",
+      color: "#3B7BF6", bg: "rgba(59,123,246,0.12)", border: "rgba(59,123,246,0.4)",
     },
     {
       href: "/modulo02", badge: "Módulo 02", icon: "📄",
       question: "¿Podés pagar menos aranceles de importación?",
       title: "Ahorro arancelario según el país de origen",
       desc: "Comparamos cuánto pagás con y sin certificado de origen, verificamos si hay acuerdo comercial vigente y qué documentación necesitás.",
-      color: "#22c55e", bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.4)",
+      color: "#2FB380", bg: "rgba(47,179,128,0.12)", border: "rgba(47,179,128,0.4)",
     },
     {
       href: "/modulo03", badge: "Módulo 03", icon: "📦",
       question: "¿Cuánto cuesta realmente traerlo?",
       title: "Calculadora CIF",
       desc: "Calculá el costo CIF con flete, seguro y todos los tributos de importación desglosados por país de destino.",
-      color: "#C9A84C", bg: "rgba(201,168,76,0.12)", border: "rgba(201,168,76,0.4)",
+      color: "#E3B341", bg: "rgba(227,179,65,0.12)", border: "rgba(227,179,65,0.4)",
     },
     {
       href: "/modulo04", badge: "Módulo 04", icon: "💡",
@@ -63,21 +63,21 @@ const MODULES = {
       question: "What taxes does this product pay?",
       title: "AI Tariff Classification",
       desc: "Find your product's HS / NCM / TARIC code and its reference tariff by country, with the applicable trade agreements.",
-      color: "#0057FF", bg: "rgba(0,87,255,0.12)", border: "rgba(0,87,255,0.4)",
+      color: "#3B7BF6", bg: "rgba(59,123,246,0.12)", border: "rgba(59,123,246,0.4)",
     },
     {
       href: "/modulo02", badge: "Module 02", icon: "📄",
       question: "Can you pay lower import tariffs?",
       title: "Tariff savings by country of origin",
       desc: "We compare what you pay with and without a certificate of origin, check whether a trade agreement applies and what documents you need.",
-      color: "#22c55e", bg: "rgba(34,197,94,0.12)", border: "rgba(34,197,94,0.4)",
+      color: "#2FB380", bg: "rgba(47,179,128,0.12)", border: "rgba(47,179,128,0.4)",
     },
     {
       href: "/modulo03", badge: "Module 03", icon: "📦",
       question: "What does it really cost to bring it in?",
       title: "CIF Calculator",
       desc: "Calculate CIF cost with freight, insurance and every import tax broken down by destination country.",
-      color: "#C9A84C", bg: "rgba(201,168,76,0.12)", border: "rgba(201,168,76,0.4)",
+      color: "#E3B341", bg: "rgba(227,179,65,0.12)", border: "rgba(227,179,65,0.4)",
     },
     {
       href: "/modulo04", badge: "Module 04", icon: "💡",
@@ -95,19 +95,19 @@ export default function ModulosPage() {
   const mods = MODULES[lang];
 
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back_home}</Link>
-          <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
+          <div style={{ display: "flex", background: "#13294B", borderRadius: 20, padding: 3, border: "1px solid rgba(59,123,246,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
-              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
+              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#3B7BF6" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
             ))}
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function ModulosPage() {
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 44, maxWidth: 640, marginLeft: "auto", marginRight: "auto" }}>
-          <span style={{ fontSize: 11, fontWeight: 800, color: "#C9A84C", letterSpacing: 2.5, textTransform: "uppercase" }}>{c.kicker}</span>
+          <span style={{ fontSize: 11, fontWeight: 800, color: "#E3B341", letterSpacing: 2.5, textTransform: "uppercase" }}>{c.kicker}</span>
           <h1 style={{ fontSize: "clamp(26px,4vw,38px)", fontWeight: 800, marginTop: 14, marginBottom: 14, letterSpacing: -0.5 }}>{c.title}</h1>
           <p style={{ fontSize: 15, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>{c.sub}</p>
         </div>
@@ -130,7 +130,7 @@ export default function ModulosPage() {
               href={m.href}
               style={{
                 textDecoration: "none", color: "inherit", display: "flex", flexDirection: "column", gap: 14,
-                background: "#0D1B3E", border: `1px solid ${m.border}`, borderRadius: 18, padding: "28px 26px",
+                background: "#13294B", border: `1px solid ${m.border}`, borderRadius: 18, padding: "28px 26px",
                 transition: "transform 0.15s, box-shadow 0.15s",
               }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 10px 34px ${m.color}22`; }}
@@ -141,7 +141,7 @@ export default function ModulosPage() {
                 <span style={{ fontSize: 11, fontWeight: 700, color: m.color, background: m.bg, border: `1px solid ${m.border}`, borderRadius: 20, padding: "4px 12px" }}>{m.badge}</span>
               </div>
               <div>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "#C9A84C", marginBottom: 6, lineHeight: 1.4 }}>{m.question}</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#E3B341", marginBottom: 6, lineHeight: 1.4 }}>{m.question}</p>
                 <h2 style={{ fontSize: 17, fontWeight: 700, marginBottom: 8, lineHeight: 1.3 }}>{m.title}</h2>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", lineHeight: 1.7 }}>{m.desc}</p>
               </div>

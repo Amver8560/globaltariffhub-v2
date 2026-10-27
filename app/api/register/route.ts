@@ -118,9 +118,9 @@ export async function POST(req: NextRequest) {
     } else if (m.includes("rate limit") || m.includes("too many") || m.includes("email send")) {
       msg = "Estamos recibiendo muchos registros en este momento. Esperá unos minutos y volvé a intentar.";
     } else if (m.includes("signups not allowed") || m.includes("disabled")) {
-      msg = "El registro está temporalmente deshabilitado. Escribinos a analia@globaltariffhub.com.";
+      msg = "El registro está temporalmente deshabilitado. Escribinos a globaltariffhub@gmail.com.";
     } else if (m.includes("database error")) {
-      msg = "Hubo un problema al crear tu cuenta. Escribinos a analia@globaltariffhub.com y lo resolvemos.";
+      msg = "Hubo un problema al crear tu cuenta. Escribinos a globaltariffhub@gmail.com y lo resolvemos.";
     } else if (m.includes("invalid") && m.includes("email")) {
       msg = "El email no parece válido. Revisalo e intentá de nuevo.";
     }
@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
               ok: false,
               code: "REGISTRATION_INCOMPLETE",
               error:
-                "Tu cuenta se creó pero hubo un problema al completarla. Escribinos a analia@globaltariffhub.com y lo resolvemos.",
+                "Tu cuenta se creó pero hubo un problema al completarla. Escribinos a globaltariffhub@gmail.com y lo resolvemos.",
             },
         { status: deleted ? 503 : 500 }
       );

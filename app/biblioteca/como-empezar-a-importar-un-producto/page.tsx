@@ -155,24 +155,24 @@ export default function ArticlePage() {
 }
 
 const CSS = `
-.art{background:#062863;color:#fff;min-height:100vh;font-family:var(--font-inter),'Helvetica Neue',Arial,sans-serif}
+.art{background:#0B1B33;color:#fff;min-height:100vh;font-family:var(--font-inter),'Helvetica Neue',Arial,sans-serif}
 .art a{color:inherit;text-decoration:none}
-.art-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid rgba(59,130,246,0.25)}
+.art-nav{display:flex;justify-content:space-between;align-items:center;padding:16px 40px;border-bottom:1px solid rgba(59,123,246,0.25)}
 .art-logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px}
-.art-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#2563EB,#0D2247);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#F4C542;border:1.5px solid #F4C542}
-.art-back{font-size:13px;color:rgba(184,196,217,0.6)}
+.art-mark{width:34px;height:34px;border-radius:8px;background:linear-gradient(135deg,#3B7BF6,#13294B);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px;color:#E3B341;border:1.5px solid #E3B341}
+.art-back{font-size:13px;color:rgba(163,178,204,0.6)}
 .art-main{max-width:720px;margin:0 auto;padding:48px 24px 80px}
-.art-crumbs{font-size:12px;color:rgba(184,196,217,0.55);margin-bottom:20px}
-.art-crumbs a:hover{color:#F4C542}
-.art-cat{font-size:11px;font-weight:800;color:#F4C542;letter-spacing:1.5px;margin:0 0 12px}
+.art-crumbs{font-size:12px;color:rgba(163,178,204,0.55);margin-bottom:20px}
+.art-crumbs a:hover{color:#E3B341}
+.art-cat{font-size:11px;font-weight:800;color:#E3B341;letter-spacing:1.5px;margin:0 0 12px}
 .art-main h1{font-size:clamp(24px,3.4vw,34px);font-weight:800;line-height:1.2;letter-spacing:-0.5px;margin:0 0 20px}
 .art-intro{font-size:17px;color:#fff;font-weight:500;line-height:1.7;margin:0 0 8px}
 .art-main h2{font-size:19px;font-weight:800;margin:34px 0 10px}
-.art-main p{font-size:15px;color:#B8C4D9;line-height:1.8;margin:0 0 14px}
+.art-main p{font-size:15px;color:#A3B2CC;line-height:1.8;margin:0 0 14px}
 .art-main strong{color:#fff}
-.art-cta{margin-top:40px;background:#0B1E3D;border:1px solid rgba(244,197,66,0.35);border-radius:14px;padding:24px}
-.art-cta p{font-size:14px;color:#B8C4D9;margin:0 0 14px}
-.art-btn{display:inline-block;background:linear-gradient(135deg,#F4C542,#F9D96A);color:#062863;font-weight:700;font-size:14px;padding:12px 24px;border-radius:9px}
+.art-cta{margin-top:40px;background:#0B1B33;border:1px solid rgba(227,179,65,0.35);border-radius:14px;padding:24px}
+.art-cta p{font-size:14px;color:#A3B2CC;margin:0 0 14px}
+.art-btn{display:inline-block;background:linear-gradient(135deg,#E3B341,#F0CC6E);color:#0B1B33;font-weight:700;font-size:14px;padding:12px 24px;border-radius:9px}
 .art-footer{border-top:1px solid rgba(255,255,255,0.08);padding:24px 40px;text-align:center}
 .art-footer p{font-size:11px;color:rgba(255,255,255,0.4);margin:2px 0}
 @media (max-width:520px){.art-nav{padding:14px 16px}.art-main{padding:36px 16px 60px}}

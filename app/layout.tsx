@@ -93,7 +93,7 @@ const jsonLd = {
       "foundingDate": "2025",
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "analia@globaltariffhub.com",
+        "email": "globaltariffhub@gmail.com",
         "contactType": "customer support",
         "availableLanguage": ["Spanish", "English"],
       },

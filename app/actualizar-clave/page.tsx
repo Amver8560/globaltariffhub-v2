@@ -121,18 +121,18 @@ export default function ActualizarClavePage() {
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "12px 16px", borderRadius: 10,
-    border: "1px solid rgba(0,87,255,0.3)", background: "#0D1B3E",
+    border: "1px solid rgba(59,123,246,0.3)", background: "#13294B",
     color: "#FFF", fontSize: 14, boxSizing: "border-box",
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0F", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
+    <div style={{ minHeight: "100vh", background: "#0B1B33", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}>
       <Link href="/" style={{ textDecoration: "none", color: "#FFF", marginBottom: 40, display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg,#0057FF,#0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+        <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg,#3B7BF6,#13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 12, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
         <span style={{ fontWeight: 700, fontSize: 16 }}>Global Tariff Hub</span>
       </Link>
 
-      <div style={{ width: "100%", maxWidth: 400, background: "#0D1B3E", borderRadius: 16, padding: 36, border: "1px solid rgba(0,87,255,0.2)" }}>
+      <div style={{ width: "100%", maxWidth: 400, background: "#13294B", borderRadius: 16, padding: 36, border: "1px solid rgba(59,123,246,0.2)" }}>
         {ready === "checking" && (
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>Verificando el enlace…</p>
         )}
@@ -148,7 +148,7 @@ export default function ActualizarClavePage() {
                 ? "El enlace para restablecer la contraseña dura 1 hora y se usa una sola vez. Pedí uno nuevo y abrilo apenas te llegue."
                 : "No pudimos validar este enlace. Pedí uno nuevo desde “Recuperar contraseña”."}
             </p>
-            <Link href="/recuperar" style={{ display: "block", padding: "13px", borderRadius: 10, background: "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
+            <Link href="/recuperar" style={{ display: "block", padding: "13px", borderRadius: 10, background: "linear-gradient(135deg,#3B7BF6,#2557C7)", color: "#FFF", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>
               Pedir un nuevo enlace
             </Link>
           </div>
@@ -173,7 +173,7 @@ export default function ActualizarClavePage() {
                 <p style={{ fontSize: 13, color: "#ef4444", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 8, padding: "10px 14px" }}>{error}</p>
               )}
 
-              <button type="submit" disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading ? "rgba(0,87,255,0.4)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", marginTop: 4 }}>
+              <button type="submit" disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading ? "rgba(59,123,246,0.4)" : "linear-gradient(135deg,#3B7BF6,#2557C7)", color: "#FFF", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", marginTop: 4 }}>
                 {loading ? "Guardando…" : "Guardar contraseña"}
               </button>
             </form>

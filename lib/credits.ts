@@ -32,7 +32,7 @@ function noCredits(): NextResponse {
   return NextResponse.json(
     {
       error:
-        "Usaste tus 3 consultas gratuitas de la apertura anticipada. Escribinos a analia@globaltariffhub.com y te habilitamos el acceso.",
+        "Usaste tus 3 consultas gratuitas de la apertura anticipada. Escribinos a globaltariffhub@gmail.com y te habilitamos el acceso.",
       code: "NO_CREDITS",
     },
     { status: 402 }

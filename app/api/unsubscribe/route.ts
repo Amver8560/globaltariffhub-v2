@@ -18,11 +18,11 @@ function page(message: string) {
 <title>Global Tariff Hub</title>
 <style>
   body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
-    background:#062863;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
+    background:#0B1B33;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif}
   .box{max-width:440px;padding:40px 28px;text-align:center}
-  .mark{font-weight:800;font-size:13px;color:#F4C542;letter-spacing:1px;margin-bottom:18px}
+  .mark{font-weight:800;font-size:13px;color:#E3B341;letter-spacing:1px;margin-bottom:18px}
   p{font-size:15px;line-height:1.6;color:rgba(255,255,255,0.8)}
-  a{color:#F4C542;text-decoration:none}
+  a{color:#E3B341;text-decoration:none}
 </style></head><body>
   <div class="box">
     <div class="mark">GLOBAL TARIFF HUB</div>

@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function Terms() {
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/en" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 34, height: 34, borderRadius: 7, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 11, color: "#C9A84C", border: "1px solid rgba(201,168,76,0.5)" }}>GTH</div>
+          <div style={{ width: 34, height: 34, borderRadius: 7, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 11, color: "#E3B341", border: "1px solid rgba(227,179,65,0.5)" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 16 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", gap: 20 }}>
@@ -26,7 +26,7 @@ export default function Terms() {
       <main style={{ maxWidth: 760, margin: "0 auto", padding: "60px 40px 80px" }}>
 
         <div style={{ marginBottom: 40 }}>
-          <span style={{ background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, padding: "5px 16px", color: "#C9A84C", fontSize: 12, fontWeight: 600 }}>Legal</span>
+          <span style={{ background: "rgba(227,179,65,0.15)", border: "1px solid rgba(227,179,65,0.4)", borderRadius: 20, padding: "5px 16px", color: "#E3B341", fontSize: 12, fontWeight: 600 }}>Legal</span>
           <h1 style={{ fontSize: 34, fontWeight: 800, marginTop: 20, marginBottom: 8, letterSpacing: -0.5 }}>Terms of Use</h1>
           <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>Last updated: June 2026</p>
         </div>
@@ -74,7 +74,7 @@ export default function Terms() {
           },
           {
             title: "11. Contact",
-            body: "For questions about these Terms of Use, write to analia@globaltariffhub.com.",
+            body: "For questions about these Terms of Use, write to globaltariffhub@gmail.com.",
           },
         ].map((section, i) => (
           <div key={i} style={{ marginBottom: 32, paddingBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>

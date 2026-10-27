@@ -114,17 +114,17 @@ export default function LegalDisclaimer({
       {/* Fuentes de datos */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 10, marginBottom: 8 }}>
         {wtoSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(47,179,128,0.08)", border: "1px solid rgba(47,179,128,0.2)", color: "rgba(47,179,128,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_wto}
           </span>
         )}
         {ncmSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(47,179,128,0.08)", border: "1px solid rgba(47,179,128,0.2)", color: "rgba(47,179,128,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_ncm}
           </span>
         )}
         {taricSource && (
-          <span style={{ fontSize: 10, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", color: "rgba(34,197,94,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
+          <span style={{ fontSize: 10, background: "rgba(47,179,128,0.08)", border: "1px solid rgba(47,179,128,0.2)", color: "rgba(47,179,128,0.7)", padding: "2px 9px", borderRadius: 20, fontWeight: 600 }}>
             {t.source_taric}
           </span>
         )}

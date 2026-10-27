@@ -82,7 +82,7 @@ describe("aiErrorMessage", () => {
   });
   it("deriva a contacto cuando NO se pudo reintegrar", () => {
     const msg = aiErrorMessage("error", "es", false);
-    expect(msg).toMatch(/analia@globaltariffhub\.com/);
+    expect(msg).toMatch(/globaltariffhub@gmail\.com/);
   });
   it("respeta el idioma", () => {
     expect(aiErrorMessage("busy", "en", true)).toMatch(/not deducted/i);
@@ -111,7 +111,7 @@ describe("buildAIErrorPayload — SIEMPRE intenta reintegrar", () => {
     const p = await buildAIErrorPayload(new Error("x"), { userId: "u1" });
     expect(p.credit_refunded).toBe(false);
     expect(p.error).toMatch(/No pudimos confirmar el estado de tu consulta/);
-    expect(p.error).toMatch(/analia@globaltariffhub\.com/);
+    expect(p.error).toMatch(/globaltariffhub@gmail\.com/);
     expect(p.error).not.toMatch(/reponemos|la restaur|we'll restore/i);
   });
 
@@ -119,7 +119,7 @@ describe("buildAIErrorPayload — SIEMPRE intenta reintegrar", () => {
     refundCredit.mockResolvedValue(true);
     const p = await buildAIErrorPayload({ name: "APIUserAbortError" }, { userId: "u1" });
     expect(p.error).toMatch(/no se descontó/i);
-    expect(p.error).not.toMatch(/analia@globaltariffhub\.com/);
+    expect(p.error).not.toMatch(/globaltariffhub@gmail\.com/);
   });
 
   it("no rompe si refundCredit lanza", async () => {

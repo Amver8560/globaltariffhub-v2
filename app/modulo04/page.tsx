@@ -308,10 +308,10 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   const asked = incoterm && (SUPPORTED_INCOTERMS as readonly string[]).includes(incoterm) ? ASK_FOR_BASE[incoterm as Incoterm] : [];
   const alreadyInPrice = incoterm && (SUPPORTED_INCOTERMS as readonly string[]).includes(incoterm) ? ALREADY_IN_PRICE[incoterm as Incoterm] : [];
 
-  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0D1B3E", color: "#FFF", fontSize: 13 };
+  const inputStyle: React.CSSProperties = { width: "100%", padding: "10px 14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#13294B", color: "#FFF", fontSize: 13 };
   const labelStyle: React.CSSProperties = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6, display: "block" };
-  const cardStyle: React.CSSProperties = { background: "#0D1B3E", borderRadius: 14, padding: 22, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 16 };
-  const sectionTitle: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#C9A84C", marginBottom: 14, borderBottom: "1px solid rgba(201,168,76,0.2)", paddingBottom: 6 };
+  const cardStyle: React.CSSProperties = { background: "#13294B", borderRadius: 14, padding: 22, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 16 };
+  const sectionTitle: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#E3B341", marginBottom: 14, borderBottom: "1px solid rgba(227,179,65,0.2)", paddingBottom: 6 };
 
   const cost = result?.cost;
   const costPref = result?.cost_pref;
@@ -361,17 +361,17 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0A0A0F", color: "#FFFFFF", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "#0B1B33", color: "#FFFFFF", fontFamily: "Arial, sans-serif" }}>
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFF" }}>
-          <div style={{ width: 32, height: 32, borderRadius: 7, background: "linear-gradient(135deg,#0057FF,#0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+          <div style={{ width: 32, height: 32, borderRadius: 7, background: "linear-gradient(135deg,#3B7BF6,#13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 12, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 15 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/modulos" style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>{lang === "es" ? "◇ Todos los módulos" : "◇ All modules"}</Link>
-          <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 3, border: "1px solid rgba(0,87,255,0.3)", display: "flex" }}>
+          <div style={{ background: "#13294B", borderRadius: 16, padding: 3, border: "1px solid rgba(59,123,246,0.3)", display: "flex" }}>
             {(["ES", "EN"] as const).map((l) => (
-              <span key={l} onClick={() => setLang(l.toLowerCase() as Lang)} style={{ padding: "4px 12px", borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: "pointer", background: lang === l.toLowerCase() ? "#0057FF" : "transparent", color: lang === l.toLowerCase() ? "#FFF" : "rgba(255,255,255,0.4)" }}>{l}</span>
+              <span key={l} onClick={() => setLang(l.toLowerCase() as Lang)} style={{ padding: "4px 12px", borderRadius: 12, fontSize: 12, fontWeight: 700, cursor: "pointer", background: lang === l.toLowerCase() ? "#3B7BF6" : "transparent", color: lang === l.toLowerCase() ? "#FFF" : "rgba(255,255,255,0.4)" }}>{l}</span>
             ))}
           </div>
         </div>
@@ -379,7 +379,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
       <main style={{ maxWidth: 900, margin: "0 auto", padding: "40px 24px" }}>
         <div style={{ marginBottom: 36, textAlign: "center" }}>
-          <div style={{ display: "inline-block", background: "rgba(201,168,76,0.1)", border: "1px solid #C9A84C", borderRadius: 20, padding: "4px 16px", fontSize: 11, fontWeight: 700, color: "#C9A84C", marginBottom: 12 }}>📦 Módulo 04</div>
+          <div style={{ display: "inline-block", background: "rgba(227,179,65,0.1)", border: "1px solid #E3B341", borderRadius: 20, padding: "4px 16px", fontSize: 11, fontWeight: 700, color: "#E3B341", marginBottom: 12 }}>📦 Módulo 04</div>
           <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>{c.title}</h1>
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{c.subtitle}</p>
         </div>
@@ -390,7 +390,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             {/* PASO 1 — PRODUCTO */}
             <div style={cardStyle}>
               <p style={sectionTitle}>{c.step1} — {lang === "es" ? "Producto a importar" : "Product to import"}</p>
-              <div onClick={() => fileRef.current?.click()} style={{ border: "2px dashed rgba(0,87,255,0.4)", borderRadius: 10, padding: 20, textAlign: "center", cursor: "pointer", marginBottom: 16, background: imagePreview ? "transparent" : "rgba(0,87,255,0.04)", position: "relative", overflow: "hidden" }}>
+              <div onClick={() => fileRef.current?.click()} style={{ border: "2px dashed rgba(59,123,246,0.4)", borderRadius: 10, padding: 20, textAlign: "center", cursor: "pointer", marginBottom: 16, background: imagePreview ? "transparent" : "rgba(59,123,246,0.04)", position: "relative", overflow: "hidden" }}>
                 {imagePreview
                   ? <img src={imagePreview} alt="preview" style={{ maxHeight: 180, borderRadius: 8, maxWidth: "100%" }} />
                   : <>
@@ -406,7 +406,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 <label style={labelStyle}>{lang === "es" ? "Sistema de nomenclatura arancelaria" : "Tariff nomenclature system"}</label>
                 <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                   {["HS", "NCM", "TARIC"].map((s) => (
-                    <button key={s} onClick={() => setTariffSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.4)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
+                    <button key={s} onClick={() => setTariffSystem(s)} style={{ flex: 1, padding: "8px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#3B7BF6" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(59,123,246,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.4)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{s}</button>
                   ))}
                 </div>
               </div>
@@ -428,7 +428,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 </div>
                 <div>
                   <label style={labelStyle}>{c.destination} *</label>
-                  <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, borderColor: !destination ? "rgba(239,68,68,0.5)" : "rgba(0,87,255,0.3)" }}>
+                  <select value={destination} onChange={(e) => setDestination(e.target.value)} style={{ ...inputStyle, borderColor: !destination ? "rgba(239,68,68,0.5)" : "rgba(59,123,246,0.3)" }}>
                     <option value="">{lang === "es" ? "— Seleccioná —" : "— Select —"}</option>
                     {ALL_COUNTRIES.map(co => <option key={co} value={co}>{co}</option>)}
                     <option disabled>──────────</option>
@@ -441,15 +441,15 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <label style={labelStyle}>{c.incoterm_title} *</label>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                 {SUPPORTED_INCOTERMS.map((code) => (
-                  <button key={code} onClick={() => setIncoterm(code)} style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${incoterm === code ? "#0057FF" : "rgba(255,255,255,0.12)"}`, background: incoterm === code ? "rgba(0,87,255,0.25)" : "transparent", color: incoterm === code ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{code}</button>
+                  <button key={code} onClick={() => setIncoterm(code)} style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${incoterm === code ? "#3B7BF6" : "rgba(255,255,255,0.12)"}`, background: incoterm === code ? "rgba(59,123,246,0.25)" : "transparent", color: incoterm === code ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{code}</button>
                 ))}
               </div>
               {!meta && <p style={{ fontSize: 11.5, color: "#ef4444", fontWeight: 600, marginBottom: 12 }}>⚠ {c.incoterm_pick}</p>}
               {meta && (
                 <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "10px 12px", marginBottom: 12 }}>
                   <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>{meta.code} — {lang === "es" ? meta.name_es : meta.name_en}</p>
-                  <p style={{ fontSize: 11.5, color: "#22c55e", marginBottom: 3 }}>📤 {c.seller_covers}: {meta.seller_es}</p>
-                  <p style={{ fontSize: 11.5, color: "#C9A84C" }}>📥 {c.buyer_covers}: {meta.buyer_es}</p>
+                  <p style={{ fontSize: 11.5, color: "#2FB380", marginBottom: 3 }}>📤 {c.seller_covers}: {meta.seller_es}</p>
+                  <p style={{ fontSize: 11.5, color: "#E3B341" }}>📥 {c.buyer_covers}: {meta.buyer_es}</p>
                   {meta.scope_note_es && <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.45)", marginTop: 3 }}>ℹ {lang === "es" ? meta.scope_note_es : meta.scope_note_en}</p>}
                 </div>
               )}
@@ -457,7 +457,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 0.8fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={labelStyle}>{inCur(c.unit_price)} *</label>
-                  <input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="8.00" style={{ ...inputStyle, borderColor: !unitPrice ? "rgba(239,68,68,0.5)" : "rgba(0,87,255,0.3)" }} />
+                  <input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="8.00" style={{ ...inputStyle, borderColor: !unitPrice ? "rgba(239,68,68,0.5)" : "rgba(59,123,246,0.3)" }} />
                 </div>
                 <div>
                   <label style={labelStyle}>{c.quantity}</label>
@@ -476,7 +476,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: 12 }}>
                   <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(255,255,255,0.6)", marginBottom: 10 }}>{c.section_components}</p>
                   {alreadyInPrice.length > 0 && (
-                    <p style={{ fontSize: 11, color: "#22c55e", marginBottom: 10, lineHeight: 1.5 }}>✓ {c.already_in_price}: {alreadyInPrice.join(" · ")}</p>
+                    <p style={{ fontSize: 11, color: "#2FB380", marginBottom: 10, lineHeight: 1.5 }}>✓ {c.already_in_price}: {alreadyInPrice.join(" · ")}</p>
                   )}
                   {asked.length === 0 && <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)" }}>{c.nothing_to_add}</p>}
                   {asked.includes("pre_shipment") && (
@@ -496,9 +496,9 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     <div style={{ marginBottom: 4 }}>
                       <label style={labelStyle}>{insuranceKind === "amount" ? inCur(c.insurance) : c.insurance}</label>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(0,87,255,0.3)" }}>
+                        <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(59,123,246,0.3)" }}>
                           {(["amount", "percent"] as const).map((k) => (
-                            <button key={k} onClick={() => setInsuranceKind(k)} style={{ padding: "0 12px", border: "none", background: insuranceKind === k ? "rgba(0,87,255,0.35)" : "transparent", color: insuranceKind === k ? "#FFF" : "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{k === "amount" ? c.insurance_kind_amount : c.insurance_kind_percent}</button>
+                            <button key={k} onClick={() => setInsuranceKind(k)} style={{ padding: "0 12px", border: "none", background: insuranceKind === k ? "rgba(59,123,246,0.35)" : "transparent", color: insuranceKind === k ? "#FFF" : "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{k === "amount" ? c.insurance_kind_amount : c.insurance_kind_percent}</button>
                           ))}
                         </div>
                         <input type="number" value={insuranceValue} onChange={(e) => setInsuranceValue(e.target.value)} placeholder="" step="0.1" style={{ ...inputStyle, flex: 1 }} />
@@ -544,7 +544,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", borderRadius: 8, border: "1px solid rgba(239,68,68,0.3)" }}>{error}</p>}
             {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleAnalyze} retrying={loading} />}
 
-            <button onClick={handleAnalyze} disabled={loading} style={{ width: "100%", padding: "16px", borderRadius: 10, border: "none", background: loading ? "rgba(0,87,255,0.3)" : "linear-gradient(135deg,#0057FF,#003DB3)", color: "#FFF", fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer" }}>
+            <button onClick={handleAnalyze} disabled={loading} style={{ width: "100%", padding: "16px", borderRadius: 10, border: "none", background: loading ? "rgba(59,123,246,0.3)" : "linear-gradient(135deg,#3B7BF6,#2557C7)", color: "#FFF", fontSize: 16, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer" }}>
               {loading ? `⏳ ${c.analyzing}` : `🔍 ${c.analyze}`}
             </button>
           </div>
@@ -553,7 +553,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           {result && (
             <div>
               <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-                <button onClick={() => exportViabilityPDF(result, { supplierCountry, destination, tariffSystem, fobUnit: unitPrice, quantity, lang, currency: fx.currency, fxRate: fx.fxRate })} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                <button onClick={() => exportViabilityPDF(result, { supplierCountry, destination, tariffSystem, fobUnit: unitPrice, quantity, lang, currency: fx.currency, fxRate: fx.fxRate })} style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(227,179,65,0.4)", background: "rgba(227,179,65,0.1)", color: "#E3B341", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                   📄 {c.export_pdf}
                 </button>
               </div>
@@ -569,9 +569,9 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   const sys = result.product.tariff_system || tariffSystem;
                   const primaryCode = sys === "NCM" ? result.product.ncm_code : sys === "TARIC" ? result.product.taric_code : result.product.hs_code;
                   return primaryCode ? (
-                    <div style={{ background: "rgba(0,87,255,0.12)", border: "2px solid rgba(0,87,255,0.5)", borderRadius: 10, padding: "12px 16px", marginBottom: 12 }}>
+                    <div style={{ background: "rgba(59,123,246,0.12)", border: "2px solid rgba(59,123,246,0.5)", borderRadius: 10, padding: "12px 16px", marginBottom: 12 }}>
                       <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 4 }}>{lang === "es" ? "Posición arancelaria identificada" : "Identified tariff position"} — {sys}</p>
-                      <p style={{ fontSize: 22, fontWeight: 800, color: "#0057FF", fontFamily: "monospace", letterSpacing: 2 }}>{primaryCode}</p>
+                      <p style={{ fontSize: 22, fontWeight: 800, color: "#3B7BF6", fontFamily: "monospace", letterSpacing: 2 }}>{primaryCode}</p>
                       {result.product.chapter && <p style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.product.chapter}</p>}
                     </div>
                   ) : null;
@@ -595,8 +595,8 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 )}
                 {(!result.product.requires_permits || result.product.requires_permits.length === 0) && !result.product.import_restrictions && (
                   result.product.restrictions_checked
-                    ? <p style={{ fontSize: 12, color: "#22c55e" }}>✓ {c.no_permits}</p>
-                    : <p style={{ fontSize: 12, color: "#C9A84C", lineHeight: 1.5 }}>⚠ {c.permits_unchecked}</p>
+                    ? <p style={{ fontSize: 12, color: "#2FB380" }}>✓ {c.no_permits}</p>
+                    : <p style={{ fontSize: 12, color: "#E3B341", lineHeight: 1.5 }}>⚠ {c.permits_unchecked}</p>
                 )}
               </div>
 
@@ -623,13 +623,13 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   ))}
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", marginTop: 2 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>{c.base_known}</span>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: "#0057FF" }}>{fmt(cost.base_known)}</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: "#3B7BF6" }}>{fmt(cost.base_known)}</span>
                   </div>
                   <p style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 10, lineHeight: 1.5 }}>{c.base_note}</p>
 
                   {cost.missing_base_components.length > 0 && (
-                    <div style={{ background: "rgba(201,168,76,0.1)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
-                      <p style={{ fontSize: 11, color: "#C9A84C", lineHeight: 1.5 }}>{c.not_informed}: {cost.missing_base_components.join(", ")}. {lang === "es" ? "La estimación puede variar al incorporarlo(s). No se asume ningún valor." : "The estimate may change once added. No value is assumed."}</p>
+                    <div style={{ background: "rgba(227,179,65,0.1)", border: "1px solid rgba(227,179,65,0.3)", borderRadius: 8, padding: "8px 12px", marginBottom: 10 }}>
+                      <p style={{ fontSize: 11, color: "#E3B341", lineHeight: 1.5 }}>{c.not_informed}: {cost.missing_base_components.join(", ")}. {lang === "es" ? "La estimación puede variar al incorporarlo(s). No se asume ningún valor." : "The estimate may change once added. No value is assumed."}</p>
                     </div>
                   )}
 
@@ -641,25 +641,25 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         <span style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{c.tariff_amount} ({cost.duty.rate}% · {lang === "es" ? "referencial" : "referential"})</span>
                         <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>{fmt(cost.duty.amount ?? 0)}</span>
                       </div>
-                      <div style={{ marginTop: 12, padding: "14px 16px", background: "linear-gradient(135deg, rgba(0,87,255,0.2), rgba(0,87,255,0.08))", borderRadius: 10, border: "1px solid rgba(0,87,255,0.4)" }}>
+                      <div style={{ marginTop: 12, padding: "14px 16px", background: "linear-gradient(135deg, rgba(59,123,246,0.2), rgba(59,123,246,0.08))", borderRadius: 10, border: "1px solid rgba(59,123,246,0.4)" }}>
                         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{c.op_estimate}{cost.completeness === "partial" ? ` · ${c.provisional}` : ""}</p>
-                        <p style={{ fontSize: 28, fontWeight: 800, color: cost.completeness === "partial" ? "#C9A84C" : "#FFF" }}>{fmt(cost.operation_estimate ?? 0)}</p>
+                        <p style={{ fontSize: 28, fontWeight: 800, color: cost.completeness === "partial" ? "#E3B341" : "#FFF" }}>{fmt(cost.operation_estimate ?? 0)}</p>
                         {cost.per_unit != null && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{c.unit_cost}: {fmt(cost.per_unit)}</p>}
                         {fx.usdEquiv(cost.operation_estimate ?? 0) && <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>≈ {fx.usdEquiv(cost.operation_estimate ?? 0)} {lang === "es" ? "(equivalente de referencia)" : "(reference equivalent)"}</p>}
                       </div>
-                      {cost.completeness === "partial" && <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 8, lineHeight: 1.5 }}>{cost.note_es}</p>}
+                      {cost.completeness === "partial" && <p style={{ fontSize: 11, color: "#E3B341", marginTop: 8, lineHeight: 1.5 }}>{cost.note_es}</p>}
 
                       {costPref?.operation_estimate != null && cost.operation_estimate != null && (
-                        <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(34,197,94,0.08)", borderRadius: 10, border: "1px solid rgba(34,197,94,0.3)" }}>
+                        <div style={{ marginTop: 12, padding: "12px 14px", background: "rgba(47,179,128,0.08)", borderRadius: 10, border: "1px solid rgba(47,179,128,0.3)" }}>
                           {result.preferential && <TariffValue datum={result.preferential} lang={lang} label={c.pref_rate} />}
                           <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 4px" }}>
-                            <span style={{ fontSize: 13, color: "#22c55e" }}>{c.with_cert} ({costPref.duty.rate}%)</span>
+                            <span style={{ fontSize: 13, color: "#2FB380" }}>{c.with_cert} ({costPref.duty.rate}%)</span>
                             <span style={{ fontSize: 14, fontWeight: 800 }}>{fmt(costPref.operation_estimate)}</span>
                           </div>
                           {costPref.per_unit != null && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)" }}>{c.unit_cost}: {fmt(costPref.per_unit)}</p>}
                           <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 6 }}>
                             <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.saving}</span>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: "#22c55e" }}>{fmt(cost.operation_estimate - costPref.operation_estimate)}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "#2FB380" }}>{fmt(cost.operation_estimate - costPref.operation_estimate)}</span>
                           </div>
                         </div>
                       )}
@@ -687,7 +687,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     </div>
                   )}
 
-                  <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 12, lineHeight: 1.55 }}>{result.not_included_notice}</p>
+                  <p style={{ fontSize: 11, color: "#E3B341", marginTop: 12, lineHeight: 1.55 }}>{result.not_included_notice}</p>
                   <LegalDisclaimer lang={lang as "es" | "en"} compact />
                 </div>
               )}
@@ -702,11 +702,11 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         <>
                           <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
                             <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_unit}</span>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{fmt(m.unit)}</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#2FB380" : "#ef4444" }}>{fmt(m.unit)}</span>
                           </div>
                           <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
                             <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.margin_pct}</span>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#22c55e" : "#ef4444" }}>{m.pct!.toLocaleString(lang === "es" ? "es-AR" : "en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</span>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: m.unit >= 0 ? "#2FB380" : "#ef4444" }}>{m.pct!.toLocaleString(lang === "es" ? "es-AR" : "en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</span>
                           </div>
                           {m.total != null && (
                             <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
@@ -719,7 +719,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                       {m.suggested != null && (
                         <div style={{ display: "flex", justifyContent: "space-between", padding: "4px 0" }}>
                           <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{c.suggested_price} {c.suggested_for} {targetMargin}%</span>
-                          <span style={{ fontSize: 13, fontWeight: 800, color: "#C9A84C" }}>{fmt(m.suggested)}</span>
+                          <span style={{ fontSize: 13, fontWeight: 800, color: "#E3B341" }}>{fmt(m.suggested)}</span>
                         </div>
                       )}
                     </div>
@@ -729,7 +729,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               )}
 
               <div style={{ display: "flex", gap: 10 }}>
-                <Link href={`/modulo02${buildOpQuery(opCtx())}`} style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
+                <Link href={`/modulo02${buildOpQuery(opCtx())}`} style={{ flex: 1, padding: "12px", borderRadius: 8, background: "rgba(47,179,128,0.15)", border: "1px solid rgba(47,179,128,0.3)", color: "#2FB380", fontSize: 13, fontWeight: 700, textDecoration: "none", textAlign: "center" }}>
                   {c.to_m2}
                 </Link>
               </div>
@@ -746,5 +746,5 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 }
 
 export default function Modulo04({ defaultLang = "es" }: { defaultLang?: Lang }) {
-  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><ModuloInner defaultLang={defaultLang} /></Suspense>;
+  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0B1B33" }} />}><ModuloInner defaultLang={defaultLang} /></Suspense>;
 }

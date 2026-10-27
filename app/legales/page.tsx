@@ -8,12 +8,12 @@ export const metadata: Metadata = {
 
 export default function Legales() {
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "'Helvetica Neue', Arial, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 34, height: 34, borderRadius: 7, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 11, color: "#C9A84C", border: "1px solid rgba(201,168,76,0.5)" }}>GTH</div>
+          <div style={{ width: 34, height: 34, borderRadius: 7, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 11, color: "#E3B341", border: "1px solid rgba(227,179,65,0.5)" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 16 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", gap: 24 }}>
@@ -27,7 +27,7 @@ export default function Legales() {
 
         {/* Header */}
         <div style={{ marginBottom: 48 }}>
-          <span style={{ background: "rgba(201,168,76,0.15)", border: "1px solid rgba(201,168,76,0.4)", borderRadius: 20, padding: "5px 16px", color: "#C9A84C", fontSize: 12, fontWeight: 600 }}>Legal</span>
+          <span style={{ background: "rgba(227,179,65,0.15)", border: "1px solid rgba(227,179,65,0.4)", borderRadius: 20, padding: "5px 16px", color: "#E3B341", fontSize: 12, fontWeight: 600 }}>Legal</span>
           <h1 style={{ fontSize: 34, fontWeight: 800, marginTop: 20, marginBottom: 8, letterSpacing: -0.5 }}>Aviso Legal</h1>
           <p style={{ color: "rgba(255,255,255,0.35)", fontSize: 13 }}>Última actualización: junio 2026</p>
         </div>
@@ -36,7 +36,7 @@ export default function Legales() {
         <div style={{ background: "linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.04))", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 14, padding: "28px 32px", marginBottom: 20 }}>
           <p style={{ fontSize: 13, fontWeight: 800, color: "#ef4444", marginBottom: 12, textTransform: "uppercase", letterSpacing: 1 }}>⚠ Aviso importante</p>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.85)", lineHeight: 1.8, fontWeight: 500 }}>
-            <strong style={{ color: "#FFF" }}>Global Tariff Hub</strong> proporciona <strong style={{ color: "#FFF" }}>herramientas de apoyo</strong> para el análisis de comercio internacional. La clasificación arancelaria definitiva, la aplicación de acuerdos comerciales y los requisitos regulatorios deben ser verificados por <strong style={{ color: "#C9A84C" }}>profesionales competentes</strong> y/o las autoridades aduaneras correspondientes.
+            <strong style={{ color: "#FFF" }}>Global Tariff Hub</strong> proporciona <strong style={{ color: "#FFF" }}>herramientas de apoyo</strong> para el análisis de comercio internacional. La clasificación arancelaria definitiva, la aplicación de acuerdos comerciales y los requisitos regulatorios deben ser verificados por <strong style={{ color: "#E3B341" }}>profesionales competentes</strong> y/o las autoridades aduaneras correspondientes.
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export default function Legales() {
         ))}
 
         {/* Copyright */}
-        <div style={{ background: "rgba(13,27,62,0.6)", border: "1px solid rgba(0,87,255,0.2)", borderRadius: 14, padding: "28px 32px", marginTop: 8 }}>
+        <div style={{ background: "rgba(19,41,75,0.6)", border: "1px solid rgba(59,123,246,0.2)", borderRadius: 14, padding: "28px 32px", marginTop: 8 }}>
           <p style={{ fontSize: 13, fontWeight: 800, color: "rgba(255,255,255,0.7)", marginBottom: 16, textTransform: "uppercase", letterSpacing: 1 }}>© Derechos de Autor</p>
 
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.85, marginBottom: 16 }}>
@@ -114,7 +114,7 @@ export default function Legales() {
         {/* Contacto */}
         <div style={{ marginTop: 32, padding: "20px 28px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12 }}>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", lineHeight: 1.7 }}>
-            Consultas legales: <a href="mailto:analia@globaltariffhub.com" style={{ color: "#0057FF", textDecoration: "none", fontWeight: 600 }}>analia@globaltariffhub.com</a>
+            Consultas legales: <a href="mailto:globaltariffhub@gmail.com" style={{ color: "#3B7BF6", textDecoration: "none", fontWeight: 600 }}>globaltariffhub@gmail.com</a>
           </p>
         </div>
 

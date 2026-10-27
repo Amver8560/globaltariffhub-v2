@@ -157,7 +157,7 @@ describe("/api/certificate — catch no streaming", () => {
     const res: any = await certificatePOST(req());
     const body = await res.json();
     expect(body.credit_refunded).toBe(false);
-    expect(body.error).toMatch(/analia@globaltariffhub\.com/);
+    expect(body.error).toMatch(/globaltariffhub@gmail\.com/);
   });
 });
 

@@ -65,7 +65,7 @@ export default function PasswordInput({ style, ...props }: Props) {
           background: rgba(255, 255, 255, 0.14);
         }
         .gth-password-toggle:focus-visible {
-          outline: 2px solid #6b9fff;
+          outline: 2px solid #9CC0FF;
           outline-offset: 2px;
         }
         .gth-password-field input:-webkit-autofill,
@@ -73,8 +73,8 @@ export default function PasswordInput({ style, ...props }: Props) {
         .gth-password-field input:-webkit-autofill:focus,
         .gth-password-field input:-webkit-autofill:active {
           -webkit-text-fill-color: #fff;
-          -webkit-box-shadow: 0 0 0 1000px #0d1b3e inset;
-          box-shadow: 0 0 0 1000px #0d1b3e inset;
+          -webkit-box-shadow: 0 0 0 1000px #13294B inset;
+          box-shadow: 0 0 0 1000px #13294B inset;
           caret-color: #fff;
           transition: background-color 9999s ease-in-out 0s;
         }

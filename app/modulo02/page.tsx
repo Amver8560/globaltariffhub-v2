@@ -249,25 +249,25 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
     }
   };
 
-  const inputStyle = { width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(0,87,255,0.3)", background: "#0A0A0F", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
+  const inputStyle = { width: "100%", padding: "11px 14px", borderRadius: 8, border: "1px solid rgba(59,123,246,0.3)", background: "#0B1B33", color: "#FFFFFF", fontSize: 14, outline: "none", boxSizing: "border-box" as const };
   const selectStyle = { ...inputStyle, cursor: "pointer" };
   const labelStyle = { fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 6, display: "block" as const };
 
   return (
-    <div style={{ backgroundColor: "#0A0A0F", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
+    <div style={{ backgroundColor: "#0B1B33", minHeight: "100vh", color: "#FFFFFF", fontFamily: "Arial, Helvetica, sans-serif" }}>
 
       {/* Navbar */}
       <nav style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 40px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "#FFFFFF" }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #0057FF, #0D1B3E)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#C9A84C", border: "1px solid #C9A84C" }}>GTH</div>
+          <div style={{ width: 36, height: 36, borderRadius: 8, background: "linear-gradient(135deg, #3B7BF6, #13294B)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: "#E3B341", border: "1px solid #E3B341" }}>GTH</div>
           <span style={{ fontWeight: 700, fontSize: 18 }}>Global Tariff Hub</span>
         </Link>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <Link href="/modulos" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.all_modules}</Link>
           <Link href="/modulo01" style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, textDecoration: "none" }}>{c.back_search}</Link>
-          <div style={{ display: "flex", background: "#0D1B3E", borderRadius: 20, padding: 3, border: "1px solid rgba(0,87,255,0.3)" }}>
+          <div style={{ display: "flex", background: "#13294B", borderRadius: 20, padding: 3, border: "1px solid rgba(59,123,246,0.3)" }}>
             {(["es", "en"] as Lang[]).map((l) => (
-              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#0057FF" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
+              <button key={l} onClick={() => setLang(l)} style={{ padding: "5px 14px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, background: lang === l ? "#3B7BF6" : "transparent", color: lang === l ? "#FFFFFF" : "rgba(255,255,255,0.5)" }}>{l.toUpperCase()}</button>
             ))}
           </div>
         </div>
@@ -277,7 +277,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
         {/* Header */}
         <div style={{ marginBottom: 24, textAlign: "center" }}>
-          <span style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.4)", borderRadius: 20, padding: "5px 16px", color: "#22c55e", fontSize: 12, fontWeight: 600 }}>Módulo 02</span>
+          <span style={{ background: "rgba(47,179,128,0.15)", border: "1px solid rgba(47,179,128,0.4)", borderRadius: 20, padding: "5px 16px", color: "#2FB380", fontSize: 12, fontWeight: 600 }}>Módulo 02</span>
           <h1 style={{ fontSize: 30, fontWeight: 800, marginTop: 14, marginBottom: 8 }}>{c.title}</h1>
           <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, fontWeight: 400, lineHeight: 1.6, maxWidth: 620, margin: "0 auto" }}>{c.subtitle}</p>
         </div>
@@ -289,7 +289,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
         {/* Pregunta previa: ¿tenés certificado de origen? */}
         {hasCert === null ? (
-          <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
+          <div style={{ background: "#13294B", borderRadius: 16, padding: 28, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 24 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{c.precheck_title}</h2>
             <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>{c.precheck_sub}</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
@@ -301,9 +301,9 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 <button
                   key={opt.key}
                   onClick={() => setHasCert(opt.key)}
-                  style={{ padding: "16px 14px", borderRadius: 12, border: "1px solid rgba(0,87,255,0.35)", background: "rgba(0,87,255,0.08)", color: "#FFFFFF", fontSize: 14, fontWeight: 600, cursor: "pointer", textAlign: "center", lineHeight: 1.4 }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,87,255,0.2)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(0,87,255,0.08)"; }}
+                  style={{ padding: "16px 14px", borderRadius: 12, border: "1px solid rgba(59,123,246,0.35)", background: "rgba(59,123,246,0.08)", color: "#FFFFFF", fontSize: 14, fontWeight: 600, cursor: "pointer", textAlign: "center", lineHeight: 1.4 }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(59,123,246,0.2)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(59,123,246,0.08)"; }}
                 >
                   <span style={{ fontSize: 20, display: "block", marginBottom: 6 }}>{opt.icon}</span>
                   {opt.label}
@@ -318,20 +318,20 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
                 {hasCert === "si" ? `✅ ${c.precheck_answer_yes}` : hasCert === "no" ? `🚫 ${c.precheck_answer_no}` : `❓ ${c.precheck_answer_unknown}`}
               </span>
-              <button onClick={() => setHasCert(null)} style={{ background: "none", border: "none", color: "#6B9FFF", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{c.precheck_change}</button>
+              <button onClick={() => setHasCert(null)} style={{ background: "none", border: "none", color: "#9CC0FF", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>{c.precheck_change}</button>
             </div>
 
             {/* Explicación para quien no sabe qué es */}
             {hasCert === "nose" && (
-              <div style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#C9A84C", marginBottom: 8 }}>{c.explain_title}</p>
+              <div style={{ background: "rgba(227,179,65,0.08)", border: "1px solid rgba(227,179,65,0.25)", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#E3B341", marginBottom: 8 }}>{c.explain_title}</p>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", lineHeight: 1.7 }}>{c.explain_body}</p>
               </div>
             )}
 
         {/* Tip standalone: mostrar solo si no hay params de M01 */}
         {!searchParams.get("tariff_code") && !searchParams.get("origin") && (
-          <div style={{ background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 10, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ background: "rgba(59,123,246,0.08)", border: "1px solid rgba(59,123,246,0.25)", borderRadius: 10, padding: "14px 18px", marginBottom: 20, display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
             <span style={{ fontSize: 20 }}>💡</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", fontWeight: 600, marginBottom: 3 }}>
@@ -343,14 +343,14 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   : "Fill in the fields manually. If you need to look up your tariff code first, use Module 01."}
               </p>
             </div>
-            <Link href="/modulo01" style={{ padding: "8px 16px", borderRadius: 8, background: "rgba(0,87,255,0.25)", border: "1px solid rgba(0,87,255,0.5)", color: "#6B9FFF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
+            <Link href="/modulo01" style={{ padding: "8px 16px", borderRadius: 8, background: "rgba(59,123,246,0.25)", border: "1px solid rgba(59,123,246,0.5)", color: "#9CC0FF", fontSize: 12, fontWeight: 700, textDecoration: "none", whiteSpace: "nowrap" }}>
               🔍 {lang === "es" ? "Buscar código →" : "Search code →"}
             </Link>
           </div>
         )}
 
         {/* Formulario */}
-        <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 24 }}>
+        <div style={{ background: "#13294B", borderRadius: 16, padding: 28, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 24 }}>
           <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20, color: "rgba(255,255,255,0.8)" }}>{c.step1}</h2>
 
           <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
@@ -373,8 +373,8 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           {/* Verificación de acuerdo comercial vigente entre origen y destino */}
           {origin && destination && origin !== destination && (
             convenio ? (
-              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#22c55e", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
+              <div style={{ background: "rgba(47,179,128,0.08)", border: "1px solid rgba(47,179,128,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#2FB380", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{convenio.scope}</p>
               </div>
             ) : (
@@ -399,7 +399,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               )}
               <Link
                 href={`/modulo03${buildOpQuery({ origin, destination, tariff_code: tariffCode, system: tariffSystem, fob_value: fobValue, quantity, base_rate: rateInfo?.base_rate != null ? String(rateInfo.base_rate).replace("%", "") : "", base_rate_status: rateInfo?.base_rate_status ?? "" })}`}
-                style={{ display: "inline-block", marginTop: 16, padding: "10px 18px", borderRadius: 8, background: "rgba(0,87,255,0.15)", border: "1px solid rgba(0,87,255,0.3)", color: "#0057FF", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                style={{ display: "inline-block", marginTop: 16, padding: "10px 18px", borderRadius: 8, background: "rgba(59,123,246,0.15)", border: "1px solid rgba(59,123,246,0.3)", color: "#3B7BF6", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
                 📦 {lang === "es" ? "Ir al Módulo 03 →" : "Go to Module 03 →"}
               </Link>
             </div>
@@ -426,7 +426,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <label style={labelStyle}>{lang === "es" ? "Código arancelario (HS / NCM / TARIC)" : "Tariff code (HS / NCM / TARIC)"}</label>
             <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
               {["HS", "NCM", "TARIC"].map((s) => (
-                <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#0057FF" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(0,87,255,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
+                <button key={s} onClick={() => setTariffSystem(s)} style={{ padding: "6px 14px", borderRadius: 8, border: `1px solid ${tariffSystem === s ? "#3B7BF6" : "rgba(255,255,255,0.15)"}`, background: tariffSystem === s ? "rgba(59,123,246,0.25)" : "transparent", color: tariffSystem === s ? "#FFF" : "rgba(255,255,255,0.5)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{s}</button>
               ))}
             </div>
             <div style={{ display: "flex", gap: 8 }}>
@@ -440,13 +440,13 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <button
                 onClick={() => fetchTariffRate(tariffCode, tariffSystem, origin, destination)}
                 disabled={rateLoading || !tariffCode}
-                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(0,87,255,0.2)" : "rgba(0,87,255,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
+                style={{ padding: "10px 16px", borderRadius: 8, border: "none", background: rateLoading || !tariffCode ? "rgba(59,123,246,0.2)" : "rgba(59,123,246,0.8)", color: "#FFF", fontSize: 13, fontWeight: 700, cursor: rateLoading || !tariffCode ? "not-allowed" : "pointer", whiteSpace: "nowrap" }}
               >
                 {rateLoading ? "⏳" : lang === "es" ? "🔍 Buscar arancel" : "🔍 Look up tariff"}
               </button>
             </div>
             {rateInfo && (
-              <div style={{ marginTop: 10, padding: "12px 14px", background: "rgba(0,87,255,0.08)", border: "1px solid rgba(0,87,255,0.25)", borderRadius: 8 }}>
+              <div style={{ marginTop: 10, padding: "12px 14px", background: "rgba(59,123,246,0.08)", border: "1px solid rgba(59,123,246,0.25)", borderRadius: 8 }}>
                 {rateInfo.description && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{rateInfo.description}</p>}
                 {rateInfo.tariff?.general && <TariffValue datum={rateInfo.tariff.general} lang={lang} label={lang === "es" ? "Tasa arancelaria" : "Tariff rate"} />}
                 {rateInfo.tariff?.preferential && rateInfo.tariff.preferential.value != null && (
@@ -454,7 +454,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     <TariffValue datum={rateInfo.tariff.preferential} lang={lang} label={lang === "es" ? "Tasa preferencial" : "Preferential rate"} />
                   </div>
                 )}
-                {rateInfo.agreement && rateInfo.agreement !== "null" && <p style={{ fontSize: 12, color: "#C9A84C", marginTop: 8, marginBottom: 0 }}>📋 {rateInfo.agreement}</p>}
+                {rateInfo.agreement && rateInfo.agreement !== "null" && <p style={{ fontSize: 12, color: "#E3B341", marginTop: 8, marginBottom: 0 }}>📋 {rateInfo.agreement}</p>}
                 {rateInfo.agreement_note && rateInfo.agreement_note !== "null" && (
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 6, marginBottom: 0 }}>{rateInfo.agreement_note}</p>
                 )}
@@ -480,7 +480,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{error}</p>}
           {apiError && <ApiErrorBox view={apiError} lang={lang} onRetry={handleSimulate} retrying={loading} />}
 
-          <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(34,197,94,0.3)" : "linear-gradient(135deg, #16a34a, #15803d)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
+          <button onClick={handleSimulate} disabled={loading || !fobValue} style={{ width: "100%", padding: "14px", borderRadius: 10, border: "none", background: loading || !fobValue ? "rgba(47,179,128,0.3)" : "linear-gradient(135deg, #24956A, #1E7A57)", color: "#FFFFFF", fontSize: 16, fontWeight: 700, cursor: loading || !fobValue ? "not-allowed" : "pointer" }}>
             {loading ? c.btn_simulating : c.btn_simulate}
           </button>
           </>
@@ -492,8 +492,8 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
           <div>
             {/* Verificación de acuerdo comercial */}
             {convenio ? (
-              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "#22c55e", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
+              <div style={{ background: "rgba(47,179,128,0.08)", border: "1px solid rgba(47,179,128,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "#2FB380", marginBottom: 3 }}>✓ {c.agreement_detected}: {convenio.name}</p>
                 <p style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", lineHeight: 1.6 }}>{convenio.scope}</p>
               </div>
             ) : (
@@ -508,7 +508,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
               <button
                 onClick={() => exportCertificatePDF(result, { origin, destination, tariffCode, tariffSystem, fobValue, lang })}
-                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(201,168,76,0.4)", background: "rgba(201,168,76,0.1)", color: "#C9A84C", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", borderRadius: 8, border: "1px solid rgba(227,179,65,0.4)", background: "rgba(227,179,65,0.1)", color: "#E3B341", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
               >
                 📄 {lang === "es" ? "Exportar informe de análisis (PDF)" : "Export analysis report (PDF)"}
               </button>
@@ -516,11 +516,11 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
             )}
 
             {/* Resumen ahorro */}
-            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(34,197,94,0.3)", marginBottom: 20 }}>
+            <div style={{ background: "#13294B", borderRadius: 16, padding: 28, border: "1px solid rgba(47,179,128,0.3)", marginBottom: 20 }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
                 <h2 style={{ fontSize: 18, fontWeight: 700 }}>{c.result_title}</h2>
                 {result.tariff_basis === "referential" && !result.tariff_not_determined && (
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#C9A84C", background: "rgba(201,168,76,0.12)", border: "1px solid rgba(201,168,76,0.35)", borderRadius: 999, padding: "2px 10px" }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#E3B341", background: "rgba(227,179,65,0.12)", border: "1px solid rgba(227,179,65,0.35)", borderRadius: 999, padding: "2px 10px" }}>
                     {c.referential_badge}
                   </span>
                 )}
@@ -533,13 +533,13 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               )}
 
               {result.tariff_basis === "referential" && !result.tariff_not_determined && (
-                <div style={{ background: "rgba(201,168,76,0.08)", border: "1px solid rgba(201,168,76,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 16 }}>
+                <div style={{ background: "rgba(227,179,65,0.08)", border: "1px solid rgba(227,179,65,0.25)", borderRadius: 10, padding: "10px 14px", marginBottom: 16 }}>
                   <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.62)", lineHeight: 1.5, margin: 0 }}>{c.referential_result_note}</p>
                 </div>
               )}
 
               {result.tariff_not_determined ? (
-                <div style={{ background: "#0D1B3E", borderRadius: 12, padding: "20px", border: "1px solid rgba(148,163,184,0.4)" }}>
+                <div style={{ background: "#13294B", borderRadius: 12, padding: "20px", border: "1px solid rgba(148,163,184,0.4)" }}>
                   <p style={{ fontSize: 13, color: "#e2e8f0", lineHeight: 1.6 }}>{result.message}</p>
                   <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 8 }}>
                     {lang === "es"
@@ -555,31 +555,31 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   <p style={{ fontSize: 22, fontWeight: 800, color: "#ef4444" }}>USD {result.tariff_without?.amount?.toLocaleString()}</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.tariff_without?.rate}</p>
                 </div>
-                <div style={{ background: "rgba(34,197,94,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(34,197,94,0.3)", textAlign: "center" }}>
+                <div style={{ background: "rgba(47,179,128,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(47,179,128,0.3)", textAlign: "center" }}>
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.with_cert} — {result.agreement?.name}</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#22c55e" }}>USD {result.tariff_with?.amount?.toLocaleString()}</p>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: "#2FB380" }}>USD {result.tariff_with?.amount?.toLocaleString()}</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.tariff_with?.rate}</p>
                 </div>
-                <div style={{ background: "rgba(201,168,76,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(201,168,76,0.3)", textAlign: "center" }}>
+                <div style={{ background: "rgba(227,179,65,0.1)", borderRadius: 10, padding: "16px", border: "1px solid rgba(227,179,65,0.3)", textAlign: "center" }}>
                   <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 8 }}>{c.cert_cost}</p>
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#C9A84C" }}>USD {result.certificate_cost?.amount?.toLocaleString()}</p>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: "#E3B341" }}>USD {result.certificate_cost?.amount?.toLocaleString()}</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginTop: 4 }}>{result.certificate_cost?.issuer}</p>
                 </div>
               </div>
 
               {/* Ahorro neto destacado */}
-              <div style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.15), rgba(0,87,255,0.15))", borderRadius: 12, padding: "20px 24px", border: "1px solid rgba(34,197,94,0.3)", marginBottom: 16 }}>
+              <div style={{ background: "linear-gradient(135deg, rgba(47,179,128,0.15), rgba(59,123,246,0.15))", borderRadius: 12, padding: "20px 24px", border: "1px solid rgba(47,179,128,0.3)", marginBottom: 16 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
                     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.net_saving}{result.tariff_basis === "referential" ? ` · ${c.referential_badge.toLowerCase()}` : ""}</p>
-                    <p style={{ fontSize: 32, fontWeight: 800, color: result.tariff_basis === "referential" ? "#C9A84C" : "#22c55e" }}>USD {result.savings?.net?.toLocaleString()}</p>
+                    <p style={{ fontSize: 32, fontWeight: 800, color: result.tariff_basis === "referential" ? "#E3B341" : "#2FB380" }}>USD {result.savings?.net?.toLocaleString()}</p>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 6 }}>{c.roi}</p>
-                    <p style={{ fontSize: 32, fontWeight: 800, color: "#C9A84C" }}>{result.savings?.roi_percent}%</p>
+                    <p style={{ fontSize: 32, fontWeight: 800, color: "#E3B341" }}>{result.savings?.roi_percent}%</p>
                   </div>
                 </div>
-                <p style={{ fontSize: 13, color: result.tariff_basis === "referential" ? "#C9A84C" : "#22c55e", marginTop: 12, fontWeight: 600, lineHeight: 1.5 }}>
+                <p style={{ fontSize: 13, color: result.tariff_basis === "referential" ? "#E3B341" : "#2FB380", marginTop: 12, fontWeight: 600, lineHeight: 1.5 }}>
                   {result.tariff_basis === "referential" ? "≈ " : "✓ "}{result.savings?.recommendation}
                 </p>
               </div>
@@ -609,23 +609,23 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
             {/* Requisitos — sólo cuando hay acuerdo comercial */}
             {convenio && (
-            <div style={{ background: "#0D1B3E", borderRadius: 16, padding: 28, border: "1px solid rgba(0,87,255,0.2)", marginBottom: 20 }}>
+            <div style={{ background: "#13294B", borderRadius: 16, padding: 28, border: "1px solid rgba(59,123,246,0.2)", marginBottom: 20 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>{c.requirements_title}</h2>
 
-              <div style={{ background: "rgba(201,168,76,0.08)", borderRadius: 10, padding: "14px 16px", marginBottom: 16, border: "1px solid rgba(201,168,76,0.2)" }}>
-                <p style={{ fontSize: 12, color: "#C9A84C", fontWeight: 700, marginBottom: 4 }}>{c.origin_rule}</p>
+              <div style={{ background: "rgba(227,179,65,0.08)", borderRadius: 10, padding: "14px 16px", marginBottom: 16, border: "1px solid rgba(227,179,65,0.2)" }}>
+                <p style={{ fontSize: 12, color: "#E3B341", fontWeight: 700, marginBottom: 4 }}>{c.origin_rule}</p>
                 <p style={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>{result.requirements?.origin_rule}</p>
               </div>
 
               <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, color: "rgba(255,255,255,0.7)" }}>{c.documents}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
                 {result.requirements?.documents?.map((doc: any, i: number) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid ${doc.mandatory ? "rgba(0,87,255,0.2)" : "rgba(255,255,255,0.07)"}` }}>
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "10px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: `1px solid ${doc.mandatory ? "rgba(59,123,246,0.2)" : "rgba(255,255,255,0.07)"}` }}>
                     <span style={{ fontSize: 16, marginTop: 1 }}>{doc.mandatory ? "✅" : "📋"}</span>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 14, fontWeight: 600 }}>{doc.name}</span>
-                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: doc.mandatory ? "rgba(0,87,255,0.2)" : "rgba(255,255,255,0.08)", color: doc.mandatory ? "#0057FF" : "rgba(255,255,255,0.4)" }}>
+                        <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: doc.mandatory ? "rgba(59,123,246,0.2)" : "rgba(255,255,255,0.08)", color: doc.mandatory ? "#3B7BF6" : "rgba(255,255,255,0.4)" }}>
                           {doc.mandatory ? c.mandatory : c.optional}
                         </span>
                       </div>
@@ -636,8 +636,8 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               </div>
 
               {result.requirements?.where_to_get && (
-                <div style={{ background: "rgba(0,87,255,0.08)", borderRadius: 10, padding: "14px 16px", border: "1px solid rgba(0,87,255,0.2)" }}>
-                  <p style={{ fontSize: 12, color: "#0057FF", fontWeight: 700, marginBottom: 4 }}>{c.where}</p>
+                <div style={{ background: "rgba(59,123,246,0.08)", borderRadius: 10, padding: "14px 16px", border: "1px solid rgba(59,123,246,0.2)" }}>
+                  <p style={{ fontSize: 12, color: "#3B7BF6", fontWeight: 700, marginBottom: 4 }}>{c.where}</p>
                   <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{result.requirements?.issuing_entity}</p>
                 </div>
               )}
@@ -660,7 +660,7 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                     pref_rate_status: p ? p.status : "",
                   });
                 })()}`}
-                style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #0057FF, #003DB3)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
+                style={{ display: "inline-block", padding: "14px 28px", borderRadius: 10, background: "linear-gradient(135deg, #3B7BF6, #2557C7)", color: "#FFFFFF", fontSize: 15, fontWeight: 700, textDecoration: "none" }}>
                 {c.calc_cif}
               </Link>
             </div>
@@ -680,5 +680,5 @@ function Modulo03Inner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 }
 
 export default function Modulo03({ defaultLang = "es" }: { defaultLang?: Lang }) {
-  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0A0A0F" }} />}><Modulo03Inner defaultLang={defaultLang} /></Suspense>;
+  return <Suspense fallback={<div style={{ minHeight: "100vh", background: "#0B1B33" }} />}><Modulo03Inner defaultLang={defaultLang} /></Suspense>;
 }
