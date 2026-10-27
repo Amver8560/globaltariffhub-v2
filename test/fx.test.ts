@@ -1,26 +1,28 @@
 import { describe, it, expect } from "vitest";
-import { fxDisplayCurrency, fxFormat, FX_CURRENCIES } from "@/lib/useFxCurrency";
+import { fxFormat, fxToUsd, FX_CURRENCIES } from "@/lib/useFxCurrency";
 
-describe("Bloque 3 · unidad FX compartida (D10)", () => {
-  it("USD: rate 1, sin conversión", () => {
-    expect(fxDisplayCurrency("USD", 1)).toBe("USD");
-    expect(fxFormat(1000, "USD", 1)).toBe("1.000,00");
+describe("Bloque 3 · moneda de la operación (D10)", () => {
+  it("los montos se formatean tal cual, en la moneda de la operación", () => {
+    expect(fxFormat(1000)).toBe("1.000,00");
+    expect(fxFormat(1234.5)).toBe("1.234,50");
   });
 
-  it("otra moneda con cotización: convierte", () => {
-    expect(fxDisplayCurrency("ARS", 1000)).toBe("ARS");
-    expect(fxFormat(10, "ARS", 1000)).toBe("10.000,00");
+  it("USD: el equivalente en USD es el mismo monto", () => {
+    expect(fxToUsd(1000, "USD", 1)).toBe(1000);
   });
 
-  it("otra moneda SIN cotización: degrada a USD, no convierte", () => {
-    expect(fxDisplayCurrency("EUR", null)).toBe("USD");
-    expect(fxFormat(10, "EUR", null)).toBe("10,00");
+  it("otra moneda con cotización: equivalente = monto / cotización", () => {
+    // 1 USD = 0,92 EUR → 10.000 EUR ≈ 10.869,57 USD
+    expect(fxToUsd(10000, "EUR", 0.92)).toBeCloseTo(10869.565, 2);
+    expect(fxToUsd(10000, "ARS", 1000)).toBe(10);
   });
 
-  it("moneda no elegida (''): no se asume USD; formatea el número tal cual", () => {
-    expect(fxDisplayCurrency("", 1)).toBe("");
-    expect(fxDisplayCurrency("", null)).toBe("");
-    expect(fxFormat(1234.5, "", 999)).toBe("1.234,50"); // sin conversión aunque haya fxRate
+  it("otra moneda SIN cotización: no hay equivalente (no se inventa)", () => {
+    expect(fxToUsd(10, "EUR", null)).toBeNull();
+  });
+
+  it("moneda no elegida (''): no se asume nada, el monto queda igual", () => {
+    expect(fxToUsd(1234.5, "", null)).toBe(1234.5);
   });
 
   it("la lista de monedas es la esperada", () => {

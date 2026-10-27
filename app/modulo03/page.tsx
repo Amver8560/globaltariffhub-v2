@@ -354,6 +354,8 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const cur = fx.displayCurrency;
   const fmt = fx.fmt;
+  // Todos los montos se cargan en la moneda de la operación: se indica en cada campo.
+  const inCur = (label: string) => (fx.currency ? `${label} (${fx.currency})` : label);
 
   const opCtx = () => ({
     origin, destination, tariff_code: tariffCode, system: tariffSystem,
@@ -518,7 +520,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <p style={sectionStyle}>{c.section_price}</p>
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12, marginBottom: 16 }}>
                 <div>
-                  <label style={labelStyle}>{c.declared_value}{meta ? ` (${meta.code})` : ""}</label>
+                  <label style={labelStyle}>{c.declared_value}{meta ? ` (${meta.code})` : ""}{fx.currency ? ` · ${fx.currency}` : ""}</label>
                   <input type="number" value={declaredValue} onChange={(e) => setDeclaredValue(e.target.value)} placeholder="10000" style={inputStyle} />
                 </div>
                 <div>
@@ -551,21 +553,21 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
                 {asked.includes("pre_shipment") && (
                   <div style={{ marginBottom: 14 }}>
-                    <label style={labelStyle}>{c.pre_shipment}</label>
+                    <label style={labelStyle}>{inCur(c.pre_shipment)}</label>
                     <input type="number" value={preShipment} onChange={(e) => setPreShipment(e.target.value)} placeholder="" style={inputStyle} />
                   </div>
                 )}
 
                 {asked.includes("international_freight") && (
                   <div style={{ marginBottom: 14 }}>
-                    <label style={labelStyle}>{c.intl_freight}</label>
+                    <label style={labelStyle}>{inCur(c.intl_freight)}</label>
                     <input type="number" value={intlFreight} onChange={(e) => setIntlFreight(e.target.value)} placeholder="" style={inputStyle} />
                   </div>
                 )}
 
                 {asked.includes("insurance") && (
                   <div style={{ marginBottom: 4 }}>
-                    <label style={labelStyle}>{c.insurance}</label>
+                    <label style={labelStyle}>{insuranceKind === "amount" ? inCur(c.insurance) : c.insurance}</label>
                     <div style={{ display: "flex", gap: 8 }}>
                       <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(0,87,255,0.3)" }}>
                         {(["amount", "percent"] as const).map((k) => (
@@ -612,7 +614,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 ["dest_inland", c.oc_dest_inland],
               ] as [OtherCostKey, string][]).map(([k, label]) => (
                 <div key={k} style={{ marginBottom: 12 }}>
-                  <label style={labelStyle}>{label}</label>
+                  <label style={labelStyle}>{inCur(label)}</label>
                   <input type="number" value={otherCosts[k]} onChange={(e) => setOtherCosts((s) => ({ ...s, [k]: e.target.value }))} placeholder="" style={inputStyle} />
                 </div>
               ))}
@@ -642,11 +644,11 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {fx.currency !== "USD" && (
                     fx.fxRate ? (
                       <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8, lineHeight: 1.6 }}>
-                        {lang === "es" ? "Cotización utilizada: " : "Rate used: "}1 USD = {fx.fxRate.toLocaleString("es-AR", { maximumFractionDigits: 4 })} {fx.currency}
+                        {lang === "es" ? "Cotización de referencia (sólo para el equivalente en USD): " : "Reference rate (only for the USD equivalent): "}1 USD = {fx.fxRate.toLocaleString("es-AR", { maximumFractionDigits: 4 })} {fx.currency}
                         {" · "}{lang === "es" ? "Fuente" : "Source"}: ExchangeRate-API{fx.fxMeta?.date ? ` · ${fx.fxMeta.date}` : ""}
                       </p>
                     ) : (
-                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>{lang === "es" ? "No se pudo obtener el tipo de cambio — montos en USD." : "Exchange rate unavailable — amounts in USD."}</p>
+                      <p style={{ fontSize: 11, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>{lang === "es" ? `No se pudo obtener el tipo de cambio — montos en ${fx.currency}, sin equivalente en USD.` : `Exchange rate unavailable — amounts in ${fx.currency}, no USD equivalent.`}</p>
                     )
                   )}
 
@@ -698,6 +700,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         {result.per_unit != null && (
                           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{c.unit_cost}: {cur} {fmt(result.per_unit)}</p>
                         )}
+                        {fx.usdEquiv(result.operation_estimate ?? 0) && <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>≈ {fx.usdEquiv(result.operation_estimate ?? 0)} {lang === "es" ? "(equivalente de referencia)" : "(reference equivalent)"}</p>}
                       </div>
                       {result.completeness === "partial" && (
                         <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 8, lineHeight: 1.5 }}>{result.note_es}</p>

@@ -148,8 +148,11 @@ describe("corrección — un TariffDatum en continuidad (M01 → M03)", () => {
 
 describe("correcciones de flujo — M01 orden / moneda / incoterm neutral", () => {
   it("useFxCurrency no asume USD cuando la moneda es ''", () => {
+    // La moneda de la operación se muestra tal cual ("" sigue siendo ""), y sin
+    // moneda elegida no se calcula ningún equivalente.
     const src = read("lib/useFxCurrency.ts");
-    expect(src).toMatch(/if\s*\(!currency\)\s*return\s*"";/);
+    expect(src).toMatch(/const displayCurrency = currency;/);
+    expect(src).toMatch(/if \(!currency \|\| currency === "USD"\) return amount;/);
   });
 
   it("M03 inicializa la moneda desde el contexto, no fija USD", () => {

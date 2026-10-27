@@ -1,25 +1,27 @@
 "use client";
 // ─────────────────────────────────────────────────────────────
-// GTH — Unidad única de moneda + tipo de cambio (D10).
-// Extraída de modulo03 para que M3 y M4 usen el MISMO mecanismo de
-// conversión. El motor de costos es agnóstico de moneda: opera en USD y
-// la conversión ocurre sólo en presentación.
+// GTH — Moneda de la operación + tipo de cambio (D10).
+// Compartida por M3 y M4. La moneda elegida es la de TODA la operación: el
+// usuario carga precio, flete, seguro y otros costos en esa moneda, el motor
+// (agnóstico de moneda) calcula en esa misma unidad y el resultado se muestra
+// sin convertir. La cotización sólo se usa para el equivalente en USD.
+// (Antes se trataban los montos como USD y se convertían al mostrar: con EUR
+// el resultado salía convertido de más.)
 // ─────────────────────────────────────────────────────────────
 import { useEffect, useState } from "react";
 
 export const FX_CURRENCIES = ["USD", "EUR", "ARS", "BRL", "CLP"] as const;
 export type FxCurrency = (typeof FX_CURRENCIES)[number];
 
-/** Moneda efectiva de visualización. "" = sin moneda elegida (no se asume USD). */
-export function fxDisplayCurrency(currency: string, fxRate: number | null): string {
-  if (!currency) return ""; // GTH no conoce la moneda: no asumir USD
-  return currency !== "USD" && !fxRate ? "USD" : currency;
+/** Formatea un monto ya expresado en la moneda de la operación (es-AR, 2 decimales). */
+export function fxFormat(amount: number): string {
+  return amount.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-/** Formatea un monto (base en USD). Sin conversión si la moneda es "" o USD o no hay cotización. */
-export function fxFormat(usd: number, currency: string, fxRate: number | null): string {
-  const v = currency && currency !== "USD" && fxRate ? usd * fxRate : usd;
-  return v.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/** Equivalente en USD de un monto en la moneda de la operación; null si no hay cotización. */
+export function fxToUsd(amount: number, currency: string, fxRate: number | null): number | null {
+  if (!currency || currency === "USD") return amount;
+  return fxRate ? amount / fxRate : null;
 }
 
 export interface FxCurrencyState {
@@ -28,10 +30,12 @@ export interface FxCurrencyState {
   /** 1 para USD; null si no se pudo obtener la cotización. */
   fxRate: number | null;
   fxMeta: { date: string; source: string } | null;
-  /** Moneda efectiva de visualización: cae a USD si no hay cotización. */
+  /** Moneda de la operación tal como se muestra junto a los montos. */
   displayCurrency: string;
-  /** Convierte un monto en USD a la moneda elegida y lo formatea (es-AR, 2 decimales). */
-  fmt: (usd: number) => string;
+  /** Formatea un monto en la moneda de la operación (sin convertir). */
+  fmt: (amount: number) => string;
+  /** Equivalente en USD formateado ("" si la moneda es USD o no hay cotización). */
+  usdEquiv: (amount: number) => string;
 }
 
 export function useFxCurrency(initialCurrency = ""): FxCurrencyState {
@@ -71,8 +75,13 @@ export function useFxCurrency(initialCurrency = ""): FxCurrencyState {
     };
   }, [currency]);
 
-  const displayCurrency = fxDisplayCurrency(currency, fxRate);
-  const fmt = (usd: number) => fxFormat(usd, currency, fxRate);
+  const displayCurrency = currency;
+  const fmt = (amount: number) => fxFormat(amount);
+  const usdEquiv = (amount: number) => {
+    if (!currency || currency === "USD") return "";
+    const usd = fxToUsd(amount, currency, fxRate);
+    return usd === null ? "" : `USD ${fxFormat(usd)}`;
+  };
 
-  return { currency, setCurrency, fxRate, fxMeta, displayCurrency, fmt };
+  return { currency, setCurrency, fxRate, fxMeta, displayCurrency, fmt, usdEquiv };
 }

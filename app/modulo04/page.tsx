@@ -224,6 +224,8 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
   const fmt = fx.fmt;
   const cur = fx.displayCurrency;
+  // Todos los montos se cargan en la moneda de la operación: se indica en cada campo.
+  const inCur = (label: string) => (fx.currency ? `${label} (${fx.currency})` : label);
 
   // ── Prefill desde el contexto acumulativo de la operación ──
   useEffect(() => {
@@ -454,7 +456,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
 
               <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 0.8fr", gap: 12, marginBottom: 12 }}>
                 <div>
-                  <label style={labelStyle}>{c.unit_price} *</label>
+                  <label style={labelStyle}>{inCur(c.unit_price)} *</label>
                   <input type="number" value={unitPrice} onChange={(e) => setUnitPrice(e.target.value)} placeholder="8.00" style={{ ...inputStyle, borderColor: !unitPrice ? "rgba(239,68,68,0.5)" : "rgba(0,87,255,0.3)" }} />
                 </div>
                 <div>
@@ -479,20 +481,20 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                   {asked.length === 0 && <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)" }}>{c.nothing_to_add}</p>}
                   {asked.includes("pre_shipment") && (
                     <div style={{ marginBottom: 12 }}>
-                      <label style={labelStyle}>{c.pre_shipment}</label>
+                      <label style={labelStyle}>{inCur(c.pre_shipment)}</label>
                       <input type="number" value={preShipment} onChange={(e) => setPreShipment(e.target.value)} placeholder="" style={inputStyle} />
                       <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.3)", marginTop: 3 }}>{c.pre_shipment_help}</p>
                     </div>
                   )}
                   {asked.includes("international_freight") && (
                     <div style={{ marginBottom: 12 }}>
-                      <label style={labelStyle}>{c.intl_freight}</label>
+                      <label style={labelStyle}>{inCur(c.intl_freight)}</label>
                       <input type="number" value={intlFreight} onChange={(e) => setIntlFreight(e.target.value)} placeholder="" style={inputStyle} />
                     </div>
                   )}
                   {asked.includes("insurance") && (
                     <div style={{ marginBottom: 4 }}>
-                      <label style={labelStyle}>{c.insurance}</label>
+                      <label style={labelStyle}>{insuranceKind === "amount" ? inCur(c.insurance) : c.insurance}</label>
                       <div style={{ display: "flex", gap: 8 }}>
                         <div style={{ display: "flex", borderRadius: 8, overflow: "hidden", border: "1px solid rgba(0,87,255,0.3)" }}>
                           {(["amount", "percent"] as const).map((k) => (
@@ -517,7 +519,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                 ["dest_inland", c.oc_dest_inland],
               ] as [OtherCostKey, string][]).map(([k, label]) => (
                 <div key={k} style={{ marginBottom: 10 }}>
-                  <label style={labelStyle}>{label}</label>
+                  <label style={labelStyle}>{inCur(label)}</label>
                   <input type="number" value={otherCosts[k]} onChange={(e) => setOtherCosts((s) => ({ ...s, [k]: e.target.value }))} placeholder="" style={inputStyle} />
                 </div>
               ))}
@@ -529,7 +531,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
               <p style={{ fontSize: 10.5, color: "rgba(255,255,255,0.35)", marginBottom: 12 }}>{c.sale_help}</p>
               <div className="gth-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                 <div>
-                  <label style={labelStyle}>{c.sale_price}</label>
+                  <label style={labelStyle}>{inCur(c.sale_price)}</label>
                   <input type="number" value={salePrice} onChange={(e) => setSalePrice(e.target.value)} placeholder="" style={inputStyle} />
                 </div>
                 <div>
@@ -643,6 +645,7 @@ function ModuloInner({ defaultLang = "es" }: { defaultLang?: Lang }) {
                         <p style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{c.op_estimate}{cost.completeness === "partial" ? ` · ${c.provisional}` : ""}</p>
                         <p style={{ fontSize: 28, fontWeight: 800, color: cost.completeness === "partial" ? "#C9A84C" : "#FFF" }}>{fmt(cost.operation_estimate ?? 0)}</p>
                         {cost.per_unit != null && <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>{c.unit_cost}: {fmt(cost.per_unit)}</p>}
+                        {fx.usdEquiv(cost.operation_estimate ?? 0) && <p style={{ fontSize: 11.5, color: "rgba(255,255,255,0.45)", marginTop: 4 }}>≈ {fx.usdEquiv(cost.operation_estimate ?? 0)} {lang === "es" ? "(equivalente de referencia)" : "(reference equivalent)"}</p>}
                       </div>
                       {cost.completeness === "partial" && <p style={{ fontSize: 11, color: "#C9A84C", marginTop: 8, lineHeight: 1.5 }}>{cost.note_es}</p>}
 

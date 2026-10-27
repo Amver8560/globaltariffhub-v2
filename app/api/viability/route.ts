@@ -177,16 +177,25 @@ Identify the product and return ONLY valid JSON without extra text:
       content.push({ type: "text", text: promptText });
       messages.push({ role: "user", content });
 
-      const msg = await client.messages.create(
-        {
-          model: "claude-sonnet-4-6",
-          max_tokens: 800,
-          messages,
-        },
-        { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
-      );
+      // Con código conocido, la IA sólo aporta permisos/restricciones: si falla,
+      // el análisis de costos sigue y la pantalla avisa que no se evaluaron.
+      // Sin código, la IA es la que identifica el producto: el error se propaga.
+      let msg: Anthropic.Message | null = null;
+      try {
+        msg = await client.messages.create(
+          {
+            model: "claude-sonnet-4-6",
+            max_tokens: 800,
+            messages,
+          },
+          { signal: AbortSignal.timeout(MODEL_DEADLINE_MS), maxRetries: 1 },
+        );
+      } catch (aiErr) {
+        if (!hs_code) throw aiErr;
+        console.warn("[viability] IA no disponible con código conocido; se sigue sin permisos", { err: String(aiErr) });
+      }
 
-      const text = msg.content[0].type === "text" ? msg.content[0].text : "";
+      const text = msg && msg.content[0]?.type === "text" ? msg.content[0].text : "";
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {

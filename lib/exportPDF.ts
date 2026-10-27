@@ -261,7 +261,7 @@ function costResultRows(
   y: number,
 ): number {
   const { incoterm, currency, fxRate, es, declaredValue } = opts;
-  const conv = (n: number) => (currency !== "USD" && fxRate ? n * fxRate : n);
+  const conv = (n: number) => n; // montos ya en la moneda de la operación
   const fmt = (n: number) =>
     `${currency} ${conv(n || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -351,7 +351,7 @@ export function exportCIFPDF(
   const { lang } = params;
   const es = lang === "es";
   const date = new Date().toLocaleDateString(es ? "es-AR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
-  const conv = (n: number) => (data.currency !== "USD" && data.fxRate ? n * data.fxRate : n);
+  const conv = (n: number) => n; // montos ya en la moneda de la operación
   const fmtC = (n: number) => `${data.currency} ${conv(n || 0).toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   header(doc, es ? "Estimación de costo de operación" : "Operation cost estimate", date);
@@ -555,7 +555,7 @@ export function exportViabilityPDF(result: any, params: {
   y = row(doc, es ? "País de destino" : "Destination country", destination, y);
   y = row(doc, es ? "Sistema arancelario" : "Tariff system", tariffSystem, y);
   y = row(doc, "Incoterm", commercial.incoterm || "—", y);
-  y = row(doc, es ? "Precio unitario cotizado" : "Quoted unit price", `${currency} ${(commercial.unit_price != null && currency !== "USD" && fxRate ? commercial.unit_price * fxRate : commercial.unit_price) ?? "—"}`, y);
+  y = row(doc, es ? "Precio unitario cotizado" : "Quoted unit price", `${currency} ${commercial.unit_price ?? "—"}`, y);
   y = row(doc, es ? "Cantidad" : "Quantity", String(commercial.quantity ?? quantity), y);
   y += 4;
 
